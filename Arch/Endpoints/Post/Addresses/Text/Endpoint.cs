@@ -7,7 +7,6 @@ internal sealed class Endpoint : Endpoint<Request, Response>
 {
     private readonly IHttpClient _httpClient;
     private readonly PostOptions _postOptions;
-    private const string ApiUrl = "addresses/{postcodes}";
 
 
     public Endpoint(IHttpClient httpClient, IOptions<PostOptions> postOptions)
@@ -18,14 +17,16 @@ internal sealed class Endpoint : Endpoint<Request, Response>
 
     public override void Configure()
     {
-        Get(ApiUrl);
+        Get("addresses/{postcodes}");
         Permissions("post_address_detail_by_postcode_v2");
         Version(1);
+        Tags("Post");
     }
 
     public override async Task HandleAsync(Request req, CancellationToken ct)
     {
-        var response = await _httpClient.PostRequestAsync<Request, Response>(_postOptions.BaseUrl + ApiUrl, req);
+        var path = HttpContext.Request.Path;
+        var response = await _httpClient.GetRequestAsync<Response>(_postOptions.BaseUrl + path);
 
         await SendOkAsync(response, ct);
     }

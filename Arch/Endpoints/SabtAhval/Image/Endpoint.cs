@@ -19,7 +19,8 @@ internal sealed class Endpoint : Endpoint<Request, string>
     {
         Post(ApiUrl);
         Permissions("sabtahval_inquiry_national-card_image_v2");
-        Version(2);
+        Version(1);
+        Tags("SabtAhval");
     }
 
     public override async Task HandleAsync(Request req, CancellationToken ct)
@@ -35,8 +36,6 @@ internal sealed class Summary : Summary<Endpoint>
         Summary = "Getting Image from SabtAhval by CardSerial";
         Description = "Getting Image from SabtAhval by CardSerial.";
         Response<string>(200, "Inquiry response was successfully returned");
-        Response(404, "Identity not found");
-        Response(500, "Internal server error");
     }
 }
 

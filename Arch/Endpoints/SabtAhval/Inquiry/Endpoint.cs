@@ -17,7 +17,8 @@ internal sealed class Endpoint : Endpoint<Request, Response>
     {
         Post(ApiUrl);
         Permissions("sabtahval_inquiry_v2");
-        Version(2);
+        Version(1);
+        Tags("SabtAhval");
     }
 
     public override async Task HandleAsync(Request req, CancellationToken ct)
