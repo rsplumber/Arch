@@ -1,4 +1,5 @@
 using FastEndpoints;
+using Microsoft.Extensions.Options;
 
 namespace Arch.Endpoints.Post.Addresses.Text;
 
@@ -9,10 +10,10 @@ internal sealed class Endpoint : Endpoint<Request, Response>
     private const string ApiUrl = "addresses/{postcodes}";
 
 
-    public Endpoint(IHttpClient httpClient, PostOptions postOptions)
+    public Endpoint(IHttpClient httpClient, IOptions<PostOptions> postOptions)
     {
         _httpClient = httpClient;
-        _postOptions = postOptions;
+        _postOptions = postOptions.Value ?? throw new ArgumentNullException(nameof(postOptions), "enter Post options");
     }
 
     public override void Configure()

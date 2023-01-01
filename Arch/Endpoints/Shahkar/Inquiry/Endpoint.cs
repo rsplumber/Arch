@@ -1,4 +1,5 @@
 using FastEndpoints;
+using Microsoft.Extensions.Options;
 
 namespace Arch.Endpoints.Shahkar.Inquiry;
 
@@ -9,10 +10,10 @@ internal sealed class Endpoint : Endpoint<Request, Response?>
     private const string ApiUrl = "identity/national-code/check";
 
 
-    public Endpoint(IHttpClient httpClient, ShahkarOptions shahkarOptions)
+    public Endpoint(IHttpClient httpClient, IOptions<ShahkarOptions> shahkarOptions)
     {
         _httpClient = httpClient;
-        _shahkarOptions = shahkarOptions;
+        _shahkarOptions = shahkarOptions.Value ?? throw new ArgumentNullException(nameof(shahkarOptions), "enter Shahkar options");
     }
 
 
