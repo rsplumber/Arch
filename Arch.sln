@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arch", "Arch\Arch.csproj", "{CBA69776-1208-4B64-ABE4-D1C87E308A1F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClerkNet", "..\Clerk_Accounting\ClerkNet\ClerkNet\ClerkNet.csproj", "{C91F71FD-550E-4D70-A9A5-44AFF630E730}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{CBA69776-1208-4B64-ABE4-D1C87E308A1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CBA69776-1208-4B64-ABE4-D1C87E308A1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CBA69776-1208-4B64-ABE4-D1C87E308A1F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C91F71FD-550E-4D70-A9A5-44AFF630E730}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C91F71FD-550E-4D70-A9A5-44AFF630E730}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C91F71FD-550E-4D70-A9A5-44AFF630E730}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C91F71FD-550E-4D70-A9A5-44AFF630E730}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

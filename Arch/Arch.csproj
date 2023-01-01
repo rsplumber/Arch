@@ -10,16 +10,18 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.0" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+        <PackageReference Include="FastEndpoints" Version="5.5.0" />
+        <PackageReference Include="KunderaNet.FastEndpoints.Authorization" Version="0.1.0" />
     </ItemGroup>
 
     <ItemGroup>
-      <Content Include="..\.dockerignore">
-        <Link>.dockerignore</Link>
-      </Content>
+        <Content Include="..\.dockerignore">
+            <Link>.dockerignore</Link>
+        </Content>
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Endpoints" />
+        <ProjectReference Include="..\..\Clerk_Accounting\ClerkNet\ClerkNet\ClerkNet.csproj" />
     </ItemGroup>
 
 </Project>
