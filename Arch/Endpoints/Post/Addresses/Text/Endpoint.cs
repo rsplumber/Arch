@@ -1,18 +1,18 @@
+using Arch.Responses;
 using FastEndpoints;
-using Microsoft.Extensions.Options;
 
 namespace Arch.Endpoints.Post.Addresses.Text;
 
-internal sealed class Endpoint : Endpoint<Request, Response>
+internal sealed class Endpoint : Endpoint<Request, BaseResponse<Response>>
 {
+    private const string ApiUrl = "identity/national-code/check";
+    private const string ServiceName = "Post";
     private readonly IHttpClient _httpClient;
-    private readonly PostOptions _postOptions;
 
 
-    public Endpoint(IHttpClient httpClient, IOptions<PostOptions> postOptions)
+    public Endpoint(IHttpClient httpClient)
     {
         _httpClient = httpClient;
-        _postOptions = postOptions.Value ?? throw new ArgumentNullException(nameof(postOptions), "enter Post options");
     }
 
     public override void Configure()
@@ -20,15 +20,16 @@ internal sealed class Endpoint : Endpoint<Request, Response>
         Get("addresses/{postcodes}");
         Permissions("post_address_detail_by_postcode_v2");
         Version(1);
-        Tags("Post");
+        Group<PostGroup>();
     }
 
     public override async Task HandleAsync(Request req, CancellationToken ct)
     {
         var path = HttpContext.Request.Path;
-        var response = await _httpClient.GetRequestAsync<Response>(_postOptions.BaseUrl + path);
+        var response = await _httpClient.GetRequestAsync<Response>(ServiceName, ApiUrl);
 
-        await SendOkAsync(response, ct);
+
+        await SendOkAsync(ResponseFactory<Response>.Create(response), ct);
     }
 }
 

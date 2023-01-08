@@ -1,19 +1,17 @@
 using FastEndpoints;
-using Microsoft.Extensions.Options;
 
 namespace Arch.Endpoints.Shahkar.Inquiry;
 
 internal sealed class Endpoint : Endpoint<Request, Response?>
 {
     private readonly IHttpClient _httpClient;
-    private readonly ShahkarOptions _shahkarOptions;
     private const string ApiUrl = "identity/national-code/check";
+    private const string ServiceName = "Shahkar";
 
 
-    public Endpoint(IHttpClient httpClient, IOptions<ShahkarOptions> shahkarOptions)
+    public Endpoint(IHttpClient httpClient)
     {
         _httpClient = httpClient;
-        _shahkarOptions = shahkarOptions.Value ?? throw new ArgumentNullException(nameof(shahkarOptions), "enter Shahkar options");
     }
 
 
@@ -22,12 +20,12 @@ internal sealed class Endpoint : Endpoint<Request, Response?>
         Post(ApiUrl);
         Permissions("shahkar_identity_national-code_v2");
         Version(1);
-        Tags("Shahkar");
+        Group<ShahkarGroup>();
     }
 
     public override async Task HandleAsync(Request req, CancellationToken ct)
     {
-        var response = await _httpClient.PostRequestAsync<Request, Response>(_shahkarOptions.BaseUrl + ApiUrl, req);
+        var response = await _httpClient.PostRequestAsync<Request, Response>(ServiceName, ApiUrl, req);
         await SendOkAsync(response, ct);
     }
 }

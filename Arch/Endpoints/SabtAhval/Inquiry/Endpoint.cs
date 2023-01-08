@@ -1,16 +1,16 @@
 using FastEndpoints;
-using Microsoft.Extensions.Options;
 
 namespace Arch.Endpoints.SabtAhval.Inquiry;
 
 internal sealed class Endpoint : Endpoint<Request, Response>
 {
-    private readonly SabtAhvalOptions _sabtAhvalOptions;
+    private readonly IHttpClient _httpClient;
     private const string ApiUrl = "inquiry";
+    private const string ServiceName = "SabtAhval";
 
-    public Endpoint(IOptions<SabtAhvalOptions> sabtAhvalOptions)
+    public Endpoint(IHttpClient httpClient)
     {
-        _sabtAhvalOptions = sabtAhvalOptions.Value ?? throw new ArgumentNullException(nameof(sabtAhvalOptions), "enter sabtAhval options");
+        _httpClient = httpClient;
     }
 
     public override void Configure()
@@ -18,7 +18,7 @@ internal sealed class Endpoint : Endpoint<Request, Response>
         Post(ApiUrl);
         Permissions("sabtahval_inquiry_v2");
         Version(1);
-        Tags("SabtAhval");
+        Group<SabtAhvalGroup>();
     }
 
     public override async Task HandleAsync(Request req, CancellationToken ct)

@@ -1,18 +1,16 @@
 using FastEndpoints;
-using Microsoft.Extensions.Options;
 
 namespace Arch.Endpoints.SabtAhval.Image;
 
 internal sealed class Endpoint : Endpoint<Request, string>
 {
     private readonly IHttpClient _httpClient;
-    private readonly SabtAhvalOptions _sabtAhvalOptions;
     private const string ApiUrl = "inquiry/national-card/image";
+    private const string ServiceName = "SabtAhval";
 
-    public Endpoint(IOptions<SabtAhvalOptions> sabtAhvalOptions, IHttpClient httpClient)
+    public Endpoint(IHttpClient httpClient)
     {
         _httpClient = httpClient;
-        _sabtAhvalOptions = sabtAhvalOptions.Value ?? throw new ArgumentNullException(nameof(sabtAhvalOptions), "enter sabtAhval options");
     }
 
     public override void Configure()
@@ -20,12 +18,12 @@ internal sealed class Endpoint : Endpoint<Request, string>
         Post(ApiUrl);
         Permissions("sabtahval_inquiry_national-card_image_v2");
         Version(1);
-        Tags("SabtAhval");
+        Group<SabtAhvalGroup>();
     }
 
     public override async Task HandleAsync(Request req, CancellationToken ct)
     {
-        var response = await _httpClient.PostRequestAsync<Request, string>(_sabtAhvalOptions.BaseUrl + ApiUrl, req);
+        var response = await _httpClient.PostRequestAsync<Request, string>(ServiceName, ApiUrl, req);
     }
 }
 

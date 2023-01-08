@@ -5,8 +5,8 @@ using KunderaNet.FastEndpoints.Authorization;
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseKestrel();
 builder.WebHost.UseUrls("http://+:5228");
-builder.Services.AddAuthentication(KunderaDefaults.Scheme)
-    .AddKundera(builder.Configuration);
+// builder.Services.AddAuthentication(KunderaDefaults.Scheme)
+//     .AddKundera(builder.Configuration);
 builder.Services.AddAuthorization();
 builder.Services.AddFastEndpoints();
 builder.Services.AddSwaggerDoc(settings =>
