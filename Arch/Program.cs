@@ -1,6 +1,6 @@
+using Arch;
 using FastEndpoints;
 using FastEndpoints.Swagger;
-using KunderaNet.FastEndpoints.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseKestrel();
@@ -9,6 +9,7 @@ builder.WebHost.UseUrls("http://+:5228");
 //     .AddKundera(builder.Configuration);
 builder.Services.AddAuthorization();
 builder.Services.AddFastEndpoints();
+builder.Services.AddArch(builder.Configuration);
 builder.Services.AddSwaggerDoc(settings =>
 {
     settings.Title = "Arch - WebApi";
