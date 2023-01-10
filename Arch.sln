@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arch", "Arch\Arch.csproj", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "Core\Core.csproj", "{C440D5B8-D39C-450E-875B-A0D6C0B819F0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Data.Redis", "Data.Redis\Data.Redis.csproj", "{B91E1D41-B27D-4F0D-9236-04F5EC2D3792}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{C440D5B8-D39C-450E-875B-A0D6C0B819F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C440D5B8-D39C-450E-875B-A0D6C0B819F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C440D5B8-D39C-450E-875B-A0D6C0B819F0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B91E1D41-B27D-4F0D-9236-04F5EC2D3792}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B91E1D41-B27D-4F0D-9236-04F5EC2D3792}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B91E1D41-B27D-4F0D-9236-04F5EC2D3792}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B91E1D41-B27D-4F0D-9236-04F5EC2D3792}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
