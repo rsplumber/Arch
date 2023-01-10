@@ -1,4 +1,4 @@
-﻿namespace Core.Binder.Types;
+﻿namespace Core.Binders.Types;
 
 public sealed class BinderStatus : Enumeration
 {

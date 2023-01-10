@@ -1,6 +1,6 @@
-﻿using Core.Binder.Types;
+﻿using Core.Binders.Types;
 
-namespace Core.Binder;
+namespace Core.Binders;
 
 public class Binder : Entity
 {
