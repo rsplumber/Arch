@@ -2,9 +2,9 @@
 
 public sealed class ResponseFactory<TResponse>
 {
-    public static BaseResponse<TResponse> Create(TResponse response)
+    public static BaseResponse Create(object response)
     {
-        return new BaseResponse<TResponse>()
+        return new BaseResponse
         {
             Meta = new Meta()
             {
@@ -15,9 +15,9 @@ public sealed class ResponseFactory<TResponse>
         };
     }
 
-    public static BaseResponse<TResponse> Create(int code, string message, TResponse response)
+    public static BaseResponse Create(int code, string message, object response)
     {
-        return new BaseResponse<TResponse>()
+        return new BaseResponse()
         {
             Meta = new Meta()
             {
