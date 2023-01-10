@@ -2,6 +2,8 @@ namespace Core;
 
 public abstract class Entity
 {
+    public DateTime CreatedOn { get; set; }
+
     public DateTime? DeletedOn { get; set; }
 
     private HashSet<IDomainEvent>? _domainEvents;
