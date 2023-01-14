@@ -6,7 +6,7 @@ public class RequestInfo
 
     public string Path { get; set; }
 
-    public Dictionary<string, string> Headers { get; set; }
+    public IDictionary<string, string> Headers { get; set; }
 
     public object Body { get; set; }
 }

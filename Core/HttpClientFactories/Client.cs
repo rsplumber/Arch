@@ -1,4 +1,6 @@
-﻿namespace Core.HttpClientFactories;
+﻿using System.Net.Http.Json;
+
+namespace Core.HttpClientFactories;
 
 public class Client : IHttpClient
 {
