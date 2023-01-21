@@ -1,6 +1,4 @@
-﻿using Core.Binders;
-
-namespace Core.ServiceConfigs;
+﻿namespace Core.ServiceConfigs;
 
 public interface IServiceConfigRepository
 {
