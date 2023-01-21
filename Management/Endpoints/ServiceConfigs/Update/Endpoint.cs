@@ -16,7 +16,7 @@ internal sealed class Endpoint : Endpoint<UpdateServiceConfigRequest>
 
     public override void Configure()
     {
-        Post("service-configs");
+        Put("service-configs");
         AllowAnonymous();
         Version(1);
     }
