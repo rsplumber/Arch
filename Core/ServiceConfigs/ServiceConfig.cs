@@ -10,5 +10,5 @@ public class ServiceConfig
 
     public string BaseUrl { get; set; }
 
-    public List<Binder> Binders { get; set; }
+    public List<Binder> Binders { get; set; } = new();
 }
