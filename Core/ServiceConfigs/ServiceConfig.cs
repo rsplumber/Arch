@@ -1,9 +1,6 @@
-﻿using Core.Binders;
-using Core.ServiceConfigs.Types;
+﻿namespace Core.ServiceConfigs;
 
-namespace Core.ServiceConfigs;
-
-public class ServiceConfig : Entity
+public class ServiceConfig
 {
     public string Id { get; set; }
 
@@ -13,7 +10,5 @@ public class ServiceConfig : Entity
 
     public string BaseUrl { get; set; }
 
-    public ServiceStatus Status { get; set; } = ServiceStatus.Enable;
-
-    public IList<Binder> Binders { get; set; }
+    public List<Binder> Binders { get; set; }
 }

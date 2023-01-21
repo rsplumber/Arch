@@ -2,11 +2,21 @@
 
 public class RequestInfo
 {
-    public string Method { get; set; }
+    public required HttpRequestMethod Method { get; init; } = HttpRequestMethod.UNKNOWN;
 
-    public string Path { get; set; }
+    public required string Path { get; init; }
 
-    public IDictionary<string, string> Headers { get; set; }
+    public Dictionary<string, string>? Headers { get; init; } = new();
 
-    public object Body { get; set; }
+    public object? Body { get; init; }
+}
+
+public enum HttpRequestMethod
+{
+    DELETE,
+    GET,
+    PATCH,
+    POST,
+    PUT,
+    UNKNOWN
 }
