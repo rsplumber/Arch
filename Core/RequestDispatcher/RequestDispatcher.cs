@@ -4,7 +4,9 @@ public class RequestDispatcher : IRequestDispatcher
 {
     public async ValueTask<object> ExecuteAsync(RequestInfo req)
     {
-        var pattern = BaseTree.BaseTreeNode.Find(req.Path);
+        var pattern = await BaseTree.BaseTreeNode.FindAsync(req.Path);
+        BinderCollections.Binders.TryGetValue(pattern, out var binder);
+
         throw new NotImplementedException();
     }
 }
