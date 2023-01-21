@@ -11,7 +11,7 @@ public abstract class ArchEndpoint : Endpoint<object>
         {
             Headers = HttpContext.Request.Headers.ToDictionary(a => a.Key, a => string.Join(";", a.Value)),
             Method = ExtractMethod(HttpContext.Request.Method),
-            Path = HttpContext.Request.Path,
+            Path = HttpContext.Request.Path.Value!.Replace("%2F", "/"),
             Body = req
         };
         return Task.CompletedTask;

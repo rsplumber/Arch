@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "Application\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "Core\Core.csproj", "{C440D5B8-D39C-450E-875B-A0D6C0B819F0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Data.Sql", "Data.Sql\Data.Sql.csproj", "{510C580C-2435-42F4-951F-914965479C17}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{C440D5B8-D39C-450E-875B-A0D6C0B819F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C440D5B8-D39C-450E-875B-A0D6C0B819F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C440D5B8-D39C-450E-875B-A0D6C0B819F0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{510C580C-2435-42F4-951F-914965479C17}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{510C580C-2435-42F4-951F-914965479C17}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{510C580C-2435-42F4-951F-914965479C17}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{510C580C-2435-42F4-951F-914965479C17}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
