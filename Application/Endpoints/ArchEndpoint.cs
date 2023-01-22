@@ -3,13 +3,13 @@ using FastEndpoints;
 
 namespace Application.Endpoints;
 
-public abstract class ArchEndpoint : Endpoint<object>
+public abstract class ArchEndpoint : Endpoint<object, object?>
 {
     public override Task HandleAsync(object req, CancellationToken ct)
     {
         RequestInfo = new()
         {
-            Headers = HttpContext.Request.Headers.ToDictionary(a => a.Key, a => string.Join(";", a.Value)),
+            Headers = HttpContext.Request.Headers.ToDictionary(a => a.Key, a => string.Join(";", a.Value!)),
             Method = ExtractMethod(HttpContext.Request.Method),
             Path = HttpContext.Request.Path.Value!.Replace("%2F", "/"),
             Body = req

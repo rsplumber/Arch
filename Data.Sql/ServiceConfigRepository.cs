@@ -1,13 +1,13 @@
-﻿using Core.ServiceConfigs;
+﻿using Core.Domains;
 using Microsoft.EntityFrameworkCore;
 
 namespace Data.Sql;
 
 public class ServiceConfigRepository : IServiceConfigRepository
 {
-    private readonly ArchDbContext _dbContext;
+    private readonly AppDbContext _dbContext;
 
-    public ServiceConfigRepository(ArchDbContext dbContext)
+    public ServiceConfigRepository(AppDbContext dbContext)
     {
         _dbContext = dbContext;
     }
@@ -33,12 +33,16 @@ public class ServiceConfigRepository : IServiceConfigRepository
     public async Task<ServiceConfig?> FindAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return await _dbContext.ServiceConfigs
+            .Include(config => config.EndpointDefinitions)
+            .ThenInclude(definition => definition.Meta)
             .FirstOrDefaultAsync(model => model.Id == id, cancellationToken);
     }
 
-    public async Task<ServiceConfig?> FindByBinderAsync(Guid binderId, CancellationToken cancellationToken = default)
+    public Task<ServiceConfig?> FindByEndpointAsync(string endpointPattern, CancellationToken cancellationToken = default)
     {
-        return await _dbContext.ServiceConfigs
-            .FirstOrDefaultAsync(config => config.Binders.Any(binder => binder.Id == binderId), cancellationToken: cancellationToken);
+        return _dbContext.ServiceConfigs
+            .Include(config => config.EndpointDefinitions)
+            .ThenInclude(definition => definition.Meta)
+            .FirstOrDefaultAsync(config => config.EndpointDefinitions.Any(definition => definition.Pattern == endpointPattern), cancellationToken);
     }
 }

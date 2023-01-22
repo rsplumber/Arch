@@ -8,8 +8,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="FastEndpoints" Version="5.5.0" />
-        <PackageReference Include="FastEndpoints.Swagger" Version="5.5.0" />
+        <PackageReference Include="FastEndpoints" Version="5.6.0" />
+        <PackageReference Include="FastEndpoints.Swagger" Version="5.6.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.2">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
     </ItemGroup>
 
     <ItemGroup>
@@ -21,6 +25,7 @@
     <ItemGroup>
       <ProjectReference Include="..\Core\Core.csproj" />
       <ProjectReference Include="..\Data.Sql\Data.Sql.csproj" />
+      <ProjectReference Include="..\Management\Management.csproj" />
     </ItemGroup>
 
 </Project>

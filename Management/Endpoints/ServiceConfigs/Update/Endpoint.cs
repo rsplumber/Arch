@@ -1,4 +1,4 @@
-using Core.ServiceConfigs;
+using Core.Domains;
 using FastEndpoints;
 using FluentValidation;
 
@@ -52,11 +52,11 @@ public class Request
 {
     public Guid Id { get; set; }
 
-    public string Name { get; set; }
+    public string Name { get; set; } = default!;
 
-    public string BaseUrl { get; set; }
+    public string BaseUrl { get; set; } = default!;
 
-    public Dictionary<string, string> Meta { get; set; }
+    public Dictionary<string, string> Meta { get; set; } = new();
 }
 
 internal sealed class RequestValidator : Validator<Request>

@@ -1,4 +1,4 @@
-using Core.ServiceConfigs;
+using Core.Domains;
 using FastEndpoints;
 using FluentValidation;
 

@@ -1,4 +1,4 @@
-using Core.ServiceConfigs;
+using Core.Domains;
 using FastEndpoints;
 using FluentValidation;
 
@@ -23,21 +23,16 @@ internal sealed class Endpoint : Endpoint<Request>
 
     public override async Task HandleAsync(Request req, CancellationToken ct)
     {
-        var serviceConfig = new ServiceConfig()
+        var serviceConfig = new ServiceConfig
         {
             BaseUrl = req.BaseUrl,
             Name = req.Name,
-        };
-
-        foreach (var meta in req.Meta)
-        {
-            serviceConfig.Meta.Add(new Meta
+            Meta = req.Meta.Select(pair => new Meta
             {
-                Id = meta.Key,
-                Value = meta.Value
-            });
-        }
-
+                Id = pair.Key,
+                Value = pair.Value
+            }).ToList()
+        };
         await _serviceConfigRepository.AddAsync(serviceConfig, ct);
         await SendOkAsync(ct);
     }
@@ -45,11 +40,11 @@ internal sealed class Endpoint : Endpoint<Request>
 
 internal class Request
 {
-    public string Name { get; set; } 
-    
-    public string BaseUrl { get; set; }
+    public string Name { get; set; } = default!;
 
-    public Dictionary<string, string> Meta { get; set; }
+    public string BaseUrl { get; set; } = default!;
+
+    public Dictionary<string, string> Meta { get; set; } = new();
 }
 
 internal sealed class RequestValidator : Validator<Request>

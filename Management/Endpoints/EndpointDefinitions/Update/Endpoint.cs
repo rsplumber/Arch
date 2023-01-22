@@ -1,0 +1,50 @@
+using Core.EndpointDefinitions;
+using FastEndpoints;
+using FluentValidation;
+
+namespace Management.Endpoints.EndpointDefinitions.Update;
+
+internal sealed class Endpoint : Endpoint<Request>
+{
+    private readonly IEndpointDefinitionService _endpointDefinitionService;
+
+    public Endpoint(IEndpointDefinitionService endpointDefinitionService)
+    {
+        _endpointDefinitionService = endpointDefinitionService;
+    }
+
+    public override void Configure()
+    {
+        Put("endpoint-definitions/{pattern}");
+        AllowAnonymous();
+        Version(1);
+    }
+
+    public override async Task HandleAsync(Request req, CancellationToken ct)
+    {
+        await _endpointDefinitionService.UpdateAsync(new UpdateEndpointDefinitionRequest
+        {
+            Meta = req.Meta,
+            UrlPattern = req.Pattern
+        }, ct);
+
+        await SendOkAsync(ct);
+    }
+}
+
+internal class Request
+{
+    public string Pattern { get; set; } = default!;
+
+    public Dictionary<string, string> Meta { get; set; } = new();
+}
+
+internal sealed class RequestValidator : Validator<Request>
+{
+    public RequestValidator()
+    {
+        RuleFor(request => request.Pattern)
+            .NotEmpty().WithMessage("Enter Pattern")
+            .NotNull().WithMessage("Enter Pattern");
+    }
+}
