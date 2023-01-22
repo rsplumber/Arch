@@ -9,4 +9,6 @@ public interface IServiceConfigRepository
     Task DeleteAsync(ServiceConfig entity, CancellationToken cancellationToken = default);
 
     Task<ServiceConfig?> FindAsync(Guid id, CancellationToken cancellationToken = default);
+
+    Task<ServiceConfig?> FindByBinderAsync(string binderId, CancellationToken cancellationToken = default);
 }

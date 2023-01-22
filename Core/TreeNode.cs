@@ -54,6 +54,11 @@ public struct TreeNode : IEquatable<TreeNode>
         return string.Join("/", foundedValues);
     }
 
+    public async void RemoveAsync(string url, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
+
     private readonly async ValueTask<List<string>> FindEnumerableAsync(string url, CancellationToken cancellationToken)
     {
         var currentNode = this;

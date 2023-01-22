@@ -35,4 +35,10 @@ public class ServiceConfigRepository : IServiceConfigRepository
         return await _dbContext.ServiceConfigs
             .FirstOrDefaultAsync(model => model.Id == id, cancellationToken);
     }
+
+    public async Task<ServiceConfig?> FindByBinderAsync(string binderId, CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.ServiceConfigs
+            .FirstOrDefaultAsync(config => config.Binders.Any(binder => binder.Id == binderId), cancellationToken: cancellationToken);
+    }
 }
