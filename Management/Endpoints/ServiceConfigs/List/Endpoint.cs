@@ -21,7 +21,12 @@ internal sealed class Endpoint : EndpointWithoutRequest
     public override async Task HandleAsync(CancellationToken ct)
     {
         var response = await _dbContext.ServiceConfigs
-            .Select(config => config).ToListAsync(cancellationToken: ct);
+            .Select(config => new
+            {
+                config.Id,
+                config.Name,
+                config.BaseUrl
+            }).ToListAsync(cancellationToken: ct);
         await SendOkAsync(response, ct);
     }
 }

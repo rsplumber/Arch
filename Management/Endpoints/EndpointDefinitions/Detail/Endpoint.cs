@@ -1,10 +1,11 @@
 using FastEndpoints;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
+using EndpointDefinition = Core.Domains.EndpointDefinition;
 
 namespace Management.Endpoints.EndpointDefinitions.Detail;
 
-internal sealed class Endpoint : Endpoint<Request>
+internal sealed class Endpoint : FastEndpoints.Endpoint<Request, EndpointDefinition>
 {
     private readonly ManagementDbContext _dbContext;
 
@@ -22,7 +23,8 @@ internal sealed class Endpoint : Endpoint<Request>
     public override async Task HandleAsync(Request req, CancellationToken ct)
     {
         var response = await _dbContext.EndpointDefinitions
-            .FirstOrDefaultAsync(definition => definition.Pattern == req.Pattern, cancellationToken: ct);
+            .Include(definition => definition.Meta)
+            .FirstAsync(definition => definition.Pattern == req.Pattern, cancellationToken: ct);
         await SendOkAsync(response, ct);
     }
 }

@@ -27,32 +27,38 @@ public static class ApplicationBuilderExtension
 
     private static void SeedData(AppDbContext dbContext)
     {
-        var serviceConfig = new ServiceConfig
+        if (!dbContext.ServiceConfigs.Any(config => config.Name == "arch"))
         {
-            Name = "arch",
-            BaseUrl = "http://localhost:5228"
-        };
-        dbContext.ServiceConfigs.Add(serviceConfig);
-        var result = dbContext.SaveChangesAsync().Result;
-        serviceConfig.EndpointDefinitions.Add(new EndpointDefinition
-        {
-            Endpoint = "api/endpoint-definitions",
-            Pattern = "api/endpoint-definitions"
-        });
-        serviceConfig.EndpointDefinitions.Add(new EndpointDefinition
-        {
-            Endpoint = "api/endpoint-definitions/{id}",
-            Pattern = "api/endpoint-definitions/##"
-        });
-        serviceConfig.EndpointDefinitions.Add(new EndpointDefinition
-        {
-            Endpoint = "api/service-configs",
-            Pattern = "api/service-configs"
-        });
-        serviceConfig.EndpointDefinitions.Add(new EndpointDefinition
-        {
-            Endpoint = "api/service-configs/{id}",
-            Pattern = "api/service-configs/##"
-        });
+            var serviceConfig = new ServiceConfig
+            {
+                Name = "arch",
+                BaseUrl = "http://localhost:5228"
+            };
+            dbContext.ServiceConfigs.Add(serviceConfig);
+            dbContext.SaveChanges();
+            if (dbContext.EndpointDefinitions.Any()) return;
+            serviceConfig.EndpointDefinitions.Add(new EndpointDefinition
+            {
+                Endpoint = "api/endpoint-definitions",
+                Pattern = "api/endpoint-definitions"
+            });
+            serviceConfig.EndpointDefinitions.Add(new EndpointDefinition
+            {
+                Endpoint = "api/endpoint-definitions/{id}",
+                Pattern = "api/endpoint-definitions/##"
+            });
+            serviceConfig.EndpointDefinitions.Add(new EndpointDefinition
+            {
+                Endpoint = "api/service-configs",
+                Pattern = "api/service-configs"
+            });
+            serviceConfig.EndpointDefinitions.Add(new EndpointDefinition
+            {
+                Endpoint = "api/service-configs/{id}",
+                Pattern = "api/service-configs/##"
+            });
+            dbContext.ServiceConfigs.Update(serviceConfig);
+            dbContext.SaveChanges();
+        }
     }
 }
