@@ -16,7 +16,6 @@ internal sealed class Endpoint : EndpointWithoutRequest
     {
         Get("service-configs");
         AllowAnonymous();
-        Version(1);
     }
 
     public override async Task HandleAsync(CancellationToken ct)

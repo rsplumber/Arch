@@ -5,6 +5,7 @@ using Core.RequestDispatcher;
 using Data.Sql;
 using FastEndpoints;
 using FastEndpoints.Swagger;
+using Management;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,7 +25,7 @@ builder.Services.AddScoped<IEndpointDefinitionService, EndpointDefinitionService
 builder.Services.AddScoped<IRequestDispatcher, RequestDispatcher>();
 
 builder.Services.AddData(builder.Configuration);
-
+builder.Services.AddManagement(builder.Configuration);
 builder.Services.AddCors();
 
 builder.Services.AddFastEndpoints();
