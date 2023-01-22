@@ -8,5 +8,5 @@ public interface IBinderRepository
 
     Task DeleteAsync(Binder entity, CancellationToken cancellationToken = default);
 
-    Task<Binder?> FindAsync(string id, CancellationToken cancellationToken = default);
+    Task<Binder?> FindAsync(Guid id, CancellationToken cancellationToken = default);
 }

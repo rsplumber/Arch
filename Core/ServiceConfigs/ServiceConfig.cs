@@ -6,9 +6,11 @@ public class ServiceConfig
 
     public string Name { get; set; }
 
-    public string Secret { get; set; }
+    //public string Secret { get; set; }
 
     public string BaseUrl { get; set; }
 
     public List<Binder> Binders { get; set; } = new();
+
+    public List<Meta> Meta { get; set; } = new();
 }

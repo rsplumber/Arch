@@ -4,7 +4,7 @@ using FluentValidation;
 
 namespace Management.Endpoints.ServiceConfigs.Create;
 
-internal sealed class Endpoint : Endpoint<CreateServiceConfigRequest>
+internal sealed class Endpoint : Endpoint<Request>
 {
     private readonly IServiceConfigRepository _serviceConfigRepository;
 
@@ -21,31 +21,38 @@ internal sealed class Endpoint : Endpoint<CreateServiceConfigRequest>
         Version(1);
     }
 
-    public override async Task HandleAsync(CreateServiceConfigRequest req, CancellationToken ct)
+    public override async Task HandleAsync(Request req, CancellationToken ct)
     {
         var serviceConfig = new ServiceConfig()
         {
             BaseUrl = req.BaseUrl,
             Name = req.Name,
-            Secret = req.Secret
         };
+
+        foreach (var meta in req.Meta)
+        {
+            serviceConfig.Meta.Add(new Meta
+            {
+                Id = meta.Key,
+                Value = meta.Value
+            });
+        }
 
         await _serviceConfigRepository.AddAsync(serviceConfig, ct);
         await SendOkAsync(ct);
     }
 }
 
-internal sealed class EndpointSummary : Summary<Endpoint>
+internal class Request
 {
-    public EndpointSummary()
-    {
-        Summary = "Create ServiceConfig in the system";
-        Description = "Create ServiceConfig in the system";
-        Response(200, "ServiceConfig was successfully created");
-    }
+    public string Name { get; set; } 
+    
+    public string BaseUrl { get; set; }
+
+    public Dictionary<string, string> Meta { get; set; }
 }
 
-internal sealed class RequestValidator : Validator<CreateServiceConfigRequest>
+internal sealed class RequestValidator : Validator<Request>
 {
     public RequestValidator()
     {
@@ -56,10 +63,5 @@ internal sealed class RequestValidator : Validator<CreateServiceConfigRequest>
         RuleFor(request => request.BaseUrl)
             .NotEmpty().WithMessage("Enter BaseUrl")
             .NotNull().WithMessage("Enter BaseUrl");
-
-
-        RuleFor(request => request.Secret)
-            .NotEmpty().WithMessage("Enter Secret")
-            .NotNull().WithMessage("Enter Secret");
     }
 }

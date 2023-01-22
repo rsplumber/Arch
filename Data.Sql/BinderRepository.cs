@@ -30,7 +30,7 @@ public class BinderRepository : IBinderRepository
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<Binder?> FindAsync(string id, CancellationToken cancellationToken = default)
+    public async Task<Binder?> FindAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return await _dbContext.Binders
             .FirstOrDefaultAsync(model => model.Id == id, cancellationToken);

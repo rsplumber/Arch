@@ -4,7 +4,7 @@ using FluentValidation;
 
 namespace Management.Endpoints.ServiceConfigs.Delete;
 
-internal sealed class Endpoint : Endpoint<DeleteServiceConfigRequest>
+internal sealed class Endpoint : Endpoint<Request>
 {
     private readonly IServiceConfigRepository _serviceConfigRepository;
 
@@ -16,12 +16,12 @@ internal sealed class Endpoint : Endpoint<DeleteServiceConfigRequest>
 
     public override void Configure()
     {
-        Delete("service-configs");
+        Delete("service-configs/{id}");
         AllowAnonymous();
         Version(1);
     }
 
-    public override async Task HandleAsync(DeleteServiceConfigRequest req, CancellationToken ct)
+    public override async Task HandleAsync(Request req, CancellationToken ct)
     {
         var serviceConfig = await _serviceConfigRepository.FindAsync(req.Id, ct);
         if (serviceConfig is null)
@@ -34,17 +34,12 @@ internal sealed class Endpoint : Endpoint<DeleteServiceConfigRequest>
     }
 }
 
-internal sealed class EndpointSummary : Summary<Endpoint>
+public class Request
 {
-    public EndpointSummary()
-    {
-        Summary = "Delete ServiceConfig in the system";
-        Description = "Delete ServiceConfig in the system";
-        Response(200, "ServiceConfig was successfully Deleted");
-    }
+    public Guid Id { get; set; }
 }
 
-internal sealed class RequestValidator : Validator<DeleteServiceConfigRequest>
+internal sealed class RequestValidator : Validator<Request>
 {
     public RequestValidator()
     {

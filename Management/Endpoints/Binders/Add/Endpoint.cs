@@ -5,7 +5,7 @@ using FluentValidation;
 
 namespace Management.Endpoints.Binders.Add;
 
-internal sealed class Endpoint : Endpoint<AddBinderRequest>
+internal sealed class Endpoint : Endpoint<Request>
 {
     private readonly IServiceConfigRepository _serviceConfigRepository;
     private readonly IBinderRepository _binderRepository;
@@ -24,7 +24,7 @@ internal sealed class Endpoint : Endpoint<AddBinderRequest>
         Version(1);
     }
 
-    public override async Task HandleAsync(AddBinderRequest req, CancellationToken ct)
+    public override async Task HandleAsync(Request req, CancellationToken ct)
     {
         var serviceConfig = await _serviceConfigRepository.FindAsync(req.ServiceConfigId, ct);
         if (serviceConfig is null)
@@ -33,37 +33,24 @@ internal sealed class Endpoint : Endpoint<AddBinderRequest>
         }
 
         BaseTree.BaseTreeNode.Append(req.Bind);
-        var binderId = await BaseTree.BaseTreeNode.FindAsync(req.Bind, ct);
+        var bind = await BaseTree.BaseTreeNode.FindAsync(req.Bind, ct);
 
         var metas = new List<Meta>();
 
-        metas.Append(new Meta()
+        metas.Add(new Meta()
         {
             Id = "BaseUrl",
             Value = serviceConfig.BaseUrl
         });
-
-        metas.Append(new Meta()
-        {
-            Id = "Secret",
-            Value = serviceConfig.Secret
-        });
-
-        foreach (var meta in req.Metas)
-        {
-            metas.Append(new Meta
-            {
-                Id = meta.Key,
-                Value = meta.Value
-            });
-        }
+        
+        metas.AddRange(req.Meta.Select(meta => new Meta {Id = meta.Key, Value = meta.Value}));
 
 
         var binder = new Binder()
         {
-            Id = binderId,
+            Bind = bind,
             ApiUrl = req.ApiUrl,
-            Metas = metas
+            Meta = metas
         };
 
         await _binderRepository.AddAsync(binder, ct);
@@ -71,17 +58,18 @@ internal sealed class Endpoint : Endpoint<AddBinderRequest>
     }
 }
 
-internal sealed class EndpointSummary : Summary<Endpoint>
+internal class Request
 {
-    public EndpointSummary()
-    {
-        Summary = "Create Binder in the system";
-        Description = "Create Binder in the system";
-        Response(200, "Binder was successfully created");
-    }
+    public Guid ServiceConfigId { get; set; }
+
+    public string ApiUrl { get; set; }
+
+    public string Bind { get; set; }
+
+    public Dictionary<string, string> Meta { get; set; }
 }
 
-internal sealed class RequestValidator : Validator<AddBinderRequest>
+internal sealed class RequestValidator : Validator<Request>
 {
     public RequestValidator()
     {

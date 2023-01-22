@@ -5,7 +5,7 @@ using FluentValidation;
 
 namespace Management.Endpoints.Binders.Delete;
 
-internal sealed class Endpoint : Endpoint<RemoveBinderRequest>
+internal sealed class Endpoint : Endpoint<Request>
 {
     private readonly IBinderRepository _binderRepository;
 
@@ -17,12 +17,12 @@ internal sealed class Endpoint : Endpoint<RemoveBinderRequest>
 
     public override void Configure()
     {
-        Delete("binder");
+        Delete("binders/{id}");
         AllowAnonymous();
         Version(1);
     }
 
-    public override async Task HandleAsync(RemoveBinderRequest req, CancellationToken ct)
+    public override async Task HandleAsync(Request req, CancellationToken ct)
     {
         var binder = await _binderRepository.FindAsync(req.Id, ct);
         if (binder is null)
@@ -30,23 +30,18 @@ internal sealed class Endpoint : Endpoint<RemoveBinderRequest>
             throw new Exception("Binder not found");
         }
 
-        BaseTree.BaseTreeNode.RemoveAsync(binder.Id, ct);
+        BaseTree.BaseTreeNode.RemoveAsync(binder.Bind, ct);
         await _binderRepository.DeleteAsync(binder, ct);
         await SendOkAsync(ct);
     }
 }
 
-internal sealed class EndpointSummary : Summary<Endpoint>
+public class Request
 {
-    public EndpointSummary()
-    {
-        Summary = "Delete Binder in the system";
-        Description = "Delete Binder in the system";
-        Response(200, "Binder was successfully Deleted");
-    }
+    public Guid Id { get; set; }
 }
 
-internal sealed class RequestValidator : Validator<RemoveBinderRequest>
+internal sealed class RequestValidator : Validator<Request>
 {
     public RequestValidator()
     {

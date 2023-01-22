@@ -10,5 +10,5 @@ public interface IServiceConfigRepository
 
     Task<ServiceConfig?> FindAsync(Guid id, CancellationToken cancellationToken = default);
 
-    Task<ServiceConfig?> FindByBinderAsync(string binderId, CancellationToken cancellationToken = default);
+    Task<ServiceConfig?> FindByBinderAsync(Guid binderId, CancellationToken cancellationToken = default);
 }

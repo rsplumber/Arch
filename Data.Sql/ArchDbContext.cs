@@ -35,16 +35,17 @@ public class ArchDbContext : DbContext
             builder.Navigation(b => b.Binders)
                 .UsePropertyAccessMode(PropertyAccessMode.Property);
 
+            builder.HasMany(serviceConfig => serviceConfig.Meta);
+
+            builder.Navigation(b => b.Binders)
+                .UsePropertyAccessMode(PropertyAccessMode.Property);
+
             builder.ToTable("service_configs")
                 .HasKey(serviceConfig => serviceConfig.Id);
 
             builder.Property(serviceConfig => serviceConfig.Name)
                 .UsePropertyAccessMode(PropertyAccessMode.Property)
                 .HasColumnName("name");
-
-            builder.Property(serviceConfig => serviceConfig.Secret)
-                .UsePropertyAccessMode(PropertyAccessMode.Property)
-                .HasColumnName("secret");
 
             builder.Property(serviceConfig => serviceConfig.BaseUrl)
                 .UsePropertyAccessMode(PropertyAccessMode.Property)
@@ -59,10 +60,9 @@ public class ArchDbContext : DbContext
             builder.ToTable("binders")
                 .HasKey(binder => binder.Id);
 
-            builder.HasMany(binder => binder.Metas)
-                .WithOne();
+            builder.HasMany(binder => binder.Meta);
 
-            builder.Navigation(binder => binder.Metas)
+            builder.Navigation(binder => binder.Meta)
                 .UsePropertyAccessMode(PropertyAccessMode.Property);
 
 
