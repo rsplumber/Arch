@@ -20,9 +20,4 @@
       <ProjectReference Include="..\Core\Core.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Endpoints\ServiceConfigs\Detail" />
-      <Folder Include="Endpoints\ServiceConfigs\List" />
-    </ItemGroup>
-
 </Project>
