@@ -17,7 +17,6 @@ internal sealed class Endpoint : Endpoint<Request>
     {
         Delete("endpoint-definitions/{pattern}");
         AllowAnonymous();
-        Version(1);
     }
 
     public override async Task HandleAsync(Request req, CancellationToken ct)

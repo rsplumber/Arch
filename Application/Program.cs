@@ -35,7 +35,8 @@ builder.Services.AddSwaggerDoc(settings =>
     settings.Version = "v1";
 }, addJWTBearerAuth: false, maxEndpointVersion: 1);
 var app = builder.Build();
-
+app.UseData();
+await InitializeInMemoryContainers();
 app.UseCors(b => b.AllowAnyHeader()
     .AllowAnyMethod()
     .SetIsOriginAllowed(_ => true)
@@ -50,19 +51,20 @@ app.UseSwaggerUi3(s => s.ConfigureDefaults());
 // }
 
 
-using (var serviceScope = app.Services.GetService<IServiceScopeFactory>()?.CreateScope())
+await app.RunAsync();
+
+async Task InitializeInMemoryContainers()
 {
-    if (serviceScope == null) return;
-    try
+    using var serviceScope = app.Services.GetService<IServiceScopeFactory>()?.CreateScope();
+    var dbContext = serviceScope.ServiceProvider.GetRequiredService<AppDbContext>();
+    var tree = serviceScope.ServiceProvider.GetRequiredService<IEndpointPatternTree>();
+    var endpointDefinitionContainer = serviceScope.ServiceProvider.GetRequiredService<IEndpointDefinitionContainer>();
+    var configs = await dbContext.ServiceConfigs.Include(config => config.EndpointDefinitions)
+        .ToListAsync();
+    foreach (var serviceConfigEndpointDefinition in configs.SelectMany(serviceConfig => serviceConfig.EndpointDefinitions))
     {
-        var context = serviceScope.ServiceProvider.GetRequiredService<AppDbContext>();
-        context.Database.Migrate();
-    }
-    catch (Exception)
-    {
-        // ignored
+        tree.Add(serviceConfigEndpointDefinition.Endpoint);
+        tree.Find(serviceConfigEndpointDefinition.Endpoint);
+        await endpointDefinitionContainer.AddAsync(serviceConfigEndpointDefinition);
     }
 }
-
-
-await app.RunAsync();

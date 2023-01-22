@@ -18,7 +18,6 @@ internal sealed class Endpoint : Endpoint<Request>
     {
         Delete("service-configs/{id}");
         AllowAnonymous();
-        Version(1);
     }
 
     public override async Task HandleAsync(Request req, CancellationToken ct)

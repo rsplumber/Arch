@@ -1,4 +1,3 @@
-using Core;
 using Core.EndpointDefinitions;
 using FastEndpoints;
 using FluentValidation;
@@ -18,7 +17,6 @@ internal sealed class Endpoint : Endpoint<Request>
     {
         Post("endpoint-definitions");
         AllowAnonymous();
-        Version(1);
     }
 
     public override async Task HandleAsync(Request req, CancellationToken ct)
