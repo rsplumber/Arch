@@ -1,6 +1,6 @@
-﻿namespace Application;
+﻿namespace Arch.Clerk;
 
-public class RequestInfo
+internal class RequestInfo
 {
     public required HttpRequestMethod Method { get; init; } = HttpRequestMethod.UNKNOWN;
 
