@@ -1,20 +1,30 @@
-﻿using Core;
+﻿using Core.EndpointDefinitions;
 
 namespace Application.Middlewares;
 
 internal class RequestExtractorMiddleware : IMiddleware
 {
+    private readonly IEndpointDefinitionResolver _endpointDefinitionResolver;
     private const string RequestInfoKey = "request_info";
+    private const string ArchEndpointDefinitionKey = "arch_endpoint_definition";
+
+    public RequestExtractorMiddleware(IEndpointDefinitionResolver endpointDefinitionResolver)
+    {
+        _endpointDefinitionResolver = endpointDefinitionResolver;
+    }
 
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
+        var path = ExtractPath();
         context.Items[RequestInfoKey] = new RequestInfo
         {
             Headers = context.Request.Headers.ToDictionary(a => a.Key, a => string.Join(";", a.Value!)),
             Method = ExtractMethod(context.Request.Method),
             Body = await context.Request.ReadFromJsonAsync<object>(),
-            Path = ExtractPath()
+            Path = path
         };
+        context.Items[ArchEndpointDefinitionKey] = _endpointDefinitionResolver.Resolve(path);
+
         await next(context);
 
         string ExtractPath()

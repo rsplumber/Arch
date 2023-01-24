@@ -18,6 +18,8 @@
     <ItemGroup>
       <ProjectReference Include="..\Core\Core.csproj" />
       <ProjectReference Include="..\Data.Sql\Data.Sql.csproj" />
+      <ProjectReference Include="..\Libraries\Arch.Clerk\Arch.Clerk.csproj" />
+      <ProjectReference Include="..\Libraries\Arch.Kundera\Arch.Kundera.csproj" />
     </ItemGroup>
 
 </Project>

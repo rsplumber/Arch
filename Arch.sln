@@ -8,6 +8,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Data.Sql", "Data.Sql\Data.S
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Management", "Management\Management.csproj", "{6E199CA1-6CA0-43D8-8EB7-004F616733D0}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libraries", "Libraries", "{09022F85-BC06-499D-BA5E-24735BD5F9BB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arch.Clerk", "Libraries\Arch.Clerk\Arch.Clerk.csproj", "{2BA7F19F-1318-4F6A-BABB-B673E3E89640}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arch.Kundera", "Libraries\Arch.Kundera\Arch.Kundera.csproj", "{ACD371C5-0946-4C7E-82E8-EAED205F1F73}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +36,17 @@ Global
 		{6E199CA1-6CA0-43D8-8EB7-004F616733D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6E199CA1-6CA0-43D8-8EB7-004F616733D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6E199CA1-6CA0-43D8-8EB7-004F616733D0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2BA7F19F-1318-4F6A-BABB-B673E3E89640}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2BA7F19F-1318-4F6A-BABB-B673E3E89640}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2BA7F19F-1318-4F6A-BABB-B673E3E89640}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2BA7F19F-1318-4F6A-BABB-B673E3E89640}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ACD371C5-0946-4C7E-82E8-EAED205F1F73}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ACD371C5-0946-4C7E-82E8-EAED205F1F73}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ACD371C5-0946-4C7E-82E8-EAED205F1F73}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ACD371C5-0946-4C7E-82E8-EAED205F1F73}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{2BA7F19F-1318-4F6A-BABB-B673E3E89640} = {09022F85-BC06-499D-BA5E-24735BD5F9BB}
+		{ACD371C5-0946-4C7E-82E8-EAED205F1F73} = {09022F85-BC06-499D-BA5E-24735BD5F9BB}
 	EndGlobalSection
 EndGlobal

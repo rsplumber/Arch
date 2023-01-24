@@ -1,9 +1,9 @@
-using Application.Dispatcher;
 using Application.Middlewares;
+using Arch.Clerk;
+using Arch.Kundera;
 using Core.Domains;
 using Core.EndpointDefinitions;
 using Core.PatternTree;
-using Core.RequestDispatcher;
 using Data.Sql;
 using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
@@ -13,7 +13,10 @@ builder.WebHost.UseKestrel();
 builder.WebHost.UseUrls("http://+:5228");
 
 builder.Services.AddHttpClient("default", _ => { });
+
 builder.Services.AddSingleton<RequestExtractorMiddleware>();
+builder.Services.AddKundera(builder.Configuration);
+builder.Services.AddClerkAccounting(builder.Configuration);
 builder.Services.AddSingleton<RequestDispatcherMiddleware>();
 
 builder.Services.AddSingleton<IEndpointDefinitionResolver, EndpointDefinitionResolver>();
@@ -24,8 +27,6 @@ builder.Services.AddSingleton<IEndpointPatternTree, InMemoryEndpointPatternTree>
 
 builder.Services.AddScoped<IEndpointDefinitionService, EndpointDefinitionService>();
 
-builder.Services.AddSingleton<IRequestDispatcher, RequestDispatcher>();
-
 builder.Services.AddData(builder.Configuration);
 builder.Services.AddCors();
 
@@ -34,6 +35,8 @@ builder.Services.AddFastEndpoints();
 var app = builder.Build();
 
 app.UseMiddleware<RequestExtractorMiddleware>();
+app.UseKundera();
+app.UseClerkAccounting();
 app.UseMiddleware<RequestDispatcherMiddleware>();
 
 using (var serviceScope = app.Services.GetService<IServiceScopeFactory>()?.CreateScope())
@@ -67,7 +70,10 @@ async Task InitializeInMemoryContainers()
     var dbContext = serviceScope!.ServiceProvider.GetRequiredService<AppDbContext>();
     var endpointPatternTree = serviceScope.ServiceProvider.GetRequiredService<IEndpointPatternTree>();
     var endpointDefinitionContainer = serviceScope.ServiceProvider.GetRequiredService<IEndpointDefinitionContainer>();
-    var configs = await dbContext.ServiceConfigs.Include(config => config.EndpointDefinitions)
+    var configs = await dbContext.ServiceConfigs
+        .Include(config => config.Meta)
+        .Include(config => config.EndpointDefinitions)
+        .ThenInclude(definition => definition.Meta)
         .ToListAsync();
     configs.ForEach(config =>
     {

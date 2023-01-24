@@ -1,6 +1,6 @@
-﻿namespace Core;
+﻿namespace Application;
 
-public class RequestInfo
+internal class RequestInfo
 {
     public required HttpRequestMethod Method { get; init; } = HttpRequestMethod.UNKNOWN;
 
