@@ -2,5 +2,5 @@
 
 public interface IRequestDispatcher
 {
-    public ValueTask<object?> ExecuteAsync(RequestInfo req);
+    public ValueTask<string?> ExecuteAsync(RequestInfo req);
 }

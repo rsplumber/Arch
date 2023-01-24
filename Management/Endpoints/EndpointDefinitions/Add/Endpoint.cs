@@ -23,7 +23,7 @@ internal sealed class Endpoint : Endpoint<Request>
     {
         await _endpointDefinitionService.AddAsync(new AddEndpointDefinitionRequest
         {
-            Endpoint = req.Endpoint,
+            Endpoint = req.Endpoint.StartsWith("/") ? req.Endpoint.Remove(0, 1) : req.Endpoint,
             Meta = req.Meta,
             ServiceConfigId = req.ServiceConfigId
         }, ct);

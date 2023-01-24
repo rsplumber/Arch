@@ -9,6 +9,7 @@ public class RequestDispatcher : IRequestDispatcher
     private readonly IEndpointDefinitionResolver _endpointDefinitionResolver;
     private readonly IHttpClientFactory _httpClientFactory;
     private const string HttpFactoryName = "default";
+    private const string BaseUrlMetaKey = "base_url";
 
     public RequestDispatcher(IEndpointDefinitionResolver endpointDefinitionResolver, IHttpClientFactory httpClientFactory)
     {
@@ -16,29 +17,36 @@ public class RequestDispatcher : IRequestDispatcher
         _httpClientFactory = httpClientFactory;
     }
 
-    public async ValueTask<object?> ExecuteAsync(RequestInfo req)
+    public async ValueTask<string?> ExecuteAsync(RequestInfo req)
     {
         var endpointDefinition = _endpointDefinitionResolver.Resolve(req.Path);
         if (endpointDefinition is null) return default;
         var client = _httpClientFactory.CreateClient(HttpFactoryName);
+        client.DefaultRequestHeaders.Clear();
         if (req.Headers is not null)
         {
             foreach (var (key, value) in req.Headers)
             {
-                client.DefaultRequestHeaders.Add(key, value);
+                client.DefaultRequestHeaders.TryAddWithoutValidation(key, value);
             }
         }
 
         var httpResponse = req.Method switch
         {
-            HttpRequestMethod.GET => await client.GetAsync(endpointDefinition.Endpoint),
-            HttpRequestMethod.DELETE => await client.DeleteAsync(endpointDefinition.Endpoint),
-            HttpRequestMethod.PATCH => await client.PatchAsJsonAsync(endpointDefinition.Endpoint, req.Body),
-            HttpRequestMethod.POST => await client.PostAsJsonAsync(endpointDefinition.Endpoint, req.Body),
-            HttpRequestMethod.PUT => await client.PutAsJsonAsync(endpointDefinition.Endpoint, req.Body),
+            HttpRequestMethod.GET => await client.GetAsync(ApiUrl()),
+            HttpRequestMethod.DELETE => await client.DeleteAsync(ApiUrl()),
+            HttpRequestMethod.PATCH => await client.PatchAsJsonAsync(ApiUrl(), req.Body),
+            HttpRequestMethod.POST => await client.PostAsJsonAsync(ApiUrl(), req.Body),
+            HttpRequestMethod.PUT => await client.PutAsJsonAsync(ApiUrl(), req.Body),
             HttpRequestMethod.UNKNOWN => throw new ArgumentOutOfRangeException(),
             _ => throw new ArgumentOutOfRangeException()
         };
-        return await httpResponse.Content.ReadFromJsonAsync<object?>();
+        return await httpResponse.Content.ReadAsStringAsync();
+
+        string ApiUrl()
+        {
+            var baseUrl = endpointDefinition.Meta.Find(meta => meta.Id == BaseUrlMetaKey)!.Value;
+            return $"{baseUrl}/{endpointDefinition.Endpoint}";
+        }
     }
 }

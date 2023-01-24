@@ -24,7 +24,7 @@ internal sealed class Endpoint : Endpoint<Request>
     {
         var serviceConfig = new ServiceConfig
         {
-            BaseUrl = req.BaseUrl,
+            BaseUrl = req.BaseUrl.EndsWith("/") ? req.BaseUrl.Remove(req.BaseUrl.Length - 1, 1) : req.BaseUrl,
             Name = req.Name,
             Meta = req.Meta.Select(pair => new Meta
             {

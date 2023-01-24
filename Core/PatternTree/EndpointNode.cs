@@ -1,11 +1,9 @@
-using System.Collections.Concurrent;
-
 namespace Core.PatternTree;
 
-public struct EndpointNode : IEquatable<EndpointNode>
+public sealed class EndpointNode
 {
     private readonly string _item;
-    private readonly ConcurrentDictionary<string, EndpointNode> _children = new();
+    private readonly Dictionary<string, EndpointNode> _children = new();
     private bool _end;
     private const string StartPathParameterKey = "{";
     private const string EndPathParameterKey = "}";
@@ -22,13 +20,13 @@ public struct EndpointNode : IEquatable<EndpointNode>
         _item = item;
     }
 
-    public readonly async ValueTask AppendAsync(string url, CancellationToken cancellationToken = new())
+    public async ValueTask AppendAsync(string url, CancellationToken cancellationToken = new())
     {
         var currentNode = this;
         await Task.Run(() => currentNode.Append(url), cancellationToken);
     }
 
-    public readonly void Append(string url)
+    public void Append(string url)
     {
         using var urlArray = url.Split(UrlSplitter).AsEnumerable().GetEnumerator();
         var node = this;
@@ -49,18 +47,18 @@ public struct EndpointNode : IEquatable<EndpointNode>
         node._end = true;
     }
 
-    public readonly string Find(string url)
+    public string Find(string url)
     {
         return string.Join("/", FindEnumerable(url));
     }
 
-    public readonly async ValueTask<string> FindAsync(string url, CancellationToken cancellationToken = new())
+    public async ValueTask<string> FindAsync(string url, CancellationToken cancellationToken = new())
     {
         var foundedValues = await FindEnumerableAsync(url, cancellationToken);
         return string.Join("/", foundedValues);
     }
 
-    public readonly async ValueTask RemoveAsync(string url, CancellationToken cancellationToken = new())
+    public async ValueTask RemoveAsync(string url, CancellationToken cancellationToken = new())
     {
         var currentNode = this;
         await Task.Run(() => currentNode.Remove(url), cancellationToken);
@@ -71,13 +69,13 @@ public struct EndpointNode : IEquatable<EndpointNode>
         throw new NotImplementedException();
     }
 
-    private readonly async ValueTask<List<string>> FindEnumerableAsync(string url, CancellationToken cancellationToken)
+    private async ValueTask<List<string>> FindEnumerableAsync(string url, CancellationToken cancellationToken)
     {
         var currentNode = this;
         return await Task.Run(() => currentNode.FindEnumerable(url).ToList(), cancellationToken);
     }
 
-    private readonly IEnumerable<string> FindEnumerable(string url)
+    private IEnumerable<string> FindEnumerable(string url)
     {
         using var urlArray = url.Split(UrlSplitter).AsEnumerable().GetEnumerator();
         var node = this;
@@ -94,21 +92,20 @@ public struct EndpointNode : IEquatable<EndpointNode>
             }
 
             node = value;
-            yield return node._item;
+            yield return node!._item;
         }
     }
 
-    private static bool IsPathParameter(string key) =>
-        key.StartsWith(StartPathParameterKey) && key.EndsWith(EndPathParameterKey);
+    private static bool IsPathParameter(string key) => key.StartsWith(StartPathParameterKey) && key.EndsWith(EndPathParameterKey);
 
-    public bool Equals(EndpointNode other)
+    private bool Equals(EndpointNode other)
     {
         return _item == other._item;
     }
 
     public override bool Equals(object? obj)
     {
-        return obj is EndpointNode other && Equals(other);
+        return ReferenceEquals(this, obj) || obj is EndpointNode other && Equals(other);
     }
 
     public override int GetHashCode()
