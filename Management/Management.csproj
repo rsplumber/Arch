@@ -34,4 +34,8 @@
       <ProjectReference Include="..\Data.Sql\Data.Sql.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Endpoints\ServiceConfigs\EndpointDefinitions" />
+    </ItemGroup>
+
 </Project>

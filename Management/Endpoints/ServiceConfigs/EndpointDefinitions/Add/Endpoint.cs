@@ -2,7 +2,7 @@ using Core.EndpointDefinitions;
 using FastEndpoints;
 using FluentValidation;
 
-namespace Management.Endpoints.EndpointDefinitions.Add;
+namespace Management.Endpoints.ServiceConfigs.EndpointDefinitions.Add;
 
 internal sealed class Endpoint : Endpoint<Request>
 {
@@ -15,7 +15,7 @@ internal sealed class Endpoint : Endpoint<Request>
 
     public override void Configure()
     {
-        Post("endpoint-definitions");
+        Post("service-configs/{id}/endpoint-definitions");
         AllowAnonymous();
     }
 
@@ -25,7 +25,7 @@ internal sealed class Endpoint : Endpoint<Request>
         {
             Endpoint = req.Endpoint.StartsWith("/") ? req.Endpoint.Remove(0, 1) : req.Endpoint,
             Meta = req.Meta,
-            ServiceConfigId = req.ServiceConfigId
+            ServiceConfigId = req.Id
         }, ct);
         await SendOkAsync(ct);
     }
@@ -33,7 +33,7 @@ internal sealed class Endpoint : Endpoint<Request>
 
 internal class Request
 {
-    public Guid ServiceConfigId { get; set; }
+    public Guid Id { get; set; }
 
     public string Endpoint { get; set; } = default!;
 
@@ -44,7 +44,7 @@ internal sealed class RequestValidator : Validator<Request>
 {
     public RequestValidator()
     {
-        RuleFor(request => request.ServiceConfigId)
+        RuleFor(request => request.Id)
             .NotEmpty().WithMessage("Enter ServiceConfigId")
             .NotNull().WithMessage("Enter ServiceConfigId");
 

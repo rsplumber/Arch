@@ -41,11 +41,15 @@ using (var serviceScope = app.Services.GetService<IServiceScopeFactory>()?.Creat
             };
             dbContext.ServiceConfigs.Add(serviceConfig);
             dbContext.SaveChanges();
-            if (dbContext.EndpointDefinitions.Any()) return;
             serviceConfig.EndpointDefinitions.Add(new EndpointDefinition
             {
                 Endpoint = "api/endpoint-definitions",
                 Pattern = "api/endpoint-definitions"
+            });
+            serviceConfig.EndpointDefinitions.Add(new EndpointDefinition
+            {
+                Endpoint = "api/service-configs/{id}/endpoint-definitions",
+                Pattern = "api/service-configs/##/endpoint-definitions"
             });
             serviceConfig.EndpointDefinitions.Add(new EndpointDefinition
             {
@@ -78,9 +82,6 @@ app.UseCors(b => b.AllowAnyHeader()
     .SetIsOriginAllowed(_ => true)
     .AllowCredentials());
 
-app.UseFastEndpoints(config =>
-{
-    config.Endpoints.RoutePrefix = "api";
-});
+app.UseFastEndpoints(config => { config.Endpoints.RoutePrefix = "api"; });
 
 await app.RunAsync();

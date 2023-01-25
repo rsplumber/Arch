@@ -1,4 +1,5 @@
-﻿using Core.Domains;
+﻿using System.Text.Json;
+using Core.Domains;
 
 namespace Application.Middlewares;
 
@@ -32,13 +33,19 @@ internal class RequestDispatcherMiddleware : IMiddleware
             }
         }
 
+        object? requestBody = null;
+        if (info.Body is not null)
+        {
+            requestBody = JsonSerializer.Deserialize<object>(info.Body);
+        }
+
         var httpResponse = info.Method switch
         {
             HttpRequestMethod.GET => await client.GetAsync(ApiUrl()),
             HttpRequestMethod.DELETE => await client.DeleteAsync(ApiUrl()),
-            HttpRequestMethod.PATCH => await client.PatchAsJsonAsync(ApiUrl(), info.Body),
-            HttpRequestMethod.POST => await client.PostAsJsonAsync(ApiUrl(), info.Body),
-            HttpRequestMethod.PUT => await client.PutAsJsonAsync(ApiUrl(), info.Body),
+            HttpRequestMethod.PATCH => await client.PatchAsJsonAsync(ApiUrl(), requestBody),
+            HttpRequestMethod.POST => await client.PostAsJsonAsync(ApiUrl(), requestBody),
+            HttpRequestMethod.PUT => await client.PutAsJsonAsync(ApiUrl(), requestBody),
             HttpRequestMethod.UNKNOWN => throw new ArgumentOutOfRangeException(),
             _ => throw new ArgumentOutOfRangeException()
         };

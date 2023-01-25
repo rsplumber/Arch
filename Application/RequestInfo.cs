@@ -8,7 +8,7 @@ public class RequestInfo
 
     public Dictionary<string, string>? Headers { get; init; } = new();
 
-    public object? Body { get; init; }
+    public string? Body { get; init; }
 }
 
 public enum HttpRequestMethod

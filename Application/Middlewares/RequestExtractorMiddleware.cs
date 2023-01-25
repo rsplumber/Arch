@@ -16,11 +16,12 @@ internal class RequestExtractorMiddleware : IMiddleware
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
         var path = ExtractPath();
+        var body = await new StreamReader(context.Request.Body).ReadToEndAsync();
         context.Items[RequestInfoKey] = new RequestInfo
         {
             Headers = context.Request.Headers.ToDictionary(a => a.Key, a => string.Join(";", a.Value!)),
             Method = ExtractMethod(context.Request.Method),
-            Body = await context.Request.ReadFromJsonAsync<object>(),
+            Body = string.IsNullOrEmpty(body) ? null : body,
             Path = path
         };
         context.Items[ArchEndpointDefinitionKey] = _endpointDefinitionResolver.Resolve(path);

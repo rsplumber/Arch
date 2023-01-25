@@ -91,7 +91,7 @@ public sealed class EndpointNode
                 value = pathValue;
             }
 
-            node = value;
+            node = value ?? throw new Exception("not found");
             yield return node!._item;
         }
     }
