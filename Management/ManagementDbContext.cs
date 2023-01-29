@@ -1,4 +1,6 @@
-﻿using Core.Domains;
+﻿using Core.EndpointDefinitions;
+using Core.Metas;
+using Core.ServiceConfigs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -39,10 +41,6 @@ public class ManagementDbContext : DbContext
             builder.Navigation(b => b.Meta)
                 .UsePropertyAccessMode(PropertyAccessMode.Property);
 
-            builder.Property(serviceConfig => serviceConfig.BaseUrl)
-                .UsePropertyAccessMode(PropertyAccessMode.Property)
-                .HasColumnName("base_url");
-
             builder.HasMany(serviceConfig => serviceConfig.EndpointDefinitions);
 
             builder.HasMany(serviceConfig => serviceConfig.Meta);
@@ -54,16 +52,24 @@ public class ManagementDbContext : DbContext
         public void Configure(EntityTypeBuilder<EndpointDefinition> builder)
         {
             builder.ToTable("endpoint_definitions")
-                .HasKey(definition => definition.Pattern);
+                .HasKey(definition => definition.Id);
 
             builder.Navigation(definition => definition.Meta)
                 .UsePropertyAccessMode(PropertyAccessMode.Property);
 
             builder.HasMany(definition => definition.Meta);
 
+            builder.Property(definition => definition.Pattern)
+                .UsePropertyAccessMode(PropertyAccessMode.Property)
+                .HasColumnName("pattern");
+
             builder.Property(definition => definition.Endpoint)
                 .UsePropertyAccessMode(PropertyAccessMode.Property)
                 .HasColumnName("endpoint");
+
+            builder.Property(definition => definition.Method)
+                .UsePropertyAccessMode(PropertyAccessMode.Property)
+                .HasColumnName("method");
         }
     }
 

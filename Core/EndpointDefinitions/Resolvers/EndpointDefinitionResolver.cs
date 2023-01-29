@@ -1,7 +1,6 @@
-using Core.Domains;
-using Core.PatternTree;
+using Core.EndpointDefinitions.Containers;
 
-namespace Core.EndpointDefinitions;
+namespace Core.EndpointDefinitions.Resolvers;
 
 public class EndpointDefinitionResolver : IEndpointDefinitionResolver
 {
@@ -14,15 +13,15 @@ public class EndpointDefinitionResolver : IEndpointDefinitionResolver
         _endpointDefinitionContainer = endpointDefinitionContainer;
     }
 
-    public EndpointDefinition? Resolve(string url)
+    public EndpointDefinition? Resolve(string url, string method)
     {
         var pattern = _endpointPatternTree.Find(url);
-        return _endpointDefinitionContainer.Get(pattern);
+        return _endpointDefinitionContainer.Get(DefinitionKey.From(pattern, method));
     }
 
-    public async ValueTask<EndpointDefinition?> ResolveAsync(string url, CancellationToken cancellationToken = default)
+    public async ValueTask<EndpointDefinition?> ResolveAsync(string url, string method, CancellationToken cancellationToken = default)
     {
         var pattern = await _endpointPatternTree.FindAsync(url, cancellationToken);
-        return await _endpointDefinitionContainer.GetAsync(pattern, cancellationToken);
+        return await _endpointDefinitionContainer.GetAsync(DefinitionKey.From(pattern, method), cancellationToken);
     }
 }

@@ -1,4 +1,4 @@
-namespace Core.PatternTree;
+namespace Core.EndpointDefinitions;
 
 public sealed class EndpointNode
 {
@@ -7,6 +7,7 @@ public sealed class EndpointNode
     private bool _end;
     private const string StartPathParameterKey = "{";
     private const string EndPathParameterKey = "}";
+    private const string QueryParamKey = "?";
     private const string UrlSplitter = "/";
     private const string PathParameterKey = "##";
     private const string RootNodeKey = "root";
@@ -33,6 +34,12 @@ public sealed class EndpointNode
         while (urlArray.MoveNext())
         {
             var key = IsPathParameter(urlArray.Current) ? PathParameterKey : urlArray.Current;
+            if (IsQueryParameter(key))
+            {
+                node._end = true;
+                break;
+            }
+
             if (node._children.TryGetValue(key, out var value))
             {
                 node = value;
@@ -81,6 +88,11 @@ public sealed class EndpointNode
         var node = this;
         while (urlArray.MoveNext())
         {
+            if (IsQueryParameter(urlArray.Current))
+            {
+                break;
+            }
+
             if (!node._children.TryGetValue(urlArray.Current, out var value))
             {
                 if (!node._children.TryGetValue(PathParameterKey, out var pathValue) && !node._end)
@@ -92,11 +104,13 @@ public sealed class EndpointNode
             }
 
             node = value ?? throw new Exception("not found");
-            yield return node!._item;
+            yield return node._item;
         }
     }
 
     private static bool IsPathParameter(string key) => key.StartsWith(StartPathParameterKey) && key.EndsWith(EndPathParameterKey);
+
+    private static bool IsQueryParameter(string key) => key.StartsWith(QueryParamKey);
 
     private bool Equals(EndpointNode other)
     {

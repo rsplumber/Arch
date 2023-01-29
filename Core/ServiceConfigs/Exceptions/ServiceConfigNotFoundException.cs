@@ -1,4 +1,4 @@
-﻿namespace Core.Exceptions;
+﻿namespace Core.ServiceConfigs.Exceptions;
 
 public class ServiceConfigNotFoundException : ApplicationException
 {

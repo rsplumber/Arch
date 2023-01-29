@@ -1,4 +1,4 @@
-﻿using Core.Domains;
+﻿using Core.EndpointDefinitions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Data.Sql;
@@ -30,8 +30,8 @@ public class EndpointDefinitionRepository : IEndpointDefinitionRepository
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public Task<EndpointDefinition?> FindAsync(string pattern, CancellationToken cancellationToken = default)
+    public Task<EndpointDefinition?> FindAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return _dbContext.EndpointDefinitions.FirstOrDefaultAsync(model => model.Pattern == pattern, cancellationToken);
+        return _dbContext.EndpointDefinitions.FirstOrDefaultAsync(model => model.Id == id, cancellationToken);
     }
 }

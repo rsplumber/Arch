@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Management.Endpoints.ServiceConfigs.List;
 
-internal sealed class Endpoint : EndpointWithoutRequest
+internal sealed class Endpoint : Endpoint<Request>
 {
     private readonly ManagementDbContext _dbContext;
 
@@ -18,15 +18,31 @@ internal sealed class Endpoint : EndpointWithoutRequest
         AllowAnonymous();
     }
 
-    public override async Task HandleAsync(CancellationToken ct)
+    public override async Task HandleAsync(Request request, CancellationToken ct)
     {
-        var response = await _dbContext.ServiceConfigs
+        var query = _dbContext.ServiceConfigs.AsQueryable();
+        if (request.Name is not null)
+        {
+            query = query.Where(config => config.Name.Contains(request.Name));
+        }
+
+        var response = await query
+            .Take(request.Size)
+            .Skip(request.Size * (request.Page - 1))
             .Select(config => new
             {
                 config.Id,
-                config.Name,
-                config.BaseUrl
+                config.Name
             }).ToListAsync(cancellationToken: ct);
         await SendOkAsync(response, ct);
     }
+}
+
+internal sealed record Request
+{
+    public string? Name { get; set; }
+
+    public int Size { get; set; } = 10;
+
+    public int Page { get; set; } = 1;
 }

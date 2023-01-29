@@ -1,4 +1,4 @@
-﻿namespace Core.EndpointDefinitions;
+﻿namespace Core.EndpointDefinitions.Services;
 
 public interface IEndpointDefinitionService
 {
@@ -6,5 +6,5 @@ public interface IEndpointDefinitionService
 
     ValueTask UpdateAsync(UpdateEndpointDefinitionRequest request, CancellationToken cancellationToken = default);
 
-    ValueTask RemoveAsync(string urlPattern, CancellationToken cancellationToken = default);
+    ValueTask RemoveAsync(Guid endpointId, CancellationToken cancellationToken = default);
 }

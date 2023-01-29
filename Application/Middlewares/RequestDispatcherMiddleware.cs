@@ -1,5 +1,5 @@
 ﻿using System.Text.Json;
-using Core.Domains;
+using Core.EndpointDefinitions;
 
 namespace Application.Middlewares;
 
@@ -41,12 +41,11 @@ internal class RequestDispatcherMiddleware : IMiddleware
 
         var httpResponse = info.Method switch
         {
-            HttpRequestMethod.GET => await client.GetAsync(ApiUrl()),
-            HttpRequestMethod.DELETE => await client.DeleteAsync(ApiUrl()),
-            HttpRequestMethod.PATCH => await client.PatchAsJsonAsync(ApiUrl(), requestBody),
-            HttpRequestMethod.POST => await client.PostAsJsonAsync(ApiUrl(), requestBody),
-            HttpRequestMethod.PUT => await client.PutAsJsonAsync(ApiUrl(), requestBody),
-            HttpRequestMethod.UNKNOWN => throw new ArgumentOutOfRangeException(),
+            HttpRequestMethods.Get => await client.GetAsync(ApiUrl()),
+            HttpRequestMethods.Delete => await client.DeleteAsync(ApiUrl()),
+            HttpRequestMethods.Patch => await client.PatchAsJsonAsync(ApiUrl(), requestBody),
+            HttpRequestMethods.Post => await client.PostAsJsonAsync(ApiUrl(), requestBody),
+            HttpRequestMethods.Put => await client.PutAsJsonAsync(ApiUrl(), requestBody),
             _ => throw new ArgumentOutOfRangeException()
         };
 
@@ -56,7 +55,7 @@ internal class RequestDispatcherMiddleware : IMiddleware
         string ApiUrl()
         {
             var baseUrl = endpointDefinition.Meta.Find(meta => meta.Id == BaseUrlMetaKey)!.Value;
-            return $"{baseUrl}/{endpointDefinition.Endpoint}";
+            return $"{baseUrl}/{info.Path}";
         }
     }
 }

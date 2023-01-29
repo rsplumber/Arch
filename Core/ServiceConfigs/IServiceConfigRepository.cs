@@ -1,4 +1,4 @@
-﻿namespace Core.Domains;
+﻿namespace Core.ServiceConfigs;
 
 public interface IServiceConfigRepository
 {
@@ -10,5 +10,5 @@ public interface IServiceConfigRepository
 
     Task<ServiceConfig?> FindAsync(Guid id, CancellationToken cancellationToken = default);
 
-    Task<ServiceConfig?> FindByEndpointAsync(string endpointPattern, CancellationToken cancellationToken = default);
+    Task<ServiceConfig?> FindByEndpointAsync(Guid endpointId, CancellationToken cancellationToken = default);
 }

@@ -1,4 +1,4 @@
-using Core.EndpointDefinitions;
+using Core.EndpointDefinitions.Services;
 using FastEndpoints;
 using FluentValidation;
 
@@ -23,7 +23,8 @@ internal sealed class Endpoint : Endpoint<Request>
     {
         await _endpointDefinitionService.AddAsync(new AddEndpointDefinitionRequest
         {
-            Endpoint = req.Endpoint.StartsWith("/") ? req.Endpoint.Remove(0, 1) : req.Endpoint,
+            Endpoint = req.Endpoint,
+            Method = req.Method,
             Meta = req.Meta,
             ServiceConfigId = req.Id
         }, ct);
@@ -36,6 +37,8 @@ internal class Request
     public Guid Id { get; set; }
 
     public string Endpoint { get; set; } = default!;
+
+    public string Method { get; set; } = default!;
 
     public Dictionary<string, string> Meta { get; set; } = new();
 }

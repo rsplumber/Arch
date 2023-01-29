@@ -1,3 +1,4 @@
+using Core.ServiceConfigs.Exceptions;
 using FastEndpoints;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
@@ -24,18 +25,31 @@ internal sealed class Endpoint : Endpoint<Request>
         var serviceConfig = await _dbContext.ServiceConfigs
             .Include(config => config.EndpointDefinitions)
             .FirstOrDefaultAsync(config => config.Id == req.Id, cancellationToken: ct);
-        var response = serviceConfig.EndpointDefinitions.Select(definition => new
+        if (serviceConfig is null)
+        {
+            throw new ServiceConfigNotFoundException();
+        }
+
+        if (req.Endpoint is not null)
+        {
+            serviceConfig.EndpointDefinitions = serviceConfig.EndpointDefinitions
+                .Where(definition => definition.Endpoint.Contains(req.Endpoint))
+                .ToList();
+        }
+
+        await SendOkAsync(serviceConfig.EndpointDefinitions.Select(definition => new
         {
             definition.Endpoint,
             definition.Pattern
-        }).ToList();
-        await SendOkAsync(response, ct);
+        }).ToList(), ct);
     }
 }
 
 internal class Request
 {
     public Guid Id { get; set; }
+
+    public string? Endpoint { get; set; }
 }
 
 internal sealed class RequestValidator : Validator<Request>

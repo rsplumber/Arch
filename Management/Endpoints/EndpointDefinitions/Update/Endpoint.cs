@@ -1,4 +1,4 @@
-using Core.EndpointDefinitions;
+using Core.EndpointDefinitions.Services;
 using FastEndpoints;
 using FluentValidation;
 
@@ -15,7 +15,7 @@ internal sealed class Endpoint : Endpoint<Request>
 
     public override void Configure()
     {
-        Put("endpoint-definitions/{pattern}");
+        Put("endpoint-definitions/{id}");
         AllowAnonymous();
     }
 
@@ -23,8 +23,8 @@ internal sealed class Endpoint : Endpoint<Request>
     {
         await _endpointDefinitionService.UpdateAsync(new UpdateEndpointDefinitionRequest
         {
+            Id = req.Id,
             Meta = req.Meta,
-            UrlPattern = req.Pattern
         }, ct);
 
         await SendOkAsync(ct);
@@ -33,7 +33,7 @@ internal sealed class Endpoint : Endpoint<Request>
 
 internal class Request
 {
-    public string Pattern { get; set; } = default!;
+    public Guid Id { get; set; } = default!;
 
     public Dictionary<string, string> Meta { get; set; } = new();
 }
@@ -42,8 +42,8 @@ internal sealed class RequestValidator : Validator<Request>
 {
     public RequestValidator()
     {
-        RuleFor(request => request.Pattern)
-            .NotEmpty().WithMessage("Enter Pattern")
-            .NotNull().WithMessage("Enter Pattern");
+        RuleFor(request => request.Id)
+            .NotEmpty().WithMessage("Enter Id")
+            .NotNull().WithMessage("Enter Id");
     }
 }

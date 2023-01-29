@@ -1,4 +1,4 @@
-﻿namespace Core.Domains;
+﻿namespace Core.Metas;
 
 public class Meta
 {

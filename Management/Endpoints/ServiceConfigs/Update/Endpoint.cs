@@ -1,4 +1,4 @@
-using Core.Domains;
+using Core.ServiceConfigs.Services;
 using FastEndpoints;
 using FluentValidation;
 
@@ -6,12 +6,11 @@ namespace Management.Endpoints.ServiceConfigs.Update;
 
 internal sealed class Endpoint : Endpoint<Request>
 {
-    private readonly IServiceConfigRepository _serviceConfigRepository;
+    private readonly IServiceConfigService _serviceConfigService;
 
-
-    public Endpoint(IServiceConfigRepository serviceConfigRepository)
+    public Endpoint(IServiceConfigService serviceConfigService)
     {
-        _serviceConfigRepository = serviceConfigRepository;
+        _serviceConfigService = serviceConfigService;
     }
 
     public override void Configure()
@@ -22,27 +21,12 @@ internal sealed class Endpoint : Endpoint<Request>
 
     public override async Task HandleAsync(Request req, CancellationToken ct)
     {
-        var serviceConfig = await _serviceConfigRepository.FindAsync(req.Id, ct);
-        if (serviceConfig is null)
+        await _serviceConfigService.UpdateAsync(new UpdateServiceConfigRequest
         {
-            throw new Exception("ServiceConfig not found");
-        }
-
-        serviceConfig.Name = req.Name;
-        serviceConfig.BaseUrl = req.BaseUrl;
-
-        serviceConfig.Meta.Clear();
-
-        foreach (var meta in req.Meta)
-        {
-            serviceConfig.Meta.Add(new Meta
-            {
-                Id = meta.Key,
-                Value = meta.Value
-            });
-        }
-
-        await _serviceConfigRepository.UpdateAsync(serviceConfig, ct);
+            Id = req.Id,
+            Name = req.Name,
+            Meta = req.Meta
+        }, ct);
         await SendOkAsync(ct);
     }
 }
@@ -52,8 +36,6 @@ public class Request
     public Guid Id { get; set; }
 
     public string Name { get; set; } = default!;
-
-    public string BaseUrl { get; set; } = default!;
 
     public Dictionary<string, string> Meta { get; set; } = new();
 }
@@ -69,9 +51,5 @@ internal sealed class RequestValidator : Validator<Request>
         RuleFor(request => request.Name)
             .NotEmpty().WithMessage("Enter Name")
             .NotNull().WithMessage("Enter Name");
-
-        RuleFor(request => request.BaseUrl)
-            .NotEmpty().WithMessage("Enter BaseUrl")
-            .NotNull().WithMessage("Enter BaseUrl");
     }
 }

@@ -3,6 +3,7 @@
   <component name="EfCoreDialogsState">
     <option name="keyValueStorage">
       <map>
+        <entry key="Common:510c580c-2435-42f4-951f-914965479c17:dbContext" value="Data.Sql.AppDbContext" />
         <entry key="Common:buildConfiguration" value="Release" />
         <entry key="Common:dbContext" value="Data.Sql.AppDbContext" />
         <entry key="Common:noBuild" value="false" />

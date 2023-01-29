@@ -1,4 +1,4 @@
-using Core.Domains;
+using Core.ServiceConfigs.Services;
 using FastEndpoints;
 using FluentValidation;
 
@@ -6,12 +6,11 @@ namespace Management.Endpoints.ServiceConfigs.Create;
 
 internal sealed class Endpoint : Endpoint<Request>
 {
-    private readonly IServiceConfigRepository _serviceConfigRepository;
+    private readonly IServiceConfigService _serviceConfigService;
 
-
-    public Endpoint(IServiceConfigRepository serviceConfigRepository)
+    public Endpoint(IServiceConfigService serviceConfigService)
     {
-        _serviceConfigRepository = serviceConfigRepository;
+        _serviceConfigService = serviceConfigService;
     }
 
     public override void Configure()
@@ -22,17 +21,11 @@ internal sealed class Endpoint : Endpoint<Request>
 
     public override async Task HandleAsync(Request req, CancellationToken ct)
     {
-        var serviceConfig = new ServiceConfig
+        await _serviceConfigService.CreateAsync(new CreateServiceConfigRequest
         {
-            BaseUrl = req.BaseUrl.EndsWith("/") ? req.BaseUrl.Remove(req.BaseUrl.Length - 1, 1) : req.BaseUrl,
             Name = req.Name,
-            Meta = req.Meta.Select(pair => new Meta
-            {
-                Id = pair.Key,
-                Value = pair.Value
-            }).ToList()
-        };
-        await _serviceConfigRepository.AddAsync(serviceConfig, ct);
+            Meta = req.Meta
+        }, ct);
         await SendOkAsync(ct);
     }
 }
@@ -40,8 +33,6 @@ internal sealed class Endpoint : Endpoint<Request>
 internal class Request
 {
     public string Name { get; set; } = default!;
-
-    public string BaseUrl { get; set; } = default!;
 
     public Dictionary<string, string> Meta { get; set; } = new();
 }
@@ -53,9 +44,5 @@ internal sealed class RequestValidator : Validator<Request>
         RuleFor(request => request.Name)
             .NotEmpty().WithMessage("Enter Name")
             .NotNull().WithMessage("Enter Name");
-
-        RuleFor(request => request.BaseUrl)
-            .NotEmpty().WithMessage("Enter BaseUrl")
-            .NotNull().WithMessage("Enter BaseUrl");
     }
 }

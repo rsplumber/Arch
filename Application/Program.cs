@@ -1,9 +1,10 @@
 using Application.Middlewares;
 using Arch.Clerk;
 using Arch.Kundera;
-using Core.Domains;
-using Core.EndpointDefinitions;
-using Core.PatternTree;
+using Core.EndpointDefinitions.Containers;
+using Core.EndpointDefinitions.Resolvers;
+using Core.EndpointDefinitions.Services;
+using Core.ServiceConfigs.Services;
 using Data.Sql;
 using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
@@ -26,6 +27,8 @@ builder.Services.AddSingleton<IEndpointDefinitionContainer, InMemoryEndpointDefi
 builder.Services.AddSingleton<IEndpointPatternTree, InMemoryEndpointPatternTree>();
 
 builder.Services.AddScoped<IEndpointDefinitionService, EndpointDefinitionService>();
+builder.Services.AddScoped<IServiceConfigService, ServiceConfigService>();
+builder.Services.AddScoped<IContainerInitializer, InMemoryContainerInitializer>();
 
 builder.Services.AddData(builder.Configuration);
 builder.Services.AddCors();
@@ -68,25 +71,12 @@ async Task InitializeInMemoryContainers()
 {
     using var serviceScope = app.Services.GetService<IServiceScopeFactory>()?.CreateScope();
     var dbContext = serviceScope!.ServiceProvider.GetRequiredService<AppDbContext>();
-    var endpointPatternTree = serviceScope.ServiceProvider.GetRequiredService<IEndpointPatternTree>();
-    var endpointDefinitionContainer = serviceScope.ServiceProvider.GetRequiredService<IEndpointDefinitionContainer>();
     var configs = await dbContext.ServiceConfigs
         .Include(config => config.Meta)
         .Include(config => config.EndpointDefinitions)
         .ThenInclude(definition => definition.Meta)
         .ToListAsync();
-    configs.ForEach(config =>
-    {
-        config.EndpointDefinitions.ForEach(async definition =>
-        {
-            definition.Meta.Add(new Meta
-            {
-                Id = "base_url",
-                Value = config.BaseUrl
-            });
-            endpointPatternTree.Add(definition.Endpoint);
-            endpointPatternTree.Find(definition.Endpoint);
-            await endpointDefinitionContainer.AddAsync(definition);
-        });
-    });
+
+    var containerInitializer = serviceScope.ServiceProvider.GetRequiredService<IContainerInitializer>();
+    await containerInitializer.InitializeAsync(configs);
 }

@@ -1,0 +1,28 @@
+﻿using Core.ServiceConfigs;
+
+namespace Core.EndpointDefinitions.Containers;
+
+public class InMemoryContainerInitializer : IContainerInitializer
+{
+    private readonly IEndpointPatternTree _endpointPatternTree;
+    private readonly IEndpointDefinitionContainer _endpointDefinitionContainer;
+
+    public InMemoryContainerInitializer(IEndpointPatternTree endpointPatternTree, IEndpointDefinitionContainer endpointDefinitionContainer)
+    {
+        _endpointPatternTree = endpointPatternTree;
+        _endpointDefinitionContainer = endpointDefinitionContainer;
+    }
+
+    public async Task InitializeAsync(List<ServiceConfig> serviceConfigs, CancellationToken cancellationToken = default)
+    {
+        foreach (var config in serviceConfigs)
+        {
+            foreach (var definition in config.EndpointDefinitions)
+            {
+                definition.Meta.AddRange(config.Meta);
+                _endpointPatternTree.Add(definition.Endpoint);
+                await _endpointDefinitionContainer.AddAsync(definition, cancellationToken);
+            }
+        }
+    }
+}

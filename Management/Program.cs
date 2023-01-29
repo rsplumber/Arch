@@ -1,11 +1,14 @@
-using Core.Domains;
-using Core.EndpointDefinitions;
-using Core.PatternTree;
+using Core.EndpointDefinitions.Containers;
+using Core.EndpointDefinitions.Resolvers;
+using Core.EndpointDefinitions.Services;
+using Core.Metas;
+using Core.ServiceConfigs;
+using Core.ServiceConfigs.Services;
 using Data.Sql;
 using FastEndpoints;
 using Management;
 using Microsoft.EntityFrameworkCore;
-using EndpointDefinition = Core.Domains.EndpointDefinition;
+using EndpointDefinition = Core.EndpointDefinitions.EndpointDefinition;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseKestrel();
@@ -18,6 +21,8 @@ builder.Services.AddSingleton<IEndpointDefinitionContainer, InMemoryEndpointDefi
 builder.Services.AddSingleton<IEndpointPatternTree, InMemoryEndpointPatternTree>();
 
 builder.Services.AddScoped<IEndpointDefinitionService, EndpointDefinitionService>();
+builder.Services.AddScoped<IServiceConfigService, ServiceConfigService>();
+
 builder.Services.AddData(builder.Configuration);
 builder.Services.AddDbContext<ManagementDbContext>(
     b => b.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
@@ -36,36 +41,77 @@ using (var serviceScope = app.Services.GetService<IServiceScopeFactory>()?.Creat
         {
             var serviceConfig = new ServiceConfig
             {
-                Name = "arch",
-                BaseUrl = "http://localhost:5229"
+                Name = "arch"
             };
+            serviceConfig.Meta.Add(new Meta
+            {
+                Id = "base_url",
+                Value = "http://localhost:5229"
+            });
             dbContext.ServiceConfigs.Add(serviceConfig);
             dbContext.SaveChanges();
             serviceConfig.EndpointDefinitions.Add(new EndpointDefinition
             {
-                Endpoint = "api/endpoint-definitions",
-                Pattern = "api/endpoint-definitions"
-            });
-            serviceConfig.EndpointDefinitions.Add(new EndpointDefinition
-            {
-                Endpoint = "api/service-configs/{id}/endpoint-definitions",
-                Pattern = "api/service-configs/##/endpoint-definitions"
+                Endpoint = "api/endpoint-definitions/{id}",
+                Pattern = "api/endpoint-definitions/##",
+                Method = "get"
             });
             serviceConfig.EndpointDefinitions.Add(new EndpointDefinition
             {
                 Endpoint = "api/endpoint-definitions/{id}",
-                Pattern = "api/endpoint-definitions/##"
+                Pattern = "api/endpoint-definitions/##",
+                Method = "delete"
+            });
+            serviceConfig.EndpointDefinitions.Add(new EndpointDefinition
+            {
+                Endpoint = "api/endpoint-definitions/{id}",
+                Pattern = "api/endpoint-definitions/##",
+                Method = "put"
             });
             serviceConfig.EndpointDefinitions.Add(new EndpointDefinition
             {
                 Endpoint = "api/service-configs",
-                Pattern = "api/service-configs"
+                Pattern = "api/service-configs",
+                Method = "post"
+            });
+            serviceConfig.EndpointDefinitions.Add(new EndpointDefinition
+            {
+                Endpoint = "api/service-configs",
+                Pattern = "api/service-configs",
+                Method = "get"
             });
             serviceConfig.EndpointDefinitions.Add(new EndpointDefinition
             {
                 Endpoint = "api/service-configs/{id}",
-                Pattern = "api/service-configs/##"
+                Pattern = "api/service-configs/##",
+                Method = "delete"
             });
+            serviceConfig.EndpointDefinitions.Add(new EndpointDefinition
+            {
+                Endpoint = "api/service-configs/{id}",
+                Pattern = "api/service-configs/##",
+                Method = "get"
+            });
+            serviceConfig.EndpointDefinitions.Add(new EndpointDefinition
+            {
+                Endpoint = "api/service-configs/{id}",
+                Pattern = "api/service-configs/##",
+                Method = "put"
+            });
+            serviceConfig.EndpointDefinitions.Add(new EndpointDefinition
+            {
+                Endpoint = "api/service-configs/{id}/endpoint-definitions",
+                Pattern = "api/service-configs/##/endpoint-definitions",
+                Method = "post"
+            });
+            serviceConfig.EndpointDefinitions.Add(new EndpointDefinition
+            {
+                Endpoint = "api/service-configs/{id}/endpoint-definitions",
+                Pattern = "api/service-configs/##/endpoint-definitions",
+                Method = "get"
+            });
+
+
             dbContext.ServiceConfigs.Update(serviceConfig);
             dbContext.SaveChanges();
         }

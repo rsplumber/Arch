@@ -1,4 +1,4 @@
-using Core.EndpointDefinitions;
+using Core.EndpointDefinitions.Services;
 using FastEndpoints;
 using FluentValidation;
 
@@ -15,28 +15,28 @@ internal sealed class Endpoint : Endpoint<Request>
 
     public override void Configure()
     {
-        Delete("endpoint-definitions/{pattern}");
+        Delete("endpoint-definitions/{id}");
         AllowAnonymous();
     }
 
     public override async Task HandleAsync(Request req, CancellationToken ct)
     {
-        await _endpointDefinitionService.RemoveAsync(req.Pattern, ct);
+        await _endpointDefinitionService.RemoveAsync(req.Id, ct);
         await SendOkAsync(ct);
     }
 }
 
 internal class Request
 {
-    public string Pattern { get; set; } = default!;
+    public Guid Id { get; set; } = default!;
 }
 
 internal sealed class RequestValidator : Validator<Request>
 {
     public RequestValidator()
     {
-        RuleFor(request => request.Pattern)
-            .NotEmpty().WithMessage("Enter Pattern")
-            .NotNull().WithMessage("Enter Pattern");
+        RuleFor(request => request.Id)
+            .NotEmpty().WithMessage("Enter Id")
+            .NotNull().WithMessage("Enter Id");
     }
 }

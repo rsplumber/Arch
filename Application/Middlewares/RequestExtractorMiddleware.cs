@@ -1,4 +1,4 @@
-﻿using Core.EndpointDefinitions;
+﻿using Core.EndpointDefinitions.Resolvers;
 
 namespace Application.Middlewares;
 
@@ -17,14 +17,15 @@ internal class RequestExtractorMiddleware : IMiddleware
     {
         var path = ExtractPath();
         var body = await new StreamReader(context.Request.Body).ReadToEndAsync();
+        var method = context.Request.Method.ToLower();
         context.Items[RequestInfoKey] = new RequestInfo
         {
             Headers = context.Request.Headers.ToDictionary(a => a.Key, a => string.Join(";", a.Value!)),
-            Method = ExtractMethod(context.Request.Method),
+            Method = method,
             Body = string.IsNullOrEmpty(body) ? null : body,
             Path = path
         };
-        context.Items[ArchEndpointDefinitionKey] = _endpointDefinitionResolver.Resolve(path);
+        context.Items[ArchEndpointDefinitionKey] = _endpointDefinitionResolver.Resolve(path, method);
 
         await next(context);
 
@@ -34,6 +35,4 @@ internal class RequestExtractorMiddleware : IMiddleware
             return requestPath.StartsWith("/") ? requestPath.Remove(0, 1) : requestPath;
         }
     }
-
-    private static HttpRequestMethod ExtractMethod(string method) => Enum.Parse<HttpRequestMethod>(method);
 }

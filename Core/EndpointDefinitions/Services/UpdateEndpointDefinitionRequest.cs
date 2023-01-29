@@ -1,8 +1,8 @@
-namespace Core.EndpointDefinitions;
+namespace Core.EndpointDefinitions.Services;
 
 public class UpdateEndpointDefinitionRequest
 {
-    public string UrlPattern { get; set; } = default!;
+    public Guid Id { get; set; } = default!;
 
     public Dictionary<string, string> Meta { get; set; } = default!;
 }

@@ -1,4 +1,4 @@
-using Core.Domains;
+using Core.ServiceConfigs.Services;
 using FastEndpoints;
 using FluentValidation;
 
@@ -6,12 +6,11 @@ namespace Management.Endpoints.ServiceConfigs.Delete;
 
 internal sealed class Endpoint : Endpoint<Request>
 {
-    private readonly IServiceConfigRepository _serviceConfigRepository;
+    private readonly IServiceConfigService _serviceConfigService;
 
-
-    public Endpoint(IServiceConfigRepository serviceConfigRepository)
+    public Endpoint(IServiceConfigService serviceConfigService)
     {
-        _serviceConfigRepository = serviceConfigRepository;
+        _serviceConfigService = serviceConfigService;
     }
 
     public override void Configure()
@@ -22,13 +21,7 @@ internal sealed class Endpoint : Endpoint<Request>
 
     public override async Task HandleAsync(Request req, CancellationToken ct)
     {
-        var serviceConfig = await _serviceConfigRepository.FindAsync(req.Id, ct);
-        if (serviceConfig is null)
-        {
-            throw new Exception("ServiceConfig not found");
-        }
-
-        await _serviceConfigRepository.DeleteAsync(serviceConfig, ct);
+        await _serviceConfigService.DeleteAsync(req.Id, ct);
         await SendOkAsync(ct);
     }
 }

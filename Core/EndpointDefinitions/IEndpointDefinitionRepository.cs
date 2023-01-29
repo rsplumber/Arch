@@ -1,4 +1,4 @@
-﻿namespace Core.Domains;
+﻿namespace Core.EndpointDefinitions;
 
 public interface IEndpointDefinitionRepository
 {
@@ -8,5 +8,5 @@ public interface IEndpointDefinitionRepository
 
     Task DeleteAsync(EndpointDefinition entity, CancellationToken cancellationToken = default);
 
-    Task<EndpointDefinition?> FindAsync(string pattern, CancellationToken cancellationToken = default);
+    Task<EndpointDefinition?> FindAsync(Guid id, CancellationToken cancellationToken = default);
 }

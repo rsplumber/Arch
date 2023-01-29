@@ -1,4 +1,4 @@
-﻿namespace Core.Exceptions;
+﻿namespace Core.EndpointDefinitions.Exceptions;
 
 public class EndpointDefinitionNotFoundException : ApplicationException
 {

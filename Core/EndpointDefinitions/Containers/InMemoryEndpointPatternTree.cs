@@ -1,4 +1,4 @@
-﻿namespace Core.PatternTree;
+﻿namespace Core.EndpointDefinitions.Containers;
 
 public class InMemoryEndpointPatternTree : IEndpointPatternTree
 {
@@ -24,8 +24,14 @@ public class InMemoryEndpointPatternTree : IEndpointPatternTree
         PatternTree.Append(url);
     }
 
+
     public string Find(string url)
     {
         return PatternTree.Find(url);
+    }
+
+    public void Remove(string urlPattern, CancellationToken cancellationToken = default)
+    {
+        PatternTree.Remove(urlPattern);
     }
 }

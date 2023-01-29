@@ -1,4 +1,5 @@
-﻿using Core.Domains;
+﻿using Core.EndpointDefinitions;
+using Core.ServiceConfigs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

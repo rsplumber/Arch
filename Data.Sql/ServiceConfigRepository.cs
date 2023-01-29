@@ -1,4 +1,4 @@
-﻿using Core.Domains;
+﻿using Core.ServiceConfigs;
 using Microsoft.EntityFrameworkCore;
 
 namespace Data.Sql;
@@ -38,11 +38,11 @@ public class ServiceConfigRepository : IServiceConfigRepository
             .FirstOrDefaultAsync(model => model.Id == id, cancellationToken);
     }
 
-    public Task<ServiceConfig?> FindByEndpointAsync(string endpointPattern, CancellationToken cancellationToken = default)
+    public Task<ServiceConfig?> FindByEndpointAsync(Guid endpointId, CancellationToken cancellationToken = default)
     {
         return _dbContext.ServiceConfigs
             .Include(config => config.EndpointDefinitions)
             .ThenInclude(definition => definition.Meta)
-            .FirstOrDefaultAsync(config => config.EndpointDefinitions.Any(definition => definition.Pattern == endpointPattern), cancellationToken);
+            .FirstOrDefaultAsync(config => config.EndpointDefinitions.Any(definition => definition.Id == endpointId), cancellationToken);
     }
 }

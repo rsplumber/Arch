@@ -1,4 +1,4 @@
-using Core.Domains;
+using Core.ServiceConfigs;
 using FastEndpoints;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
@@ -24,8 +24,6 @@ internal sealed class Endpoint : Endpoint<Request, ServiceConfig>
     {
         var response = await _dbContext.ServiceConfigs
             .Include(config => config.Meta)
-            .Include(config => config.EndpointDefinitions)
-            .ThenInclude(definition => definition.Meta)
             .FirstAsync(config => config.Id == req.Id, cancellationToken: ct);
         await SendOkAsync(response, ct);
     }
