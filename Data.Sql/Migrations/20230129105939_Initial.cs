@@ -16,8 +16,7 @@ namespace Data.Sql.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    name = table.Column<string>(type: "text", nullable: false),
-                    baseurl = table.Column<string>(name: "base_url", type: "text", nullable: false)
+                    name = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -28,13 +27,15 @@ namespace Data.Sql.Migrations
                 name: "endpoint_definitions",
                 columns: table => new
                 {
-                    Pattern = table.Column<string>(type: "text", nullable: false),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    pattern = table.Column<string>(type: "text", nullable: false),
                     endpoint = table.Column<string>(type: "text", nullable: false),
+                    method = table.Column<string>(type: "text", nullable: false),
                     ServiceConfigId = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_endpoint_definitions", x => x.Pattern);
+                    table.PrimaryKey("PK_endpoint_definitions", x => x.Id);
                     table.ForeignKey(
                         name: "FK_endpoint_definitions_service_configs_ServiceConfigId",
                         column: x => x.ServiceConfigId,
@@ -48,17 +49,17 @@ namespace Data.Sql.Migrations
                 {
                     Id = table.Column<string>(type: "text", nullable: false),
                     value = table.Column<string>(type: "text", nullable: false),
-                    EndpointDefinitionPattern = table.Column<string>(type: "text", nullable: true),
+                    EndpointDefinitionId = table.Column<Guid>(type: "uuid", nullable: true),
                     ServiceConfigId = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_meta", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_meta_endpoint_definitions_EndpointDefinitionPattern",
-                        column: x => x.EndpointDefinitionPattern,
+                        name: "FK_meta_endpoint_definitions_EndpointDefinitionId",
+                        column: x => x.EndpointDefinitionId,
                         principalTable: "endpoint_definitions",
-                        principalColumn: "Pattern");
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_meta_service_configs_ServiceConfigId",
                         column: x => x.ServiceConfigId,
@@ -72,9 +73,9 @@ namespace Data.Sql.Migrations
                 column: "ServiceConfigId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_meta_EndpointDefinitionPattern",
+                name: "IX_meta_EndpointDefinitionId",
                 table: "meta",
-                column: "EndpointDefinitionPattern");
+                column: "EndpointDefinitionId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_meta_ServiceConfigId",

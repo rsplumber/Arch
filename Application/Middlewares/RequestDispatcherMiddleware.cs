@@ -10,6 +10,7 @@ internal class RequestDispatcherMiddleware : IMiddleware
     private const string ArchEndpointDefinitionKey = "arch_endpoint_definition";
     private const string HttpFactoryName = "default";
     private const string BaseUrlMetaKey = "base_url";
+    private const string ContentType = "application/json; charset=utf-8";
 
 
     public RequestDispatcherMiddleware(IHttpClientFactory httpClientFactory)
@@ -50,6 +51,7 @@ internal class RequestDispatcherMiddleware : IMiddleware
         };
 
         var response = await httpResponse.Content.ReadAsStringAsync();
+        context.Response.ContentType = ContentType;
         await context.Response.WriteAsync(response);
 
         string ApiUrl()
