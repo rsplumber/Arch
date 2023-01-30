@@ -1,3 +1,4 @@
+using Data.Sql;
 using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
 
@@ -5,9 +6,9 @@ namespace Management.Endpoints.ServiceConfigs.List;
 
 internal sealed class Endpoint : Endpoint<Request>
 {
-    private readonly ManagementDbContext _dbContext;
+    private readonly AppDbContext _dbContext;
 
-    public Endpoint(ManagementDbContext dbContext)
+    public Endpoint(AppDbContext dbContext)
     {
         _dbContext = dbContext;
     }

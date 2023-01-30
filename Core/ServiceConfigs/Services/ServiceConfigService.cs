@@ -57,7 +57,7 @@ public class ServiceConfigService : IServiceConfigService
         {
             finalMeta.Add(new Meta
             {
-                Id = key,
+                Key = key,
                 Value = value
             });
         }
@@ -69,7 +69,7 @@ public class ServiceConfigService : IServiceConfigService
             if (!meta.TryGetValue(BaseUrlKey, out var value)) throw new ApplicationException("base_url must define for service meta");
             finalMeta.Add(new Meta
             {
-                Id = BaseUrlKey,
+                Key = BaseUrlKey,
                 Value = value
             });
             meta.Remove(BaseUrlKey);

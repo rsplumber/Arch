@@ -15,72 +15,76 @@ namespace Data.Sql.Migrations
                 name: "service_configs",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
                     name = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_service_configs", x => x.Id);
+                    table.PrimaryKey("PK_service_configs", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
                 name: "endpoint_definitions",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
                     pattern = table.Column<string>(type: "text", nullable: false),
                     endpoint = table.Column<string>(type: "text", nullable: false),
                     method = table.Column<string>(type: "text", nullable: false),
-                    ServiceConfigId = table.Column<Guid>(type: "uuid", nullable: true)
+                    serviceconfigid = table.Column<Guid>(name: "service_config_id", type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_endpoint_definitions", x => x.Id);
+                    table.PrimaryKey("PK_endpoint_definitions", x => x.id);
                     table.ForeignKey(
-                        name: "FK_endpoint_definitions_service_configs_ServiceConfigId",
-                        column: x => x.ServiceConfigId,
+                        name: "FK_endpoint_definitions_service_configs_service_config_id",
+                        column: x => x.serviceconfigid,
                         principalTable: "service_configs",
-                        principalColumn: "Id");
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
                 name: "meta",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "text", nullable: false),
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    key = table.Column<string>(type: "text", nullable: false),
                     value = table.Column<string>(type: "text", nullable: false),
-                    EndpointDefinitionId = table.Column<Guid>(type: "uuid", nullable: true),
-                    ServiceConfigId = table.Column<Guid>(type: "uuid", nullable: true)
+                    endpointdefinitionid = table.Column<Guid>(name: "endpoint_definition_id", type: "uuid", nullable: true),
+                    serviceconfigid = table.Column<Guid>(name: "service_config_id", type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_meta", x => x.Id);
+                    table.PrimaryKey("PK_meta", x => x.id);
                     table.ForeignKey(
-                        name: "FK_meta_endpoint_definitions_EndpointDefinitionId",
-                        column: x => x.EndpointDefinitionId,
+                        name: "FK_meta_endpoint_definitions_endpoint_definition_id",
+                        column: x => x.endpointdefinitionid,
                         principalTable: "endpoint_definitions",
-                        principalColumn: "Id");
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_meta_service_configs_ServiceConfigId",
-                        column: x => x.ServiceConfigId,
+                        name: "FK_meta_service_configs_service_config_id",
+                        column: x => x.serviceconfigid,
                         principalTable: "service_configs",
-                        principalColumn: "Id");
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_endpoint_definitions_ServiceConfigId",
+                name: "IX_endpoint_definitions_service_config_id",
                 table: "endpoint_definitions",
-                column: "ServiceConfigId");
+                column: "service_config_id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_meta_EndpointDefinitionId",
+                name: "IX_meta_endpoint_definition_id",
                 table: "meta",
-                column: "EndpointDefinitionId");
+                column: "endpoint_definition_id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_meta_ServiceConfigId",
+                name: "IX_meta_service_config_id",
                 table: "meta",
-                column: "ServiceConfigId");
+                column: "service_config_id");
         }
 
         /// <inheritdoc />

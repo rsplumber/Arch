@@ -31,19 +31,25 @@ public class AppDbContext : DbContext
             builder.ToTable("service_configs")
                 .HasKey(serviceConfig => serviceConfig.Id);
 
+            builder.Property(serviceConfig => serviceConfig.Id)
+                .UsePropertyAccessMode(PropertyAccessMode.Property)
+                .HasColumnName("id");
+
             builder.Property(serviceConfig => serviceConfig.Name)
                 .UsePropertyAccessMode(PropertyAccessMode.Property)
                 .HasColumnName("name");
 
-            builder.Navigation(b => b.EndpointDefinitions)
-                .UsePropertyAccessMode(PropertyAccessMode.Property);
+            builder.HasMany(serviceConfig => serviceConfig.EndpointDefinitions)
+                .WithOne(definition => definition.ServiceConfig)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasPrincipalKey(config => config.Id)
+                .HasForeignKey("service_config_id");
 
-            builder.Navigation(b => b.Meta)
-                .UsePropertyAccessMode(PropertyAccessMode.Property);
-
-            builder.HasMany(serviceConfig => serviceConfig.EndpointDefinitions);
-
-            builder.HasMany(serviceConfig => serviceConfig.Meta);
+            builder.HasMany(serviceConfig => serviceConfig.Meta)
+                .WithOne(meta => meta.ServiceConfig)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasPrincipalKey(config => config.Id)
+                .HasForeignKey("service_config_id");
         }
     }
 
@@ -54,10 +60,9 @@ public class AppDbContext : DbContext
             builder.ToTable("endpoint_definitions")
                 .HasKey(definition => definition.Id);
 
-            builder.Navigation(definition => definition.Meta)
-                .UsePropertyAccessMode(PropertyAccessMode.Property);
-
-            builder.HasMany(definition => definition.Meta);
+            builder.Property(definition => definition.Id)
+                .UsePropertyAccessMode(PropertyAccessMode.Property)
+                .HasColumnName("id");
 
             builder.Property(definition => definition.Pattern)
                 .UsePropertyAccessMode(PropertyAccessMode.Property)
@@ -70,6 +75,12 @@ public class AppDbContext : DbContext
             builder.Property(definition => definition.Method)
                 .UsePropertyAccessMode(PropertyAccessMode.Property)
                 .HasColumnName("method");
+
+            builder.HasMany(definition => definition.Meta)
+                .WithOne(meta => meta.EndpointDefinition)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasPrincipalKey(definition => definition.Id)
+                .HasForeignKey("endpoint_definition_id");
         }
     }
 
@@ -79,6 +90,14 @@ public class AppDbContext : DbContext
         {
             builder.ToTable("meta")
                 .HasKey(meta => meta.Id);
+
+            builder.Property(meta => meta.Id)
+                .UsePropertyAccessMode(PropertyAccessMode.Property)
+                .HasColumnName("id");
+
+            builder.Property(meta => meta.Key)
+                .UsePropertyAccessMode(PropertyAccessMode.Property)
+                .HasColumnName("key");
 
             builder.Property(meta => meta.Value)
                 .UsePropertyAccessMode(PropertyAccessMode.Property)

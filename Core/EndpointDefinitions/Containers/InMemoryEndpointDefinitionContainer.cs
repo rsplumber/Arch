@@ -24,6 +24,11 @@ public class InMemoryEndpointDefinitionContainer : IEndpointDefinitionContainer
         return definition;
     }
 
+    public void Clear()
+    {
+        EndpointDefinitions.Clear();
+    }
+
     public ValueTask RemoveAsync(DefinitionKey key, CancellationToken cancellationToken = default)
     {
         EndpointDefinitions.TryRemove(key, out _);

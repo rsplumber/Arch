@@ -6,7 +6,6 @@ using Core.ServiceConfigs;
 using Core.ServiceConfigs.Services;
 using Data.Sql;
 using FastEndpoints;
-using Management;
 using Microsoft.EntityFrameworkCore;
 using EndpointDefinition = Core.EndpointDefinitions.EndpointDefinition;
 
@@ -23,8 +22,10 @@ builder.Services.AddSingleton<IEndpointPatternTree, InMemoryEndpointPatternTree>
 builder.Services.AddScoped<IEndpointDefinitionService, EndpointDefinitionService>();
 builder.Services.AddScoped<IServiceConfigService, ServiceConfigService>();
 
+builder.Services.AddScoped<IContainerInitializer, InMemoryContainerInitializer>();
+
 builder.Services.AddData(builder.Configuration);
-builder.Services.AddDbContext<ManagementDbContext>(
+builder.Services.AddDbContext<AppDbContext>(
     b => b.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
 builder.Services.AddCors();
 builder.Services.AddFastEndpoints();
@@ -36,7 +37,7 @@ using (var serviceScope = app.Services.GetService<IServiceScopeFactory>()?.Creat
     if (serviceScope == null) return;
     try
     {
-        var dbContext = serviceScope.ServiceProvider.GetRequiredService<ManagementDbContext>();
+        var dbContext = serviceScope.ServiceProvider.GetRequiredService<AppDbContext>();
         if (!dbContext.ServiceConfigs.Any(config => config.Name == "arch"))
         {
             var serviceConfig = new ServiceConfig
@@ -45,74 +46,161 @@ using (var serviceScope = app.Services.GetService<IServiceScopeFactory>()?.Creat
             };
             serviceConfig.Meta.Add(new Meta
             {
-                Id = "base_url",
+                Key = "base_url",
                 Value = "http://localhost:5229"
+            });
+            serviceConfig.Meta.Add(new Meta
+            {
+                Key = "service_secret",
+                Value = "9C1BE6A9A93D6498B10506743BD6A30DCAEB6F625F9E92C7400BC6DE56B625E09A34A6CF8C29AD0EC335BC2AF5D63E8C"
             });
             dbContext.ServiceConfigs.Add(serviceConfig);
             dbContext.SaveChanges();
-            serviceConfig.EndpointDefinitions.Add(new EndpointDefinition
+            var createdConfig = await dbContext.ServiceConfigs
+                .Include(config => config.EndpointDefinitions)
+                .ThenInclude(definition => definition.Meta)
+                .FirstAsync(config => config.Id == serviceConfig.Id);
+            createdConfig.EndpointDefinitions.Add(new EndpointDefinition
             {
                 Endpoint = "api/endpoint-definitions/{id}",
                 Pattern = "api/endpoint-definitions/##",
-                Method = "get"
+                Method = "get",
+                Meta = new List<Meta>
+                {
+                    new()
+                    {
+                        Key = "permissions",
+                        Value = "arch_details_endpoint_definition"
+                    }
+                }
             });
-            serviceConfig.EndpointDefinitions.Add(new EndpointDefinition
+            createdConfig.EndpointDefinitions.Add(new EndpointDefinition
             {
                 Endpoint = "api/endpoint-definitions/{id}",
                 Pattern = "api/endpoint-definitions/##",
-                Method = "delete"
+                Method = "delete",
+                Meta = new List<Meta>
+                {
+                    new()
+                    {
+                        Key = "permissions",
+                        Value = "arch_delete_endpoint_definition"
+                    }
+                }
             });
-            serviceConfig.EndpointDefinitions.Add(new EndpointDefinition
+            createdConfig.EndpointDefinitions.Add(new EndpointDefinition
             {
                 Endpoint = "api/endpoint-definitions/{id}",
                 Pattern = "api/endpoint-definitions/##",
-                Method = "put"
+                Method = "put",
+                Meta = new List<Meta>
+                {
+                    new()
+                    {
+                        Key = "permissions",
+                        Value = "arch_update_endpoint_definition"
+                    }
+                }
             });
-            serviceConfig.EndpointDefinitions.Add(new EndpointDefinition
+            createdConfig.EndpointDefinitions.Add(new EndpointDefinition
             {
                 Endpoint = "api/service-configs",
                 Pattern = "api/service-configs",
-                Method = "post"
+                Method = "post",
+                Meta = new List<Meta>
+                {
+                    new()
+                    {
+                        Key = "permissions",
+                        Value = "arch_create_service_config"
+                    }
+                }
             });
-            serviceConfig.EndpointDefinitions.Add(new EndpointDefinition
+            createdConfig.EndpointDefinitions.Add(new EndpointDefinition
             {
                 Endpoint = "api/service-configs",
                 Pattern = "api/service-configs",
-                Method = "get"
+                Method = "get",
+                Meta = new List<Meta>
+                {
+                    new()
+                    {
+                        Key = "permissions",
+                        Value = "arch_list_service_config"
+                    }
+                }
             });
-            serviceConfig.EndpointDefinitions.Add(new EndpointDefinition
+            createdConfig.EndpointDefinitions.Add(new EndpointDefinition
             {
                 Endpoint = "api/service-configs/{id}",
                 Pattern = "api/service-configs/##",
-                Method = "delete"
+                Method = "delete",
+                Meta = new List<Meta>
+                {
+                    new()
+                    {
+                        Key = "permissions",
+                        Value = "arch_delete_service_config"
+                    }
+                }
             });
-            serviceConfig.EndpointDefinitions.Add(new EndpointDefinition
+            createdConfig.EndpointDefinitions.Add(new EndpointDefinition
             {
                 Endpoint = "api/service-configs/{id}",
                 Pattern = "api/service-configs/##",
-                Method = "get"
+                Method = "get",
+                Meta = new List<Meta>
+                {
+                    new()
+                    {
+                        Key = "permissions",
+                        Value = "arch_details_service_config"
+                    }
+                }
             });
-            serviceConfig.EndpointDefinitions.Add(new EndpointDefinition
+            createdConfig.EndpointDefinitions.Add(new EndpointDefinition
             {
                 Endpoint = "api/service-configs/{id}",
                 Pattern = "api/service-configs/##",
-                Method = "put"
+                Method = "put",
+                Meta = new List<Meta>
+                {
+                    new()
+                    {
+                        Key = "permissions",
+                        Value = "arch_update_service_config"
+                    }
+                }
             });
-            serviceConfig.EndpointDefinitions.Add(new EndpointDefinition
+            createdConfig.EndpointDefinitions.Add(new EndpointDefinition
             {
                 Endpoint = "api/service-configs/{id}/endpoint-definitions",
                 Pattern = "api/service-configs/##/endpoint-definitions",
-                Method = "post"
+                Method = "post",
+                Meta = new List<Meta>
+                {
+                    new()
+                    {
+                        Key = "permissions",
+                        Value = "arch_create_endpoint_definition"
+                    }
+                }
             });
-            serviceConfig.EndpointDefinitions.Add(new EndpointDefinition
+            createdConfig.EndpointDefinitions.Add(new EndpointDefinition
             {
                 Endpoint = "api/service-configs/{id}/endpoint-definitions",
                 Pattern = "api/service-configs/##/endpoint-definitions",
-                Method = "get"
+                Method = "get",
+                Meta = new List<Meta>
+                {
+                    new()
+                    {
+                        Key = "permissions",
+                        Value = "arch_list_endpoint_definition"
+                    }
+                }
             });
-
-
-            dbContext.ServiceConfigs.Update(serviceConfig);
+            dbContext.ServiceConfigs.Update(createdConfig);
             dbContext.SaveChanges();
         }
     }

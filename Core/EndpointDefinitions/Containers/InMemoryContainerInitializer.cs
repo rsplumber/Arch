@@ -15,6 +15,8 @@ public class InMemoryContainerInitializer : IContainerInitializer
 
     public async Task InitializeAsync(List<ServiceConfig> serviceConfigs, CancellationToken cancellationToken = default)
     {
+        _endpointPatternTree.Clear();
+        _endpointDefinitionContainer.Clear();
         foreach (var config in serviceConfigs)
         {
             foreach (var definition in config.EndpointDefinitions)

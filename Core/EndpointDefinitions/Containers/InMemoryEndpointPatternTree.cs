@@ -2,36 +2,41 @@
 
 public class InMemoryEndpointPatternTree : IEndpointPatternTree
 {
-    private static readonly EndpointNode PatternTree = EndpointNode.CreateRoot();
+    private static EndpointNode _patternTree = EndpointNode.CreateRoot();
 
     public ValueTask AddAsync(string url, CancellationToken cancellationToken = default)
     {
-        return PatternTree.AppendAsync(url, cancellationToken);
+        return _patternTree.AppendAsync(url, cancellationToken);
     }
 
     public ValueTask RemoveAsync(string urlPattern, CancellationToken cancellationToken = default)
     {
-        return PatternTree.RemoveAsync(urlPattern, cancellationToken);
+        return _patternTree.RemoveAsync(urlPattern, cancellationToken);
     }
 
     public ValueTask<string> FindAsync(string url, CancellationToken cancellationToken = default)
     {
-        return PatternTree.FindAsync(url, cancellationToken);
+        return _patternTree.FindAsync(url, cancellationToken);
     }
 
     public void Add(string url)
     {
-        PatternTree.Append(url);
+        _patternTree.Append(url);
     }
 
 
     public string Find(string url)
     {
-        return PatternTree.Find(url);
+        return _patternTree.Find(url);
     }
 
     public void Remove(string urlPattern, CancellationToken cancellationToken = default)
     {
-        PatternTree.Remove(urlPattern);
+        _patternTree.Remove(urlPattern);
+    }
+
+    public void Clear()
+    {
+        _patternTree = EndpointNode.CreateRoot();
     }
 }

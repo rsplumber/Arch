@@ -8,5 +8,7 @@ public interface IEndpointDefinitionContainer
 
     EndpointDefinition? Get(DefinitionKey key);
 
+    void Clear();
+
     ValueTask RemoveAsync(DefinitionKey key, CancellationToken cancellationToken = default);
 }

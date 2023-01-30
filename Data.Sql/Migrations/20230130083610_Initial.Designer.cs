@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Data.Sql.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20230129105939_Initial")]
+    [Migration("20230130083610_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -29,7 +29,8 @@ namespace Data.Sql.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
 
                     b.Property<string>("Endpoint")
                         .IsRequired()
@@ -46,37 +47,44 @@ namespace Data.Sql.Migrations
                         .HasColumnType("text")
                         .HasColumnName("pattern");
 
-                    b.Property<Guid?>("ServiceConfigId")
+                    b.Property<Guid>("service_config_id")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ServiceConfigId");
+                    b.HasIndex("service_config_id");
 
                     b.ToTable("endpoint_definitions", (string)null);
                 });
 
             modelBuilder.Entity("Core.Metas.Meta", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
 
-                    b.Property<Guid?>("EndpointDefinitionId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("ServiceConfigId")
-                        .HasColumnType("uuid");
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("key");
 
                     b.Property<string>("Value")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("value");
 
+                    b.Property<Guid?>("endpoint_definition_id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("service_config_id")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("EndpointDefinitionId");
+                    b.HasIndex("endpoint_definition_id");
 
-                    b.HasIndex("ServiceConfigId");
+                    b.HasIndex("service_config_id");
 
                     b.ToTable("meta", (string)null);
                 });
@@ -85,7 +93,8 @@ namespace Data.Sql.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -99,20 +108,30 @@ namespace Data.Sql.Migrations
 
             modelBuilder.Entity("Core.EndpointDefinitions.EndpointDefinition", b =>
                 {
-                    b.HasOne("Core.ServiceConfigs.ServiceConfig", null)
+                    b.HasOne("Core.ServiceConfigs.ServiceConfig", "ServiceConfig")
                         .WithMany("EndpointDefinitions")
-                        .HasForeignKey("ServiceConfigId");
+                        .HasForeignKey("service_config_id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ServiceConfig");
                 });
 
             modelBuilder.Entity("Core.Metas.Meta", b =>
                 {
-                    b.HasOne("Core.EndpointDefinitions.EndpointDefinition", null)
+                    b.HasOne("Core.EndpointDefinitions.EndpointDefinition", "EndpointDefinition")
                         .WithMany("Meta")
-                        .HasForeignKey("EndpointDefinitionId");
+                        .HasForeignKey("endpoint_definition_id")
+                        .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("Core.ServiceConfigs.ServiceConfig", null)
+                    b.HasOne("Core.ServiceConfigs.ServiceConfig", "ServiceConfig")
                         .WithMany("Meta")
-                        .HasForeignKey("ServiceConfigId");
+                        .HasForeignKey("service_config_id")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("EndpointDefinition");
+
+                    b.Navigation("ServiceConfig");
                 });
 
             modelBuilder.Entity("Core.EndpointDefinitions.EndpointDefinition", b =>

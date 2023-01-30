@@ -56,7 +56,7 @@ internal class RequestDispatcherMiddleware : IMiddleware
 
         string ApiUrl()
         {
-            var baseUrl = endpointDefinition.Meta.Find(meta => meta.Id == BaseUrlMetaKey)!.Value;
+            var baseUrl = endpointDefinition.Meta.Find(meta => meta.Key == BaseUrlMetaKey)!.Value;
             return $"{baseUrl}/{info.Path}";
         }
     }

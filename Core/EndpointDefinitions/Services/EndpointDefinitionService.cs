@@ -46,7 +46,7 @@ public class EndpointDefinitionService : IEndpointDefinitionService
         {
             endpointDefinition.Meta.Add(new Meta
             {
-                Id = key,
+                Key = key,
                 Value = value
             });
         }

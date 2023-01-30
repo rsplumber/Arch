@@ -1,4 +1,5 @@
 using Core.ServiceConfigs;
+using Data.Sql;
 using FastEndpoints;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
@@ -7,9 +8,9 @@ namespace Management.Endpoints.ServiceConfigs.Detail;
 
 internal sealed class Endpoint : Endpoint<Request, ServiceConfig>
 {
-    private readonly ManagementDbContext _dbContext;
+    private readonly AppDbContext _dbContext;
 
-    public Endpoint(ManagementDbContext dbContext)
+    public Endpoint(AppDbContext dbContext)
     {
         _dbContext = dbContext;
     }

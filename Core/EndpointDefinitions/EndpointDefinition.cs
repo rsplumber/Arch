@@ -1,4 +1,5 @@
 ﻿using Core.Metas;
+using Core.ServiceConfigs;
 
 namespace Core.EndpointDefinitions;
 
@@ -13,4 +14,6 @@ public class EndpointDefinition
     public string Method { get; set; } = default!;
 
     public List<Meta> Meta { get; set; } = new();
+
+    public ServiceConfig ServiceConfig { get; set; } = default!;
 }
