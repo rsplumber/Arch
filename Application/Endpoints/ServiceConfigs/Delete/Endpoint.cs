@@ -2,7 +2,7 @@ using Core.ServiceConfigs.Services;
 using FastEndpoints;
 using FluentValidation;
 
-namespace Management.Endpoints.ServiceConfigs.Update;
+namespace Application.Endpoints.ServiceConfigs.Delete;
 
 internal sealed class Endpoint : Endpoint<Request>
 {
@@ -15,18 +15,13 @@ internal sealed class Endpoint : Endpoint<Request>
 
     public override void Configure()
     {
-        Put("service-configs/{id}");
+        Delete("service-configs/{id}");
         AllowAnonymous();
     }
 
     public override async Task HandleAsync(Request req, CancellationToken ct)
     {
-        await _serviceConfigService.UpdateAsync(new UpdateServiceConfigRequest
-        {
-            Id = req.Id,
-            Name = req.Name,
-            Meta = req.Meta
-        }, ct);
+        await _serviceConfigService.DeleteAsync(req.Id, ct);
         await SendOkAsync(ct);
     }
 }
@@ -34,10 +29,6 @@ internal sealed class Endpoint : Endpoint<Request>
 public class Request
 {
     public Guid Id { get; set; }
-
-    public string Name { get; set; } = default!;
-
-    public Dictionary<string, string> Meta { get; set; } = new();
 }
 
 internal sealed class RequestValidator : Validator<Request>
@@ -47,9 +38,5 @@ internal sealed class RequestValidator : Validator<Request>
         RuleFor(request => request.Id)
             .NotEmpty().WithMessage("Enter Id")
             .NotNull().WithMessage("Enter Id");
-
-        RuleFor(request => request.Name)
-            .NotEmpty().WithMessage("Enter Name")
-            .NotNull().WithMessage("Enter Name");
     }
 }

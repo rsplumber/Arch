@@ -4,7 +4,7 @@ using FastEndpoints;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 
-namespace Management.Endpoints.ServiceConfigs.Detail;
+namespace Application.Endpoints.ServiceConfigs.Detail;
 
 internal sealed class Endpoint : Endpoint<Request, ServiceConfig>
 {

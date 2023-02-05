@@ -47,7 +47,7 @@ internal class CheckAccountingMiddleware : IMiddleware
         }
 
         var client = _clientFactory.CreateClient(HttpClientFactoryKey);
-        var userId = context.Items[UserIdKey] as string;
+        var userId = context.Items[UserIdKey];
         var httpResponseMessage = await client.PostAsJsonAsync($"{_clerkBaseUrl}/api/v1/accounts/{userId}/tariff/pay", new
         {
             TariffIdentifier = info.Path

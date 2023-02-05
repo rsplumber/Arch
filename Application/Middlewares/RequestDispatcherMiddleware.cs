@@ -7,6 +7,7 @@ internal class RequestDispatcherMiddleware : IMiddleware
     private readonly IHttpClientFactory _httpClientFactory;
     private const string RequestInfoKey = "request_info";
     private const string ArchEndpointDefinitionKey = "arch_endpoint_definition";
+    private const string IgnoreDispatchKey = "ignore_dispatch";
     private const string HttpFactoryName = "default";
     private const string BaseUrlMetaKey = "base_url";
     private const string ContentType = "application/json; charset=utf-8";
@@ -21,7 +22,15 @@ internal class RequestDispatcherMiddleware : IMiddleware
     {
         dynamic? info = context.Items[RequestInfoKey];
         dynamic? endpointDefinition = context.Items[ArchEndpointDefinitionKey];
+
         if (endpointDefinition is null || info is null) return;
+
+        foreach (var meta in endpointDefinition.Meta)
+        {
+            if (meta.Key != IgnoreDispatchKey) continue;
+            await next(context);
+            return;
+        }
 
         var client = _httpClientFactory.CreateClient(HttpFactoryName);
         client.DefaultRequestHeaders.Clear();

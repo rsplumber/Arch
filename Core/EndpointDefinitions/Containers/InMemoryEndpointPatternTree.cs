@@ -11,7 +11,7 @@ public class InMemoryEndpointPatternTree : IEndpointPatternTree
 
     public ValueTask RemoveAsync(string urlPattern, CancellationToken cancellationToken = default)
     {
-        return _patternTree.RemoveAsync(urlPattern, cancellationToken);
+        throw new NotImplementedException();
     }
 
     public ValueTask<string> FindAsync(string url, CancellationToken cancellationToken = default)
@@ -32,7 +32,7 @@ public class InMemoryEndpointPatternTree : IEndpointPatternTree
 
     public void Remove(string urlPattern, CancellationToken cancellationToken = default)
     {
-        _patternTree.Remove(urlPattern);
+        throw new NotImplementedException();
     }
 
     public void Clear()

@@ -44,14 +44,14 @@ internal class KunderaAuthorizationMiddleware : IMiddleware
         var serviceSecret = ExtractServiceSecret();
         if (serviceSecret is null)
         {
-            throw new ServiceSecretNotDefinedException();
+            throw new UnAuthorizedException();
         }
 
         dynamic? info = context.Items[RequestInfoKey];
         string? tokenValue;
         try
         {
-            tokenValue = info.Headers["Authorization"] as string;
+            tokenValue = info.Headers["Authorization"];
         }
         catch (Exception)
         {

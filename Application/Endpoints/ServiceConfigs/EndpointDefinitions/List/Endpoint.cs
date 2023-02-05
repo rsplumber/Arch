@@ -4,7 +4,7 @@ using FastEndpoints;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 
-namespace Management.Endpoints.ServiceConfigs.EndpointDefinitions.List;
+namespace Application.Endpoints.ServiceConfigs.EndpointDefinitions.List;
 
 internal sealed class Endpoint : Endpoint<Request>
 {
@@ -40,8 +40,10 @@ internal sealed class Endpoint : Endpoint<Request>
 
         await SendOkAsync(serviceConfig.EndpointDefinitions.Select(definition => new
         {
+            definition.Id,
             definition.Endpoint,
-            definition.Pattern
+            definition.Pattern,
+            definition.Method
         }).ToList(), ct);
     }
 }

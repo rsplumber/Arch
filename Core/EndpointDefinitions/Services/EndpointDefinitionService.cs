@@ -9,16 +9,16 @@ namespace Core.EndpointDefinitions.Services;
 public class EndpointDefinitionService : IEndpointDefinitionService
 {
     private readonly IEndpointPatternTree _endpointPatternTree;
-    private readonly IEndpointDefinitionContainer _endpointDefinitionContainer;
     private readonly IServiceConfigRepository _serviceConfigRepository;
     private readonly IEndpointDefinitionRepository _endpointDefinitionRepository;
+    private readonly IContainerInitializer _containerInitializer;
 
-    public EndpointDefinitionService(IEndpointPatternTree endpointPatternTree, IEndpointDefinitionContainer endpointDefinitionContainer, IServiceConfigRepository serviceConfigRepository, IEndpointDefinitionRepository endpointDefinitionRepository)
+    public EndpointDefinitionService(IEndpointPatternTree endpointPatternTree, IServiceConfigRepository serviceConfigRepository, IEndpointDefinitionRepository endpointDefinitionRepository, IContainerInitializer containerInitializer)
     {
         _endpointPatternTree = endpointPatternTree;
-        _endpointDefinitionContainer = endpointDefinitionContainer;
         _serviceConfigRepository = serviceConfigRepository;
         _endpointDefinitionRepository = endpointDefinitionRepository;
+        _containerInitializer = containerInitializer;
     }
 
     public async ValueTask AddAsync(AddEndpointDefinitionRequest request, CancellationToken cancellationToken = default)
@@ -31,7 +31,6 @@ public class EndpointDefinitionService : IEndpointDefinitionService
 
         _endpointPatternTree.Add(SanitizedEndpoint());
         var endpointPattern = _endpointPatternTree.Find(request.Endpoint);
-
 
         var endpointDefinition = new EndpointDefinition
         {
@@ -55,7 +54,7 @@ public class EndpointDefinitionService : IEndpointDefinitionService
 
         await _serviceConfigRepository.UpdateAsync(serviceConfig, cancellationToken);
 
-        await _endpointDefinitionContainer.AddAsync(endpointDefinition, cancellationToken);
+        await ReInitializeContainersAsync(cancellationToken);
 
         string SanitizedEndpoint() => request.Endpoint.StartsWith("/") ? request.Endpoint.Remove(0, 1) : request.Endpoint;
 
@@ -70,20 +69,25 @@ public class EndpointDefinitionService : IEndpointDefinitionService
             throw new ServiceConfigNotFoundException();
         }
 
-        var endpointDefinition = await _endpointDefinitionRepository.FindAsync(request.Id, cancellationToken);
+
+        var endpointDefinition = serviceConfig.EndpointDefinitions.Find(definition => definition.Id == request.Id);
         if (endpointDefinition is null)
         {
             throw new EndpointDefinitionNotFoundException();
         }
 
-        await RemoveAsync(endpointDefinition.Id, cancellationToken);
-        await AddAsync(new AddEndpointDefinitionRequest
+        endpointDefinition.Meta.Clear();
+        foreach (var (key, value) in request.Meta)
         {
-            ServiceConfigId = serviceConfig.Id,
-            Endpoint = endpointDefinition.Endpoint,
-            Method = endpointDefinition.Method,
-            Meta = request.Meta
-        }, cancellationToken);
+            endpointDefinition.Meta.Add(new Meta
+            {
+                Key = key,
+                Value = value
+            });
+        }
+
+        await _serviceConfigRepository.UpdateAsync(serviceConfig, cancellationToken);
+        await ReInitializeContainersAsync(cancellationToken);
     }
 
     public async ValueTask RemoveAsync(Guid endpointId, CancellationToken cancellationToken = default)
@@ -101,8 +105,14 @@ public class EndpointDefinitionService : IEndpointDefinitionService
         }
 
         serviceConfig.EndpointDefinitions.Remove(endpointDefinition);
-        await _endpointPatternTree.RemoveAsync(endpointDefinition.Pattern, cancellationToken);
-        await _endpointDefinitionContainer.RemoveAsync(DefinitionKey.From(endpointDefinition.Pattern, endpointDefinition.Method), cancellationToken);
         await _serviceConfigRepository.UpdateAsync(serviceConfig, cancellationToken);
+
+        await ReInitializeContainersAsync(cancellationToken);
+    }
+
+    private async Task ReInitializeContainersAsync(CancellationToken cancellationToken = default)
+    {
+        var serviceConfigs = await _serviceConfigRepository.FindAsync(cancellationToken);
+        await _containerInitializer.InitializeAsync(serviceConfigs, cancellationToken);
     }
 }

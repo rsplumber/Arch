@@ -38,6 +38,15 @@ public class ServiceConfigRepository : IServiceConfigRepository
             .FirstOrDefaultAsync(model => model.Id == id, cancellationToken);
     }
 
+    public async Task<List<ServiceConfig>> FindAsync(CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.ServiceConfigs
+            .Include(config => config.Meta)
+            .Include(config => config.EndpointDefinitions)
+            .ThenInclude(definition => definition.Meta)
+            .ToListAsync(cancellationToken);
+    }
+
     public Task<ServiceConfig?> FindByEndpointAsync(Guid endpointId, CancellationToken cancellationToken = default)
     {
         return _dbContext.ServiceConfigs

@@ -4,7 +4,7 @@ using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using EndpointDefinition = Core.EndpointDefinitions.EndpointDefinition;
 
-namespace Management.Endpoints.EndpointDefinitions.Detail;
+namespace Application.Endpoints.EndpointDefinitions.Detail;
 
 internal sealed class Endpoint : FastEndpoints.Endpoint<Request, EndpointDefinition>
 {

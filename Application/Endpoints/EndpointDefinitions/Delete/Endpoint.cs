@@ -2,7 +2,7 @@ using Core.EndpointDefinitions.Services;
 using FastEndpoints;
 using FluentValidation;
 
-namespace Management.Endpoints.EndpointDefinitions.Delete;
+namespace Application.Endpoints.EndpointDefinitions.Delete;
 
 internal sealed class Endpoint : Endpoint<Request>
 {

@@ -67,17 +67,6 @@ public sealed class EndpointNode
         return string.Join("/", foundedValues);
     }
 
-    public async ValueTask RemoveAsync(string url, CancellationToken cancellationToken = new())
-    {
-        var currentNode = this;
-        await Task.Run(() => currentNode.Remove(url), cancellationToken);
-    }
-
-    public void Remove(string url)
-    {
-        throw new NotImplementedException();
-    }
-
     private async ValueTask<List<string>> FindEnumerableAsync(string url, CancellationToken cancellationToken)
     {
         var currentNode = this;

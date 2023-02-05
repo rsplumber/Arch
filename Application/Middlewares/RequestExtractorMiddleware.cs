@@ -15,10 +15,12 @@ internal class RequestExtractorMiddleware : IMiddleware
 
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
+        context.Request.EnableBuffering();
         var path = ExtractPath();
         var body = await new StreamReader(context.Request.Body).ReadToEndAsync();
+        context.Request.Body.Position = 0;
         var method = context.Request.Method.ToLower();
-        context.Items[RequestInfoKey] = new
+        context.Items[RequestInfoKey] = new RequestInfo
         {
             Headers = context.Request.Headers.ToDictionary(a => a.Key, a => string.Join(";", a.Value!)),
             Method = method,

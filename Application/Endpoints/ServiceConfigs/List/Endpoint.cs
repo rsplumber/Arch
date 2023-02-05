@@ -2,7 +2,7 @@ using Data.Sql;
 using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
 
-namespace Management.Endpoints.ServiceConfigs.List;
+namespace Application.Endpoints.ServiceConfigs.List;
 
 internal sealed class Endpoint : Endpoint<Request>
 {
