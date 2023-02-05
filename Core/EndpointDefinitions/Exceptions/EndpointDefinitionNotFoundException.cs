@@ -1,10 +1,13 @@
-﻿namespace Core.EndpointDefinitions.Exceptions;
+﻿using Core.Library.Exceptions;
 
-public class EndpointDefinitionNotFoundException : ApplicationException
+namespace Core.EndpointDefinitions.Exceptions;
+
+public class EndpointDefinitionNotFoundException : ArchException
 {
-    private const string DefaultMessage = "Endpoint config not found";
+    private const int DefaultCode = 404;
+    private const string DefaultMessage = "Endpoint not found";
 
-    public EndpointDefinitionNotFoundException() : base(DefaultMessage)
+    public EndpointDefinitionNotFoundException() : base(DefaultCode, DefaultMessage)
     {
     }
 }

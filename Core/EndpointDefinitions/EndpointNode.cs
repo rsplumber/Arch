@@ -1,3 +1,5 @@
+using Core.EndpointDefinitions.Exceptions;
+
 namespace Core.EndpointDefinitions;
 
 public sealed class EndpointNode
@@ -97,13 +99,13 @@ public sealed class EndpointNode
             {
                 if (!node._children.TryGetValue(PathParameterKey, out var pathValue) && !node._end)
                 {
-                    throw new Exception("not found");
+                    throw new NodePathNotFoundException();
                 }
 
                 value = pathValue;
             }
 
-            node = value ?? throw new Exception("not found");
+            node = value ?? throw new NodePathNotFoundException();
             yield return node._item;
         }
     }

@@ -15,6 +15,7 @@ builder.WebHost.UseUrls("http://+:5228");
 
 builder.Services.AddHttpClient("default", _ => { });
 
+builder.Services.AddSingleton<ExceptionHandlerMiddleware>();
 builder.Services.AddSingleton<RequestExtractorMiddleware>();
 builder.Services.AddKundera(builder.Configuration);
 builder.Services.AddClerkAccounting(builder.Configuration);
@@ -37,6 +38,7 @@ builder.Services.AddFastEndpoints();
 
 var app = builder.Build();
 
+app.UseMiddleware<ExceptionHandlerMiddleware>();
 app.UseMiddleware<RequestExtractorMiddleware>();
 app.UseKundera();
 app.UseClerkAccounting();

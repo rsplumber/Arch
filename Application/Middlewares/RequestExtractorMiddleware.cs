@@ -18,7 +18,7 @@ internal class RequestExtractorMiddleware : IMiddleware
         var path = ExtractPath();
         var body = await new StreamReader(context.Request.Body).ReadToEndAsync();
         var method = context.Request.Method.ToLower();
-        context.Items[RequestInfoKey] = new RequestInfo
+        context.Items[RequestInfoKey] = new
         {
             Headers = context.Request.Headers.ToDictionary(a => a.Key, a => string.Join(";", a.Value!)),
             Method = method,

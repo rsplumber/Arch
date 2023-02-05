@@ -27,8 +27,7 @@ internal class CheckAccountingMiddleware : IMiddleware
         dynamic? accounting = null;
         foreach (var meta in archEndpointDefinition.Meta)
         {
-            var id = meta.Key;
-            if (id! != AccountingMetaKey) continue;
+            if (meta.Key != AccountingMetaKey) continue;
             accounting = meta;
             break;
         }
@@ -53,13 +52,8 @@ internal class CheckAccountingMiddleware : IMiddleware
         {
             TariffIdentifier = info.Path
         });
-        var response = await httpResponseMessage.Content.ReadFromJsonAsync<ApiResponse>();
+        var response = await httpResponseMessage.Content.ReadFromJsonAsync<dynamic>();
         if (response is null || !response.Result) throw new NoBalanceException();
         await next(context);
     }
-}
-
-internal class ApiResponse
-{
-    public bool Result { get; set; }
 }

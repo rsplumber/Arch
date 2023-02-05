@@ -15,6 +15,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\Core.Library\Core.Library.csproj" />
       <ProjectReference Include="..\..\Core\Core.csproj" />
     </ItemGroup>
 

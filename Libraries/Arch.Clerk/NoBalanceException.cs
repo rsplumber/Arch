@@ -1,10 +1,13 @@
-﻿namespace Arch.Clerk;
+﻿using Core.Library.Exceptions;
 
-public class NoBalanceException : Exception
+namespace Arch.Clerk;
+
+public class NoBalanceException : ArchException
 {
+    private const int DefaultCode = 400;
     private const string DefaultMessage = "No balance";
 
-    public NoBalanceException() : base(DefaultMessage)
+    public NoBalanceException() : base(DefaultCode, DefaultMessage)
     {
     }
 }

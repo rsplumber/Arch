@@ -30,8 +30,7 @@ internal class KunderaAuthorizationMiddleware : IMiddleware
         dynamic? allowAnonymous = null;
         foreach (var meta in archEndpointDefinition.Meta)
         {
-            var key = meta.Key;
-            if (key! != AllowAnonymousMetaKey) continue;
+            if (meta.Key != AllowAnonymousMetaKey) continue;
             allowAnonymous = meta;
             break;
         }

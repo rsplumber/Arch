@@ -1,5 +1,4 @@
 ﻿using System.Text.Json;
-using Core.EndpointDefinitions;
 
 namespace Application.Middlewares;
 
@@ -20,17 +19,17 @@ internal class RequestDispatcherMiddleware : IMiddleware
 
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
-        var info = context.Items[RequestInfoKey] as RequestInfo;
-        var endpointDefinition = context.Items[ArchEndpointDefinitionKey] as EndpointDefinition;
+        dynamic? info = context.Items[RequestInfoKey];
+        dynamic? endpointDefinition = context.Items[ArchEndpointDefinitionKey];
         if (endpointDefinition is null || info is null) return;
 
         var client = _httpClientFactory.CreateClient(HttpFactoryName);
         client.DefaultRequestHeaders.Clear();
         if (info.Headers is not null)
         {
-            foreach (var (key, value) in info.Headers)
+            foreach (var header in info.Headers)
             {
-                client.DefaultRequestHeaders.TryAddWithoutValidation(key, value);
+                client.DefaultRequestHeaders.TryAddWithoutValidation(header.Key, header.Value);
             }
         }
 
@@ -56,7 +55,14 @@ internal class RequestDispatcherMiddleware : IMiddleware
 
         string ApiUrl()
         {
-            var baseUrl = endpointDefinition.Meta.Find(meta => meta.Key == BaseUrlMetaKey)!.Value;
+            string? baseUrl = null;
+            foreach (var meta in endpointDefinition.Meta)
+            {
+                if (meta.Key != BaseUrlMetaKey) continue;
+                baseUrl = meta.Value as string;
+                break;
+            }
+
             return $"{baseUrl}/{info.Path}";
         }
     }
