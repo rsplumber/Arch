@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Data.Sql;
 
-public class ServiceConfigRepository : IServiceConfigRepository
+public sealed class ServiceConfigRepository : IServiceConfigRepository
 {
     private readonly AppDbContext _dbContext;
 

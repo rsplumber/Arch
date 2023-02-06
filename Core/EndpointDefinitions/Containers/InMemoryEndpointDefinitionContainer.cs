@@ -2,7 +2,7 @@
 
 namespace Core.EndpointDefinitions.Containers;
 
-public class InMemoryEndpointDefinitionContainer : IEndpointDefinitionContainer
+public sealed class InMemoryEndpointDefinitionContainer : IEndpointDefinitionContainer
 {
     private static readonly ConcurrentDictionary<DefinitionKey, EndpointDefinition> EndpointDefinitions = new();
 

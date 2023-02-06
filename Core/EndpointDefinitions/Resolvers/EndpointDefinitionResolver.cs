@@ -2,7 +2,7 @@ using Core.EndpointDefinitions.Containers;
 
 namespace Core.EndpointDefinitions.Resolvers;
 
-public class EndpointDefinitionResolver : IEndpointDefinitionResolver
+public sealed class EndpointDefinitionResolver : IEndpointDefinitionResolver
 {
     private readonly IEndpointPatternTree _endpointPatternTree;
     private readonly IEndpointDefinitionContainer _endpointDefinitionContainer;

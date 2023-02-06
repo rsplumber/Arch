@@ -1,12 +1,12 @@
 namespace Core.EndpointDefinitions.Services;
 
-public class AddEndpointDefinitionRequest
+public sealed record AddEndpointDefinitionRequest
 {
-    public Guid ServiceConfigId { get; set; }
+    public required Guid ServiceConfigId { get; init; }
 
-    public string Endpoint { get; set; } = default!;
+    public required string Endpoint { get; init; } = default!;
 
-    public string Method { get; set; } = default!;
+    public required string Method { get; init; } = default!;
 
     public Dictionary<string, string> Meta { get; set; } = new();
 }

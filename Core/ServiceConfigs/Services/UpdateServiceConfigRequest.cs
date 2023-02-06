@@ -1,10 +1,10 @@
 namespace Core.ServiceConfigs.Services;
 
-public class UpdateServiceConfigRequest
+public sealed record UpdateServiceConfigRequest
 {
-    public Guid Id { get; set; }
+    public required Guid Id { get; init; }
 
-    public string Name { get; set; } = default!;
+    public required string Name { get; init; } = default!;
 
     public Dictionary<string, string> Meta { get; set; } = new();
 }

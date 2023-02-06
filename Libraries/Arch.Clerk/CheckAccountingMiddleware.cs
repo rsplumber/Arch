@@ -1,6 +1,5 @@
 ﻿using System.Net.Http.Json;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
 
 namespace Arch.Clerk;
 
@@ -13,34 +12,24 @@ internal class CheckAccountingMiddleware : IMiddleware
     private const string TrueKey = "true";
     private const string AccountingMetaKey = "accounting";
     private const string UserIdKey = "user_id";
-    private readonly string _clerkBaseUrl;
 
-    public CheckAccountingMiddleware(IHttpClientFactory clientFactory, IConfiguration configuration)
+    public CheckAccountingMiddleware(IHttpClientFactory clientFactory)
     {
         _clientFactory = clientFactory;
-        _clerkBaseUrl = configuration.GetSection("Clerk:BaseUrl").Value ?? throw new Exception("Enter Clerk:BaseUrl in appsettings.json");
     }
 
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
-        dynamic archEndpointDefinition = context.Items[ArchEndpointDefinitionKey]!;
-        dynamic? accounting = null;
-        foreach (var meta in archEndpointDefinition.Meta)
-        {
-            if (meta.Key != AccountingMetaKey) continue;
-            accounting = meta;
-            break;
-        }
+        dynamic endpointDefinition = context.Items[ArchEndpointDefinitionKey]!;
 
-
-        if (accounting is null || accounting.Value != TrueKey)
+        if (!HasAccounting())
         {
             await next(context);
             return;
         }
 
-        dynamic? info = context.Items[RequestInfoKey];
-        if (info is null)
+        dynamic? requestInfo = context.Items[RequestInfoKey];
+        if (requestInfo is null)
         {
             await next(context);
             return;
@@ -48,12 +37,34 @@ internal class CheckAccountingMiddleware : IMiddleware
 
         var client = _clientFactory.CreateClient(HttpClientFactoryKey);
         var userId = context.Items[UserIdKey];
-        var httpResponseMessage = await client.PostAsJsonAsync($"{_clerkBaseUrl}/api/v1/accounts/{userId}/tariff/pay", new
+        if (userId is null)
         {
-            TariffIdentifier = info.Path
+            throw new AccountingUserNotFoundException();
+        }
+
+        var httpResponseMessage = await client.PostAsJsonAsync($"{ClerkAccountingSettings.BaseUrl}/api/v1/accounts/{userId}/tariff/pay", new
+        {
+            TariffIdentifier = requestInfo.Path, requestInfo.Method
         });
         var response = await httpResponseMessage.Content.ReadFromJsonAsync<dynamic>();
-        if (response is null || !response.Result) throw new NoBalanceException();
+        if (response is null || !response.Result)
+        {
+            throw new AccountingNoBalanceException();
+        }
+
         await next(context);
+
+        bool HasAccounting()
+        {
+            dynamic? accounting = null;
+            foreach (var meta in endpointDefinition.Meta)
+            {
+                if (meta.Key != AccountingMetaKey) continue;
+                accounting = meta;
+                break;
+            }
+
+            return accounting is not null && accounting.Value == TrueKey;
+        }
     }
 }

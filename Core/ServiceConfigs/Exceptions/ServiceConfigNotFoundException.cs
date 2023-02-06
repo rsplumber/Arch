@@ -2,7 +2,7 @@
 
 namespace Core.ServiceConfigs.Exceptions;
 
-public class ServiceConfigNotFoundException : ArchException
+public sealed class ServiceConfigNotFoundException : ArchException
 {
     private const int DefaultCode = 404;
     private const string DefaultMessage = "Service config not found";

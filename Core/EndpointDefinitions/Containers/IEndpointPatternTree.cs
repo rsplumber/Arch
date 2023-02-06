@@ -25,6 +25,6 @@ public interface IEndpointPatternTree
     string Find(string url);
 
     void Remove(string urlPattern, CancellationToken cancellationToken = default);
-    
+
     void Clear();
 }

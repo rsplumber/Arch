@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Data.Sql;
 
-public class EndpointDefinitionRepository : IEndpointDefinitionRepository
+public sealed class EndpointDefinitionRepository : IEndpointDefinitionRepository
 {
     private readonly AppDbContext _dbContext;
 

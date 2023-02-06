@@ -1,8 +1,8 @@
 namespace Core.EndpointDefinitions.Services;
 
-public class UpdateEndpointDefinitionRequest
+public sealed record UpdateEndpointDefinitionRequest
 {
-    public Guid Id { get; set; } = default!;
+    public required Guid Id { get; init; }
 
     public Dictionary<string, string> Meta { get; set; } = default!;
 }

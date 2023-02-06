@@ -41,9 +41,9 @@ internal sealed class Endpoint : Endpoint<Request>
 
 internal sealed record Request
 {
-    public string? Name { get; set; }
+    public string? Name { get; init; } = default;
 
-    public int Size { get; set; } = 10;
+    public int Size { get; init; } = 10;
 
-    public int Page { get; set; } = 1;
+    public int Page { get; init; } = 1;
 }

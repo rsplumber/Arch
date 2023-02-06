@@ -3,7 +3,7 @@ using Core.ServiceConfigs.Exceptions;
 
 namespace Core.ServiceConfigs.Services;
 
-public class ServiceConfigService : IServiceConfigService
+public sealed class ServiceConfigService : IServiceConfigService
 {
     private readonly IServiceConfigRepository _serviceConfigRepository;
     private const string BaseUrlKey = "base_url";

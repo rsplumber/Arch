@@ -1,8 +1,8 @@
 namespace Core.ServiceConfigs.Services;
 
-public class CreateServiceConfigRequest
+public sealed record CreateServiceConfigRequest
 {
-    public string Name { get; set; } = default!;
+    public required string Name { get; init; } = default!;
 
     public Dictionary<string, string> Meta { get; set; } = new();
 }

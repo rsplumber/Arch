@@ -26,9 +26,9 @@ internal sealed class Endpoint : Endpoint<Request>
     }
 }
 
-public class Request
+internal sealed class Request
 {
-    public Guid Id { get; set; }
+    public Guid Id { get; init; } = default!;
 }
 
 internal sealed class RequestValidator : Validator<Request>

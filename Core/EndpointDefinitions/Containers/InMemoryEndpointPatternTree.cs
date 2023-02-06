@@ -1,6 +1,6 @@
 ﻿namespace Core.EndpointDefinitions.Containers;
 
-public class InMemoryEndpointPatternTree : IEndpointPatternTree
+public sealed class InMemoryEndpointPatternTree : IEndpointPatternTree
 {
     private static EndpointNode _patternTree = EndpointNode.CreateRoot();
 

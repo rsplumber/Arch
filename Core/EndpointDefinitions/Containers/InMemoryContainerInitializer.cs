@@ -2,7 +2,7 @@
 
 namespace Core.EndpointDefinitions.Containers;
 
-public class InMemoryContainerInitializer : IContainerInitializer
+public sealed class InMemoryContainerInitializer : IContainerInitializer
 {
     private readonly IEndpointPatternTree _endpointPatternTree;
     private readonly IEndpointDefinitionContainer _endpointDefinitionContainer;

@@ -3,7 +3,7 @@ using Core.ServiceConfigs;
 
 namespace Core.EndpointDefinitions;
 
-public class EndpointDefinition
+public sealed class EndpointDefinition
 {
     public Guid Id { get; set; }
 

@@ -31,11 +31,11 @@ internal sealed class Endpoint : Endpoint<Request>
     }
 }
 
-internal class Request
+internal sealed class Request
 {
-    public Guid Id { get; set; } = default!;
+    public Guid Id { get; init; } = default!;
 
-    public Dictionary<string, string> Meta { get; set; } = new();
+    public Dictionary<string, string> Meta { get; init; } = new();
 }
 
 internal sealed class RequestValidator : Validator<Request>

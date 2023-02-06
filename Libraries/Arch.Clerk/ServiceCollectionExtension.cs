@@ -7,6 +7,8 @@ public static class ServiceCollectionExtension
 {
     public static void AddClerkAccounting(this IServiceCollection services, IConfiguration configuration)
     {
+        ClerkAccountingSettings.BaseUrl = configuration.GetSection("Clerk:BaseUrl").Value ??
+                                          throw new Exception("Enter Clerk:BaseUrl in appsettings.json");
         services.AddSingleton<CheckAccountingMiddleware>();
         services.AddHttpClient("clerk", _ => { });
     }

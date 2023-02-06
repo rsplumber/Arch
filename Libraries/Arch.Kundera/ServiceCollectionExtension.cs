@@ -7,13 +7,8 @@ public static class ServiceCollectionExtension
 {
     public static void AddKundera(this IServiceCollection services, IConfiguration configuration)
     {
-        var baseUrl = configuration.GetSection("Kundera:BaseUrl").Value;
-        if (baseUrl is null)
-        {
-            throw new ArgumentException("Enter Kundera:BaseUrl in appsettings.json");
-        }
-
-        KunderaAuthorizationSettings.BaseUrl = baseUrl;
+        KunderaAuthorizationSettings.BaseUrl = configuration.GetSection("Kundera:BaseUrl").Value ??
+                                               throw new Exception("Enter Kundera:BaseUrl in appsettings.json");
         services.AddSingleton<KunderaAuthorizationMiddleware>();
         services.AddHttpClient("kundera", _ => { });
     }

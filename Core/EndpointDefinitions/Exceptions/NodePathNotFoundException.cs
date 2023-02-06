@@ -2,7 +2,7 @@
 
 namespace Core.EndpointDefinitions.Exceptions;
 
-public class NodePathNotFoundException : ArchException
+public sealed class NodePathNotFoundException : ArchException
 {
     private const int DefaultCode = 404;
     private const string DefaultMessage = "Not found";

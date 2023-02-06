@@ -6,7 +6,7 @@ using Core.ServiceConfigs.Exceptions;
 
 namespace Core.EndpointDefinitions.Services;
 
-public class EndpointDefinitionService : IEndpointDefinitionService
+public sealed class EndpointDefinitionService : IEndpointDefinitionService
 {
     private readonly IEndpointPatternTree _endpointPatternTree;
     private readonly IServiceConfigRepository _serviceConfigRepository;
