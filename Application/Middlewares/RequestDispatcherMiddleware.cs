@@ -10,7 +10,8 @@ internal class RequestDispatcherMiddleware : IMiddleware
     private const string IgnoreDispatchKey = "ignore_dispatch";
     private const string HttpFactoryName = "default";
     private const string BaseUrlMetaKey = "base_url";
-    private const string ContentType = "application/json; charset=utf-8";
+    private const string UserIdHeaderKey = "user_id";
+    private const string ResponseKey = "arch_response";
 
 
     public RequestDispatcherMiddleware(IHttpClientFactory httpClientFactory)
@@ -42,6 +43,12 @@ internal class RequestDispatcherMiddleware : IMiddleware
             }
         }
 
+        var userId = context.Items[UserIdHeaderKey];
+        if (userId is not null)
+        {
+            client.DefaultRequestHeaders.TryAddWithoutValidation(UserIdHeaderKey, userId as string);
+        }
+
         object? requestBody = null;
         if (info.Body is not null)
         {
@@ -59,8 +66,12 @@ internal class RequestDispatcherMiddleware : IMiddleware
         };
 
         var response = await httpResponse.Content.ReadAsStringAsync();
-        context.Response.ContentType = ContentType;
-        await context.Response.WriteAsync(response);
+        context.Items[ResponseKey] = new ResponseInfo
+        {
+            Code = (int) httpResponse.StatusCode,
+            Value = response
+        };
+        await next(context);
 
         string ApiUrl()
         {

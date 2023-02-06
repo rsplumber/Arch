@@ -1,4 +1,3 @@
-using Core.ServiceConfigs;
 using Data.Sql;
 using FastEndpoints;
 using FluentValidation;
@@ -6,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Application.Endpoints.ServiceConfigs.Detail;
 
-internal sealed class Endpoint : Endpoint<Request, ServiceConfig>
+internal sealed class Endpoint : Endpoint<Request>
 {
     private readonly AppDbContext _dbContext;
 
@@ -25,6 +24,17 @@ internal sealed class Endpoint : Endpoint<Request, ServiceConfig>
     {
         var response = await _dbContext.ServiceConfigs
             .Include(config => config.Meta)
+            .Select(config => new
+            {
+                config.Id,
+                config.Name,
+                Meta = config.Meta.Select(meta => new
+                {
+                    meta.Id,
+                    meta.Key,
+                    meta.Value
+                }).ToList()
+            })
             .FirstAsync(config => config.Id == req.Id, cancellationToken: ct);
         await SendOkAsync(response, ct);
     }

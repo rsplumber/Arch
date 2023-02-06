@@ -24,6 +24,7 @@ builder.Services.AddSingleton<RequestExtractorMiddleware>();
 builder.Services.AddKundera(builder.Configuration);
 builder.Services.AddClerkAccounting(builder.Configuration);
 builder.Services.AddSingleton<RequestDispatcherMiddleware>();
+builder.Services.AddSingleton<ResponseHandlerMiddleware>();
 
 builder.Services.AddSingleton<IEndpointDefinitionResolver, EndpointDefinitionResolver>();
 builder.Services.AddSingleton<IEndpointPatternTree, InMemoryEndpointPatternTree>();
@@ -40,11 +41,17 @@ builder.Services.AddFastEndpoints();
 
 var app = builder.Build();
 
+app.UseCors(b => b.AllowAnyHeader()
+    .AllowAnyMethod()
+    .SetIsOriginAllowed(_ => true)
+    .AllowCredentials());
+
 app.UseMiddleware<ExceptionHandlerMiddleware>();
 app.UseMiddleware<RequestExtractorMiddleware>();
 app.UseKundera();
 app.UseClerkAccounting();
 app.UseMiddleware<RequestDispatcherMiddleware>();
+app.UseMiddleware<ResponseHandlerMiddleware>();
 
 using (var serviceScope = app.Services.GetService<IServiceScopeFactory>()?.CreateScope())
 {
@@ -231,10 +238,6 @@ using (var serviceScope = app.Services.GetService<IServiceScopeFactory>()?.Creat
 
 await InitializeInMemoryContainers();
 
-app.UseCors(b => b.AllowAnyHeader()
-    .AllowAnyMethod()
-    .SetIsOriginAllowed(_ => true)
-    .AllowCredentials());
 
 app.UseFastEndpoints();
 

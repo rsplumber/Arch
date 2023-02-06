@@ -2,11 +2,10 @@ using Data.Sql;
 using FastEndpoints;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
-using EndpointDefinition = Core.EndpointDefinitions.EndpointDefinition;
 
 namespace Application.Endpoints.EndpointDefinitions.Detail;
 
-internal sealed class Endpoint : FastEndpoints.Endpoint<Request, EndpointDefinition>
+internal sealed class Endpoint : Endpoint<Request>
 {
     private readonly AppDbContext _dbContext;
 
@@ -25,6 +24,19 @@ internal sealed class Endpoint : FastEndpoints.Endpoint<Request, EndpointDefinit
     {
         var response = await _dbContext.EndpointDefinitions
             .Include(definition => definition.Meta)
+            .Select(definition => new
+            {
+                definition.Id,
+                definition.Method,
+                definition.Pattern,
+                definition.Endpoint,
+                Meta = definition.Meta.Select(meta => new
+                {
+                    meta.Id,
+                    meta.Key,
+                    meta.Value
+                }).ToList()
+            })
             .FirstAsync(definition => definition.Id == req.Id, ct);
         await SendOkAsync(response, ct);
     }
