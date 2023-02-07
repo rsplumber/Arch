@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Data.Sql.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20230130083610_Initial")]
+    [Migration("20230207124924_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -95,6 +95,10 @@ namespace Data.Sql.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
 
                     b.Property<string>("Name")
                         .IsRequired()

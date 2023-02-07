@@ -93,6 +93,10 @@ namespace Data.Sql.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text")

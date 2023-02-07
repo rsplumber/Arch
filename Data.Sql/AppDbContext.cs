@@ -39,6 +39,10 @@ public class AppDbContext : DbContext
                 .UsePropertyAccessMode(PropertyAccessMode.Property)
                 .HasColumnName("name");
 
+            builder.Property(serviceConfig => serviceConfig.CreatedAtUtc)
+                .UsePropertyAccessMode(PropertyAccessMode.Property)
+                .HasColumnName("created_at_utc");
+
             builder.HasMany(serviceConfig => serviceConfig.EndpointDefinitions)
                 .WithOne(definition => definition.ServiceConfig)
                 .OnDelete(DeleteBehavior.Cascade)

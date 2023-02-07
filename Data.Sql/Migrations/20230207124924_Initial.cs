@@ -16,7 +16,8 @@ namespace Data.Sql.Migrations
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    name = table.Column<string>(type: "text", nullable: false)
+                    name = table.Column<string>(type: "text", nullable: false),
+                    createdatutc = table.Column<DateTime>(name: "created_at_utc", type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {

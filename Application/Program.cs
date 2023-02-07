@@ -135,6 +135,20 @@ using (var serviceScope = app.Services.GetService<IServiceScopeFactory>()?.Creat
         });
         createdConfig.EndpointDefinitions.Add(new EndpointDefinition
         {
+            Endpoint = "endpoint-definitions/required-meta",
+            Pattern = "endpoint-definitions/required-meta",
+            Method = HttpRequestMethods.Get,
+            Meta = new List<Meta>
+            {
+                new()
+                {
+                    Key = "permissions",
+                    Value = "arch_required-meta_endpoint_definition"
+                },
+            }
+        });
+        createdConfig.EndpointDefinitions.Add(new EndpointDefinition
+        {
             Endpoint = "service-configs",
             Pattern = "service-configs",
             Method = HttpRequestMethods.Post,
@@ -144,6 +158,20 @@ using (var serviceScope = app.Services.GetService<IServiceScopeFactory>()?.Creat
                 {
                     Key = "permissions",
                     Value = "arch_create_service_config"
+                },
+            }
+        });
+        createdConfig.EndpointDefinitions.Add(new EndpointDefinition
+        {
+            Endpoint = "service-configs/required-meta",
+            Pattern = "service-configs/required-meta",
+            Method = HttpRequestMethods.Get,
+            Meta = new List<Meta>
+            {
+                new()
+                {
+                    Key = "permissions",
+                    Value = "arch_required-meta_service_config"
                 },
             }
         });

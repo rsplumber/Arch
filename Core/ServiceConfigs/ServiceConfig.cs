@@ -12,4 +12,6 @@ public sealed class ServiceConfig
     public List<EndpointDefinition> EndpointDefinitions { get; set; } = new();
 
     public List<Meta> Meta { get; set; } = new();
+
+    public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
 }

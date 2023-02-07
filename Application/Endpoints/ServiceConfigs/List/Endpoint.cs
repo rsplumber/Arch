@@ -28,6 +28,7 @@ internal sealed class Endpoint : Endpoint<Request>
         }
 
         var response = await query
+            .OrderBy(config => config.CreatedAtUtc)
             .Take(request.Size)
             .Skip(request.Size * (request.Page - 1))
             .Select(config => new
