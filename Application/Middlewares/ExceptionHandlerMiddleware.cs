@@ -1,10 +1,13 @@
 ﻿using System.Text.Json;
 using Core.Library.Exceptions;
+using FluentValidation;
 
 namespace Application.Middlewares;
 
 public class ExceptionHandlerMiddleware : IMiddleware
 {
+    private const string InternalServerErrorMessage = "Whoops :( , somthing impossibly went wrong!";
+
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
         try
@@ -15,18 +18,27 @@ public class ExceptionHandlerMiddleware : IMiddleware
         {
             var response = context.Response;
             response.ContentType = "application/json";
-            if (exception is ArchException arch)
+            string message;
+            switch (exception)
             {
-                response.StatusCode = arch.Code;
-            }
-            else
-            {
-                response.StatusCode = 500;
+                case ArchException arch:
+                    response.StatusCode = arch.Code;
+                    message = arch.Message;
+                    break;
+                case ValidationException validationException:
+                    response.StatusCode = 400;
+                    message = string.Join(", ", validationException.Errors
+                        .Select(failure => $"{failure.PropertyName} : {failure.ErrorMessage}"));
+                    break;
+                default:
+                    response.StatusCode = 500;
+                    message = InternalServerErrorMessage;
+                    break;
             }
 
             await response.WriteAsync(JsonSerializer.Serialize(new
             {
-                message = exception.Message
+                message
             }));
         }
     }
