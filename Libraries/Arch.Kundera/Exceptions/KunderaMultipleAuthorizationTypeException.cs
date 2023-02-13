@@ -1,6 +1,6 @@
-﻿using Core.Library.Exceptions;
+﻿using Core;
 
-namespace Arch.Kundera;
+namespace Arch.Kundera.Exceptions;
 
 public class KunderaMultipleAuthorizationTypeException : ArchException
 {

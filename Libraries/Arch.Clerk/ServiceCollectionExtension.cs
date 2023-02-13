@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Core.Library;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Arch.Clerk;
@@ -9,7 +10,7 @@ public static class ServiceCollectionExtension
     {
         ClerkAccountingSettings.BaseUrl = configuration.GetSection("Clerk:BaseUrl").Value ??
                                           throw new Exception("Enter Clerk:BaseUrl in appsettings.json");
-        services.AddSingleton<CheckAccountingMiddleware>();
+        services.AddArchMiddleware<CheckAccountingMiddleware>();
         services.AddHttpClient("clerk", _ => { });
     }
 }

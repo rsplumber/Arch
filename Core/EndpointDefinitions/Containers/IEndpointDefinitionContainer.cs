@@ -2,11 +2,11 @@
 
 public interface IEndpointDefinitionContainer
 {
-    ValueTask AddAsync(EndpointDefinition endpointDefinition, CancellationToken cancellationToken = default);
+    ValueTask<DefinitionKey> AddAsync(EndpointDefinition endpointDefinition, CancellationToken cancellationToken = default);
 
-    ValueTask<EndpointDefinition?> GetAsync(DefinitionKey key, CancellationToken cancellationToken = default);
+    ValueTask<ContainerEndpointDefinition?> GetAsync(DefinitionKey key, CancellationToken cancellationToken = default);
 
-    EndpointDefinition? Get(DefinitionKey key);
+    ContainerEndpointDefinition? Get(DefinitionKey key);
 
     void Clear();
 

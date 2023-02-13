@@ -1,6 +1,6 @@
-﻿using Core.Library.Exceptions;
+﻿using Core;
 
-namespace Arch.Clerk;
+namespace Arch.Clerk.Exceptions;
 
 public class AccountingNoBalanceException : ArchException
 {

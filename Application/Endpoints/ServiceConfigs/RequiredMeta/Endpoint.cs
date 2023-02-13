@@ -14,13 +14,7 @@ internal sealed class Endpoint : EndpointWithoutRequest
     {
         await SendOkAsync(new
         {
-            Meta = new[]
-            {
-                new
-                {
-                    Key = "base_url"
-                }
-            }
+            Meta = Array.Empty<string>()
         }, ct);
     }
 }

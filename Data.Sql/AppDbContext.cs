@@ -39,6 +39,14 @@ public class AppDbContext : DbContext
                 .UsePropertyAccessMode(PropertyAccessMode.Property)
                 .HasColumnName("name");
 
+            builder.Property(serviceConfig => serviceConfig.BaseUrl)
+                .UsePropertyAccessMode(PropertyAccessMode.Property)
+                .HasColumnName("base_url");
+
+            builder.Property(serviceConfig => serviceConfig.Primary)
+                .UsePropertyAccessMode(PropertyAccessMode.Property)
+                .HasColumnName("primary");
+
             builder.Property(serviceConfig => serviceConfig.CreatedAtUtc)
                 .UsePropertyAccessMode(PropertyAccessMode.Property)
                 .HasColumnName("created_at_utc");

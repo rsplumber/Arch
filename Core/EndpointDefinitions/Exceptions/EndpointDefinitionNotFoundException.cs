@@ -1,6 +1,4 @@
-﻿using Core.Library.Exceptions;
-
-namespace Core.EndpointDefinitions.Exceptions;
+﻿namespace Core.EndpointDefinitions.Exceptions;
 
 public sealed class EndpointDefinitionNotFoundException : ArchException
 {

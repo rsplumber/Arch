@@ -1,4 +1,4 @@
-﻿namespace Core.Library.Exceptions;
+﻿namespace Core;
 
 public class ArchException : ApplicationException
 {

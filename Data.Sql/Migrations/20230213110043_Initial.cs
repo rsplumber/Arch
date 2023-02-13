@@ -17,6 +17,8 @@ namespace Data.Sql.Migrations
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     name = table.Column<string>(type: "text", nullable: false),
+                    primary = table.Column<bool>(type: "boolean", nullable: false),
+                    baseurl = table.Column<string>(name: "base_url", type: "text", nullable: false),
                     createdatutc = table.Column<DateTime>(name: "created_at_utc", type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>

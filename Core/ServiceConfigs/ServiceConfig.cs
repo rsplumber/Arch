@@ -9,6 +9,10 @@ public sealed class ServiceConfig
 
     public string Name { get; set; } = default!;
 
+    public bool Primary { get; set; } = default!;
+
+    public string BaseUrl { get; set; } = default!;
+
     public List<EndpointDefinition> EndpointDefinitions { get; set; } = new();
 
     public List<Meta> Meta { get; set; } = new();

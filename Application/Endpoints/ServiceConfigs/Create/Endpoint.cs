@@ -24,7 +24,8 @@ internal sealed class Endpoint : Endpoint<Request>
         await _serviceConfigService.CreateAsync(new CreateServiceConfigRequest
         {
             Name = req.Name,
-            Meta = req.Meta
+            Meta = req.Meta,
+            BaseUrl = req.BaseUrl
         }, ct);
         await SendOkAsync(ct);
     }
@@ -33,6 +34,8 @@ internal sealed class Endpoint : Endpoint<Request>
 internal sealed class Request
 {
     public string Name { get; init; } = default!;
+
+    public string BaseUrl { get; init; } = default!;
 
     public Dictionary<string, string> Meta { get; init; } = new();
 }
@@ -44,5 +47,9 @@ internal sealed class RequestValidator : Validator<Request>
         RuleFor(request => request.Name)
             .NotEmpty().WithMessage("Enter Name")
             .NotNull().WithMessage("Enter Name");
+
+        RuleFor(request => request.BaseUrl)
+            .NotEmpty().WithMessage("Enter BaseUrl")
+            .NotNull().WithMessage("Enter BaseUrl");
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace Application;
+﻿namespace Core.Library;
 
 public static class HttpRequestMethods
 {

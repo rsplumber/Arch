@@ -29,6 +29,11 @@ public sealed class EndpointDefinitionService : IEndpointDefinitionService
             throw new ServiceConfigNotFoundException();
         }
 
+        if (serviceConfig.Primary)
+        {
+            throw new PrimaryServiceModificationException();
+        }
+
         _endpointPatternTree.Add(SanitizedEndpoint());
         var endpointPattern = _endpointPatternTree.Find(request.Endpoint);
 
@@ -69,6 +74,10 @@ public sealed class EndpointDefinitionService : IEndpointDefinitionService
             throw new ServiceConfigNotFoundException();
         }
 
+        if (serviceConfig.Primary)
+        {
+            throw new PrimaryServiceModificationException();
+        }
 
         var endpointDefinition = serviceConfig.EndpointDefinitions.Find(definition => definition.Id == request.Id);
         if (endpointDefinition is null)
@@ -96,6 +105,11 @@ public sealed class EndpointDefinitionService : IEndpointDefinitionService
         if (serviceConfig is null)
         {
             throw new ServiceConfigNotFoundException();
+        }
+
+        if (serviceConfig.Primary)
+        {
+            throw new PrimaryServiceModificationException();
         }
 
         var endpointDefinition = await _endpointDefinitionRepository.FindAsync(endpointId, cancellationToken);

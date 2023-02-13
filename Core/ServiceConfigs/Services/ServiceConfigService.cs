@@ -18,9 +18,10 @@ public sealed class ServiceConfigService : IServiceConfigService
         var serviceConfig = new ServiceConfig
         {
             Name = request.Name,
-            Meta = CalculateMeta(request.Meta)
+            BaseUrl = request.BaseUrl
         };
 
+        serviceConfig.Meta = CalculateMeta(serviceConfig, request.Meta);
         await _serviceConfigRepository.AddAsync(serviceConfig, cancellationToken);
     }
 
@@ -32,8 +33,14 @@ public sealed class ServiceConfigService : IServiceConfigService
             throw new ServiceConfigNotFoundException();
         }
 
+        if (serviceConfig.Primary)
+        {
+            throw new PrimaryServiceModificationException();
+        }
+
         serviceConfig.Name = request.Name;
-        serviceConfig.Meta = CalculateMeta(request.Meta);
+        serviceConfig.BaseUrl = request.BaseUrl;
+        serviceConfig.Meta = CalculateMeta(serviceConfig, request.Meta);
 
         await _serviceConfigRepository.UpdateAsync(serviceConfig, cancellationToken);
     }
@@ -46,10 +53,15 @@ public sealed class ServiceConfigService : IServiceConfigService
             throw new ServiceConfigNotFoundException();
         }
 
+        if (serviceConfig.Primary)
+        {
+            throw new PrimaryServiceModificationException();
+        }
+
         await _serviceConfigRepository.DeleteAsync(serviceConfig, cancellationToken);
     }
 
-    private static List<Meta> CalculateMeta(Dictionary<string, string> meta)
+    private static List<Meta> CalculateMeta(ServiceConfig serviceConfig, Dictionary<string, string> meta)
     {
         var finalMeta = new List<Meta>();
         AddAndSanitizeBaseUrlForMeta();
@@ -66,11 +78,10 @@ public sealed class ServiceConfigService : IServiceConfigService
 
         void AddAndSanitizeBaseUrlForMeta()
         {
-            if (!meta.TryGetValue(BaseUrlKey, out var value)) throw new ApplicationException("base_url must define for service meta");
             finalMeta.Add(new Meta
             {
                 Key = BaseUrlKey,
-                Value = value
+                Value = serviceConfig.BaseUrl
             });
             meta.Remove(BaseUrlKey);
         }

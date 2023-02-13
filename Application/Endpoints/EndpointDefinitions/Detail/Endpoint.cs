@@ -32,7 +32,6 @@ internal sealed class Endpoint : Endpoint<Request>
                 definition.Endpoint,
                 Meta = definition.Meta.Select(meta => new
                 {
-                    meta.Id,
                     meta.Key,
                     meta.Value
                 }).ToList()

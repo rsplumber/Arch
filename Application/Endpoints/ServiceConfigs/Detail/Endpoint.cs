@@ -28,9 +28,10 @@ internal sealed class Endpoint : Endpoint<Request>
             {
                 config.Id,
                 config.Name,
+                config.Primary,
+                config.BaseUrl,
                 Meta = config.Meta.Select(meta => new
                 {
-                    meta.Id,
                     meta.Key,
                     meta.Value
                 }).ToList()

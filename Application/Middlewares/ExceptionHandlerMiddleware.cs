@@ -1,14 +1,15 @@
 ﻿using System.Text.Json;
-using Core.Library.Exceptions;
+using Core;
+using Core.Library;
 using FluentValidation;
 
 namespace Application.Middlewares;
 
-public class ExceptionHandlerMiddleware : IMiddleware
+internal sealed class ExceptionHandlerMiddleware : ArchMiddleware
 {
     private const string InternalServerErrorMessage = "Whoops :( , somthing impossibly went wrong!";
 
-    public async Task InvokeAsync(HttpContext context, RequestDelegate next)
+    public override async Task HandleAsync(HttpContext context, RequestDelegate next)
     {
         try
         {

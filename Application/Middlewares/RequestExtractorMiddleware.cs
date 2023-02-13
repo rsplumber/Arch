@@ -1,19 +1,18 @@
-﻿using Core.EndpointDefinitions.Resolvers;
+﻿using Core.EndpointDefinitions.Containers.Resolvers;
+using Core.Library;
 
 namespace Application.Middlewares;
 
-internal class RequestExtractorMiddleware : IMiddleware
+internal sealed class RequestExtractorMiddleware : ArchMiddleware
 {
     private readonly IEndpointDefinitionResolver _endpointDefinitionResolver;
-    private const string RequestInfoKey = "request_info";
-    private const string ArchEndpointDefinitionKey = "arch_endpoint_definition";
 
     public RequestExtractorMiddleware(IEndpointDefinitionResolver endpointDefinitionResolver)
     {
         _endpointDefinitionResolver = endpointDefinitionResolver;
     }
 
-    public async Task InvokeAsync(HttpContext context, RequestDelegate next)
+    public override async Task HandleAsync(HttpContext context, RequestDelegate next)
     {
         context.Request.EnableBuffering();
         var path = ExtractPath();
@@ -27,7 +26,16 @@ internal class RequestExtractorMiddleware : IMiddleware
             Body = string.IsNullOrEmpty(body) ? null : body,
             Path = path
         };
-        context.Items[ArchEndpointDefinitionKey] = _endpointDefinitionResolver.Resolve(path, method);
+        var definition = _endpointDefinitionResolver.Resolve(path, method);
+        context.Items[ArchEndpointDefinitionKey] = definition is not null
+            ? new RequestEndpointDefinition
+            {
+                Method = definition.Method,
+                Meta = definition.Meta,
+                Endpoint = definition.Endpoint,
+                Pattern = definition.Pattern
+            }
+            : null;
 
         await next(context);
 

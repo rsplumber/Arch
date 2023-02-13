@@ -6,5 +6,7 @@ public sealed record UpdateServiceConfigRequest
 
     public required string Name { get; init; } = default!;
 
+    public required string BaseUrl { get; init; } = default!;
+
     public Dictionary<string, string> Meta { get; set; } = new();
 }

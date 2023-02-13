@@ -1,6 +1,4 @@
-using Core.EndpointDefinitions.Containers;
-
-namespace Core.EndpointDefinitions.Resolvers;
+namespace Core.EndpointDefinitions.Containers.Resolvers;
 
 public sealed class EndpointDefinitionResolver : IEndpointDefinitionResolver
 {
@@ -13,13 +11,13 @@ public sealed class EndpointDefinitionResolver : IEndpointDefinitionResolver
         _endpointDefinitionContainer = endpointDefinitionContainer;
     }
 
-    public EndpointDefinition? Resolve(string url, string method)
+    public ContainerEndpointDefinition? Resolve(string url, string method)
     {
         var pattern = _endpointPatternTree.Find(url);
         return _endpointDefinitionContainer.Get(DefinitionKey.From(pattern, method));
     }
 
-    public async ValueTask<EndpointDefinition?> ResolveAsync(string url, string method, CancellationToken cancellationToken = default)
+    public async ValueTask<ContainerEndpointDefinition?> ResolveAsync(string url, string method, CancellationToken cancellationToken = default)
     {
         var pattern = await _endpointPatternTree.FindAsync(url, cancellationToken);
         return await _endpointDefinitionContainer.GetAsync(DefinitionKey.From(pattern, method), cancellationToken);

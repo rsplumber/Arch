@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Core.Library;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Arch.Kundera;
@@ -9,7 +10,7 @@ public static class ServiceCollectionExtension
     {
         KunderaAuthorizationSettings.BaseUrl = configuration.GetSection("Kundera:BaseUrl").Value ??
                                                throw new Exception("Enter Kundera:BaseUrl in appsettings.json");
-        services.AddSingleton<KunderaAuthorizationMiddleware>();
+        services.AddArchMiddleware<KunderaAuthorizationMiddleware>();
         services.AddHttpClient("kundera", _ => { });
     }
 }

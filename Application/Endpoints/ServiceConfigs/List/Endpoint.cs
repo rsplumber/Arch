@@ -34,7 +34,9 @@ internal sealed class Endpoint : Endpoint<Request>
             .Select(config => new
             {
                 config.Id,
-                config.Name
+                config.Name,
+                config.Primary,
+                config.BaseUrl
             }).ToListAsync(cancellationToken: ct);
         await SendOkAsync(response, ct);
     }

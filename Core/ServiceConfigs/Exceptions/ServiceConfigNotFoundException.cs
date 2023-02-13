@@ -1,6 +1,4 @@
-﻿using Core.Library.Exceptions;
-
-namespace Core.ServiceConfigs.Exceptions;
+﻿namespace Core.ServiceConfigs.Exceptions;
 
 public sealed class ServiceConfigNotFoundException : ArchException
 {

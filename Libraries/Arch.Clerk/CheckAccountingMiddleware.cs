@@ -1,35 +1,30 @@
 ﻿using System.Net.Http.Json;
+using Arch.Clerk.Exceptions;
+using Core.Library;
 using Microsoft.AspNetCore.Http;
 
 namespace Arch.Clerk;
 
-internal class CheckAccountingMiddleware : IMiddleware
+internal class CheckAccountingMiddleware : ArchMiddleware
 {
     private readonly IHttpClientFactory _clientFactory;
     private const string HttpClientFactoryKey = "clerk";
-    private const string RequestInfoKey = "request_info";
-    private const string ArchEndpointDefinitionKey = "arch_endpoint_definition";
-    private const string TrueKey = "true";
     private const string AccountingMetaKey = "accounting";
-    private const string UserIdKey = "user_id";
 
     public CheckAccountingMiddleware(IHttpClientFactory clientFactory)
     {
         _clientFactory = clientFactory;
     }
 
-    public async Task InvokeAsync(HttpContext context, RequestDelegate next)
+    public override async Task HandleAsync(HttpContext context, RequestDelegate next)
     {
-        dynamic endpointDefinition = context.Items[ArchEndpointDefinitionKey]!;
-
         if (!HasAccounting())
         {
             await next(context);
             return;
         }
 
-        dynamic? requestInfo = context.Items[RequestInfoKey];
-        if (requestInfo is null)
+        if (RequestInfo is null)
         {
             await next(context);
             return;
@@ -44,7 +39,7 @@ internal class CheckAccountingMiddleware : IMiddleware
 
         var httpResponseMessage = await client.PostAsJsonAsync($"{ClerkAccountingSettings.BaseUrl}/api/v1/accounts/{userId}/tariff/pay", new
         {
-            TariffIdentifier = requestInfo.Path, requestInfo.Method
+            TariffIdentifier = RequestInfo.Path, RequestInfo.Method
         });
         var response = await httpResponseMessage.Content.ReadFromJsonAsync<dynamic>();
         if (response is null || !response.Result)
@@ -54,17 +49,6 @@ internal class CheckAccountingMiddleware : IMiddleware
 
         await next(context);
 
-        bool HasAccounting()
-        {
-            dynamic? accounting = null;
-            foreach (var meta in endpointDefinition.Meta)
-            {
-                if (meta.Key != AccountingMetaKey) continue;
-                accounting = meta;
-                break;
-            }
-
-            return accounting is not null && accounting.Value == TrueKey;
-        }
+        bool HasAccounting() => GetMeta(AccountingMetaKey) is not null;
     }
 }

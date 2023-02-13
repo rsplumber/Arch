@@ -1,61 +1,54 @@
 ﻿using System.Text.Json;
+using Application.Exceptions;
+using Core.Library;
 
 namespace Application.Middlewares;
 
-internal class RequestDispatcherMiddleware : IMiddleware
+internal sealed class RequestDispatcherMiddleware : ArchMiddleware
 {
     private readonly IHttpClientFactory _httpClientFactory;
-    private const string RequestInfoKey = "request_info";
-    private const string ArchEndpointDefinitionKey = "arch_endpoint_definition";
-    private const string IgnoreDispatchKey = "ignore_dispatch";
-    private const string HttpFactoryName = "default";
+    private const string HttpFactoryName = "arch";
     private const string BaseUrlMetaKey = "base_url";
-    private const string UserIdHeaderKey = "user_id";
-    private const string ResponseKey = "arch_response";
-
 
     public RequestDispatcherMiddleware(IHttpClientFactory httpClientFactory)
     {
         _httpClientFactory = httpClientFactory;
     }
 
-    public async Task InvokeAsync(HttpContext context, RequestDelegate next)
+    public override async Task HandleAsync(HttpContext context, RequestDelegate next)
     {
-        dynamic? info = context.Items[RequestInfoKey];
-        dynamic? endpointDefinition = context.Items[ArchEndpointDefinitionKey];
+        if (EndpointDefinition is null || RequestInfo is null) return;
 
-        if (endpointDefinition is null || info is null) return;
 
-        foreach (var meta in endpointDefinition.Meta)
+        if (IgnoreDispatch())
         {
-            if (meta.Key != IgnoreDispatchKey) continue;
             await next(context);
             return;
         }
 
         var client = _httpClientFactory.CreateClient(HttpFactoryName);
         client.DefaultRequestHeaders.Clear();
-        if (info.Headers is not null)
+        if (RequestInfo.Headers is not null)
         {
-            foreach (var header in info.Headers)
+            foreach (var header in RequestInfo.Headers)
             {
                 client.DefaultRequestHeaders.TryAddWithoutValidation(header.Key, header.Value);
             }
         }
 
-        var userId = context.Items[UserIdHeaderKey];
+        var userId = context.Items[UserIdKey];
         if (userId is not null)
         {
-            client.DefaultRequestHeaders.TryAddWithoutValidation(UserIdHeaderKey, userId as string);
+            client.DefaultRequestHeaders.TryAddWithoutValidation(UserIdKey, userId as string);
         }
 
         object? requestBody = null;
-        if (info.Body is not null)
+        if (RequestInfo.Body is not null)
         {
-            requestBody = JsonSerializer.Deserialize<object>(info.Body);
+            requestBody = JsonSerializer.Deserialize<object>(RequestInfo.Body);
         }
 
-        var httpResponse = info.Method switch
+        var httpResponse = RequestInfo.Method switch
         {
             HttpRequestMethods.Get => await client.GetAsync(ApiUrl()),
             HttpRequestMethods.Delete => await client.DeleteAsync(ApiUrl()),
@@ -75,15 +68,13 @@ internal class RequestDispatcherMiddleware : IMiddleware
 
         string ApiUrl()
         {
-            string? baseUrl = null;
-            foreach (var meta in endpointDefinition.Meta)
+            var baseUrl = GetMeta(BaseUrlMetaKey);
+            if (baseUrl is null)
             {
-                if (meta.Key != BaseUrlMetaKey) continue;
-                baseUrl = meta.Value as string;
-                break;
+                throw new BaseUrlNotfoundException();
             }
 
-            return $"{baseUrl}/{info.Path}";
+            return $"{baseUrl}/{RequestInfo.Path}";
         }
     }
 }
