@@ -9,6 +9,7 @@ using Core.Metas;
 using Core.ServiceConfigs;
 using Core.ServiceConfigs.Services;
 using Data.Sql;
+using Elastic.Apm.AspNetCore;
 using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
 using EndpointDefinition = Core.EndpointDefinitions.EndpointDefinition;
@@ -54,6 +55,7 @@ app.UseArchMiddleware<RequestExtractorMiddleware>();
 app.UseKundera(builder.Configuration);
 app.UseClerkAccounting(builder.Configuration);
 app.UseArchMiddleware<RequestDispatcherMiddleware>();
+app.UseElasticApm(builder.Configuration);
 app.UseArchMiddleware<ResponseHandlerMiddleware>();
 
 app.UseFastEndpoints();
