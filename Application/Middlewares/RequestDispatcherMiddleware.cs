@@ -68,13 +68,12 @@ internal sealed class RequestDispatcherMiddleware : ArchMiddleware
 
         string ApiUrl()
         {
-            var baseUrl = GetMeta(BaseUrlMetaKey);
-            if (baseUrl is null)
+            if (EndpointDefinition.BaseUrl is null)
             {
                 throw new BaseUrlNotfoundException();
             }
 
-            return $"{baseUrl}/{RequestInfo.Path}";
+            return $"{EndpointDefinition.BaseUrl}/{RequestInfo.Path}";
         }
     }
 }

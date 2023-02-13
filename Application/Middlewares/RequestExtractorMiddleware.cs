@@ -33,7 +33,8 @@ internal sealed class RequestExtractorMiddleware : ArchMiddleware
                 Method = definition.Method,
                 Meta = definition.Meta,
                 Endpoint = definition.Endpoint,
-                Pattern = definition.Pattern
+                Pattern = definition.Pattern,
+                BaseUrl = definition.BaseUrl
             }
             : null;
 

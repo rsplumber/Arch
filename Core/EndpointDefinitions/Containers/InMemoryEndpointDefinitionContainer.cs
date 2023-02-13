@@ -9,13 +9,15 @@ public sealed class InMemoryEndpointDefinitionContainer : IEndpointDefinitionCon
     public ValueTask<DefinitionKey> AddAsync(EndpointDefinition endpointDefinition, CancellationToken cancellationToken = default)
     {
         var key = DefinitionKey.From(endpointDefinition.Pattern, endpointDefinition.Method);
-        var containerEndpoint = new ContainerEndpointDefinition(
-            endpointDefinition.ServiceConfig.Name,
-            endpointDefinition.Pattern,
-            endpointDefinition.Endpoint,
-            endpointDefinition.Method,
-            endpointDefinition.Meta.ToDictionary(a => a.Key, a => string.Join(";", a.Value!))
-        );
+        var containerEndpoint = new ContainerEndpointDefinition
+        {
+            BaseUrl = endpointDefinition.ServiceConfig.BaseUrl,
+            Pattern = endpointDefinition.Pattern,
+            Endpoint = endpointDefinition.Endpoint,
+            Method = endpointDefinition.Method,
+            ServiceName = endpointDefinition.ServiceConfig.Name,
+            Meta = endpointDefinition.Meta.ToDictionary(a => a.Key, a => string.Join(";", a.Value))
+        };
         EndpointDefinitions.TryAdd(key, containerEndpoint);
         return ValueTask.FromResult(key);
     }

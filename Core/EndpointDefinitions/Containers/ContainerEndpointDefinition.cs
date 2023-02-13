@@ -2,29 +2,17 @@
 
 public sealed record ContainerEndpointDefinition : IComparable<ContainerEndpointDefinition>
 {
-    private ContainerEndpointDefinition(string serviceName)
-    {
-        ServiceName = serviceName;
-    }
+    public required string ServiceName { get; init; } = default!;
 
-    public ContainerEndpointDefinition(string serviceName, string pattern, string endpoint, string method, Dictionary<string, string> meta)
-    {
-        ServiceName = serviceName;
-        Pattern = pattern;
-        Endpoint = endpoint;
-        Method = method;
-        Meta = meta;
-    }
+    public required string BaseUrl { get; init; } = default!;
 
-    public string ServiceName { get; } = default!;
+    public required string Pattern { get; init; } = default!;
 
-    public string Pattern { get; } = default!;
+    public required string Endpoint { get; init; } = default!;
 
-    public string Endpoint { get; } = default!;
+    public required string Method { get; init; } = default!;
 
-    public string Method { get; } = default!;
-
-    public Dictionary<string, string> Meta { get; } = new();
+    public required Dictionary<string, string> Meta { get; init; } = new();
 
     public bool Equals(ContainerEndpointDefinition? other)
     {

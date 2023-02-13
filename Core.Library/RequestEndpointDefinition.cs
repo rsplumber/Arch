@@ -2,6 +2,8 @@
 
 public class RequestEndpointDefinition
 {
+    public required string BaseUrl { get; init; } = default!;
+
     public required string Pattern { get; init; } = default!;
 
     public required string Endpoint { get; init; } = default!;
