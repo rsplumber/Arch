@@ -38,7 +38,7 @@ public static class ApplicationBuilderExtension
         {
             Endpoint = "endpoint-definitions/{id}/accounting/enable",
             Pattern = "endpoint-definitions/##/accounting/enable",
-            Method = "patch",
+            Method = HttpRequestMethods.Post,
             Meta = new List<Meta>
             {
                 new()
@@ -53,7 +53,7 @@ public static class ApplicationBuilderExtension
         {
             Endpoint = "endpoint-definitions/{id}/accounting/disable",
             Pattern = "endpoint-definitions/##/accounting/disable",
-            Method = "patch",
+            Method = HttpRequestMethods.Post,
             Meta = new List<Meta>
             {
                 new()

@@ -48,7 +48,7 @@ public static class ApplicationBuilderExtension
         {
             Endpoint = "api/v1/authenticate",
             Pattern = "api/v1/authenticate",
-            Method = "post",
+            Method = HttpRequestMethods.Post,
             Meta = new List<Meta>
             {
                 new()
@@ -62,7 +62,7 @@ public static class ApplicationBuilderExtension
         {
             Endpoint = "api/v1/authenticate/refresh",
             Pattern = "api/v1/authenticate/refresh",
-            Method = "post",
+            Method = HttpRequestMethods.Post,
             Meta = new List<Meta>
             {
                 new()
@@ -89,7 +89,7 @@ public static class ApplicationBuilderExtension
         {
             Endpoint = "endpoint-definitions/{id}/security/permissions",
             Pattern = "endpoint-definitions/##/security/permissions",
-            Method = "patch",
+            Method = HttpRequestMethods.Post,
             Meta = new List<Meta>
             {
                 new()
@@ -104,7 +104,7 @@ public static class ApplicationBuilderExtension
         {
             Endpoint = "endpoint-definitions/{id}/security/allow-anonymous",
             Pattern = "endpoint-definitions/##/security/allow-anonymous",
-            Method = "patch",
+            Method = HttpRequestMethods.Post,
             Meta = new List<Meta>
             {
                 new()

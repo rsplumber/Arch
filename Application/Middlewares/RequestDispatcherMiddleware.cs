@@ -48,6 +48,10 @@ internal sealed class RequestDispatcherMiddleware : ArchMiddleware
             requestBody = JsonSerializer.Deserialize<object>(RequestInfo.Body);
         }
 
+        // HttpRequestMessage requestMessage = this.CreateRequestMessage(HttpMethod.Put, ApiUrl());
+        // requestMessage.Content = content;
+        // client.SendAsync(new HttpRequestMessage(requestMessage)
+        
         var httpResponse = RequestInfo.Method switch
         {
             HttpRequestMethods.Get => await client.GetAsync(ApiUrl()),

@@ -10,6 +10,7 @@ using Core.ServiceConfigs;
 using Core.ServiceConfigs.Services;
 using Data.Sql;
 using Elastic.Apm.AspNetCore;
+using Elastic.Apm.NetCoreAll;
 using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
 using EndpointDefinition = Core.EndpointDefinitions.EndpointDefinition;
@@ -48,15 +49,16 @@ app.UseCors(b => b.AllowAnyHeader()
     .AllowCredentials());
 
 await SeedDataAsync();
-await InitializeInMemoryContainers();
 
 app.UseArchMiddleware<ExceptionHandlerMiddleware>();
 app.UseArchMiddleware<RequestExtractorMiddleware>();
 app.UseKundera(builder.Configuration);
 app.UseClerkAccounting(builder.Configuration);
 app.UseArchMiddleware<RequestDispatcherMiddleware>();
-app.UseElasticApm(builder.Configuration);
+app.UseAllElasticApm(builder.Configuration);
 app.UseArchMiddleware<ResponseHandlerMiddleware>();
+
+await InitializeInMemoryContainers();
 
 app.UseFastEndpoints();
 
@@ -126,7 +128,7 @@ async Task SeedDataAsync()
     {
         Endpoint = "endpoint-definitions/{id}/enable",
         Pattern = "endpoint-definitions/##/enable",
-        Method = HttpRequestMethods.Patch,
+        Method = HttpRequestMethods.Post,
         Meta = new List<Meta>
         {
             new()
@@ -141,7 +143,7 @@ async Task SeedDataAsync()
     {
         Endpoint = "endpoint-definitions/{id}/disable",
         Pattern = "endpoint-definitions/##/disable",
-        Method = HttpRequestMethods.Patch,
+        Method = HttpRequestMethods.Post,
         Meta = new List<Meta>
         {
             new()

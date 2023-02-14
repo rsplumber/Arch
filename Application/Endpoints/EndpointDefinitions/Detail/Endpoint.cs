@@ -1,3 +1,4 @@
+using Core.EndpointDefinitions.Exceptions;
 using Data.Sql;
 using FastEndpoints;
 using FluentValidation;
@@ -36,7 +37,12 @@ internal sealed class Endpoint : Endpoint<Request>
                     meta.Value
                 }).ToList()
             })
-            .FirstAsync(definition => definition.Id == req.Id, ct);
+            .FirstOrDefaultAsync(definition => definition.Id == req.Id, ct);
+        if (response is null)
+        {
+            throw new EndpointDefinitionNotFoundException();
+        }
+
         await SendOkAsync(response, ct);
     }
 }

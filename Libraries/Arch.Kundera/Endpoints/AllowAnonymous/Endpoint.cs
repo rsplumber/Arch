@@ -20,7 +20,7 @@ internal sealed class Endpoint : Endpoint<Request>
 
     public override void Configure()
     {
-        Patch("endpoint-definitions/{id}/security/allow-anonymous");
+        Post("endpoint-definitions/{id}/security/allow-anonymous");
         AllowAnonymous();
     }
 

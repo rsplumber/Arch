@@ -1,3 +1,4 @@
+using Core.ServiceConfigs.Exceptions;
 using Data.Sql;
 using FastEndpoints;
 using FluentValidation;
@@ -37,6 +38,12 @@ internal sealed class Endpoint : Endpoint<Request>
                 }).ToList()
             })
             .FirstAsync(config => config.Id == req.Id, cancellationToken: ct);
+
+        if (response is null)
+        {
+            throw new ServiceConfigNotFoundException();
+        }
+
         await SendOkAsync(response, ct);
     }
 }
