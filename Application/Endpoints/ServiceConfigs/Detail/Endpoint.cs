@@ -37,7 +37,7 @@ internal sealed class Endpoint : Endpoint<Request>
                     meta.Value
                 }).ToList()
             })
-            .FirstAsync(config => config.Id == req.Id, cancellationToken: ct);
+            .FirstOrDefaultAsync(config => config.Id == req.Id, cancellationToken: ct);
 
         if (response is null)
         {

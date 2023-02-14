@@ -18,7 +18,7 @@ internal sealed class RequestExtractorMiddleware : ArchMiddleware
         var path = ExtractPath();
         var body = await new StreamReader(context.Request.Body).ReadToEndAsync();
         context.Request.Body.Position = 0;
-        var method = context.Request.Method;
+        var method = context.Request.Method.ToLower();
         context.Items[RequestInfoKey] = new RequestInfo
         {
             Headers = context.Request.Headers.ToDictionary(a => a.Key, a => string.Join(";", a.Value!)),
@@ -43,7 +43,8 @@ internal sealed class RequestExtractorMiddleware : ArchMiddleware
         string ExtractPath()
         {
             var requestPath = context.Request.Path.Value!;
-            return requestPath.StartsWith("/") ? requestPath.Remove(0, 1) : requestPath;
+            var sanitizedPath = requestPath.StartsWith("/") ? requestPath.Remove(0, 1) : requestPath;
+            return sanitizedPath.ToLower();
         }
     }
 }

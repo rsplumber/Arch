@@ -9,8 +9,6 @@ using Core.Metas;
 using Core.ServiceConfigs;
 using Core.ServiceConfigs.Services;
 using Data.Sql;
-using Elastic.Apm.AspNetCore;
-using Elastic.Apm.NetCoreAll;
 using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
 using EndpointDefinition = Core.EndpointDefinitions.EndpointDefinition;
@@ -21,7 +19,6 @@ builder.WebHost.UseUrls("http://+:5228");
 builder.Services.AddCors();
 
 builder.Services.AddHttpClient("arch", _ => { });
-
 builder.Services.AddArchMiddleware<ExceptionHandlerMiddleware>();
 builder.Services.AddArchMiddleware<RequestExtractorMiddleware>();
 builder.Services.AddKundera(builder.Configuration);
@@ -55,7 +52,7 @@ app.UseArchMiddleware<RequestExtractorMiddleware>();
 app.UseKundera(builder.Configuration);
 app.UseClerkAccounting(builder.Configuration);
 app.UseArchMiddleware<RequestDispatcherMiddleware>();
-app.UseAllElasticApm(builder.Configuration);
+// app.UseAllElasticApm(builder.Configuration);
 app.UseArchMiddleware<ResponseHandlerMiddleware>();
 
 await InitializeInMemoryContainers();

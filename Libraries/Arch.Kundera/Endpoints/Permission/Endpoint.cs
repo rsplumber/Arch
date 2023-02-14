@@ -35,7 +35,7 @@ internal sealed class Endpoint : Endpoint<Request>
         var meta = endpointDefinition.Meta.ToDictionary(a => a.Key, a => string.Join(";", a.Value!));
         meta.Remove("allow_anonymous");
         meta.Remove("permissions");
-        meta.Add("permissions", req.Permission);
+        meta.Add("permissions", req.Permission.ToLower());
         await _endpointDefinitionService.UpdateAsync(new UpdateEndpointDefinitionRequest
         {
             Id = req.Id,

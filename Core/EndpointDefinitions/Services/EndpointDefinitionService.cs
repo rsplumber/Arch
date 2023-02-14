@@ -34,13 +34,14 @@ public sealed class EndpointDefinitionService : IEndpointDefinitionService
             throw new PrimaryServiceModificationException();
         }
 
-        _endpointPatternTree.Add(SanitizedEndpoint());
+        var sanitizedEndpoint = SanitizedEndpoint();
+        _endpointPatternTree.Add(sanitizedEndpoint);
         var endpointPattern = _endpointPatternTree.Find(request.Endpoint);
 
         var endpointDefinition = new EndpointDefinition
         {
             Pattern = endpointPattern,
-            Endpoint = request.Endpoint,
+            Endpoint = sanitizedEndpoint,
             Method = request.Method.ToLower()
         };
 
@@ -61,7 +62,12 @@ public sealed class EndpointDefinitionService : IEndpointDefinitionService
 
         await ReInitializeContainersAsync(cancellationToken);
 
-        string SanitizedEndpoint() => request.Endpoint.StartsWith("/") ? request.Endpoint.Remove(0, 1) : request.Endpoint;
+        string SanitizedEndpoint()
+        {
+            var sanitizedFirstIndex = request.Endpoint.StartsWith("/") ? request.Endpoint.Remove(0, 1) : request.Endpoint;
+            var sanitized = sanitizedFirstIndex.EndsWith("/") ? request.Endpoint.Remove(sanitizedFirstIndex.Length - 1, 1) : sanitizedFirstIndex;
+            return sanitized.ToLower();
+        }
 
         void AddServiceConfigMetaToEndpoint() => endpointDefinition.Meta.AddRange(serviceConfig.Meta);
     }
