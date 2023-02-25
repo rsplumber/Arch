@@ -1,6 +1,10 @@
-﻿using System.Text.Json;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using System.Text.Json;
 using Application.Exceptions;
 using Core.Library;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Application.Middlewares;
 
@@ -8,7 +12,7 @@ internal sealed class RequestDispatcherMiddleware : ArchMiddleware
 {
     private readonly IHttpClientFactory _httpClientFactory;
     private const string HttpFactoryName = "arch";
-    private const string BaseUrlMetaKey = "base_url";
+    private const string UserTokenKey = "uid_token";
 
     public RequestDispatcherMiddleware(IHttpClientFactory httpClientFactory)
     {
@@ -39,7 +43,8 @@ internal sealed class RequestDispatcherMiddleware : ArchMiddleware
         var userId = context.Items[UserIdKey];
         if (userId is not null)
         {
-            client.DefaultRequestHeaders.TryAddWithoutValidation(UserIdKey, userId as string);
+            var userToken = GenerateUserToken();
+            client.DefaultRequestHeaders.TryAddWithoutValidation(UserTokenKey, userToken);
         }
 
         object? requestBody = null;
@@ -51,7 +56,7 @@ internal sealed class RequestDispatcherMiddleware : ArchMiddleware
         // HttpRequestMessage requestMessage = this.CreateRequestMessage(HttpMethod.Put, ApiUrl());
         // requestMessage.Content = content;
         // client.SendAsync(new HttpRequestMessage(requestMessage)
-        
+
         var httpResponse = RequestInfo.Method switch
         {
             HttpRequestMethods.Get => await client.GetAsync(ApiUrl()),
@@ -65,7 +70,7 @@ internal sealed class RequestDispatcherMiddleware : ArchMiddleware
         var response = await httpResponse.Content.ReadAsStringAsync();
         context.Items[ResponseKey] = new ResponseInfo
         {
-            Code = (int) httpResponse.StatusCode,
+            Code = (int)httpResponse.StatusCode,
             Value = response
         };
         await next(context);
@@ -78,6 +83,20 @@ internal sealed class RequestDispatcherMiddleware : ArchMiddleware
             }
 
             return $"{EndpointDefinition.BaseUrl}/{RequestInfo.Path}";
+        }
+
+        string GenerateUserToken()
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(RequestInfo.Headers.First(pair => pair.Key == "service_secret").Value);
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new[] { new Claim("id", userId.ToString()!) }),
+                Expires = DateTime.UtcNow.AddSeconds(10),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
         }
     }
 }
