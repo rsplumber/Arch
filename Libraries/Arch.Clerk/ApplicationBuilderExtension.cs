@@ -18,12 +18,19 @@ public static class ApplicationBuilderExtension
 
         using var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>()?.CreateScope();
         var dbContext = serviceScope!.ServiceProvider.GetRequiredService<AppDbContext>();
-        if (dbContext.ServiceConfigs.Any(config => config.Name == "clerk")) return;
+        var currentConfig = dbContext.ServiceConfigs.FirstOrDefault(config => config.Name == "clerk");
+        if (currentConfig is not null)
+        {
+            dbContext.ServiceConfigs.Remove(currentConfig);
+            dbContext.SaveChanges();
+        }
+
         var serviceConfig = new ServiceConfig
         {
             Name = "clerk",
             Primary = true,
-            BaseUrl = "http://localhost:5140"
+            BaseUrl = configuration.GetSection("Clerk:BaseUrl").Value ??
+                      throw new Exception("Enter Clerk:BaseUrl in appsettings.json")
         };
 
         dbContext.ServiceConfigs.Add(serviceConfig);

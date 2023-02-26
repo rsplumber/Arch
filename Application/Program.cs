@@ -10,15 +10,25 @@ using Core.ServiceConfigs;
 using Core.ServiceConfigs.Services;
 using Data.Sql;
 using FastEndpoints;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 using EndpointDefinition = Core.EndpointDefinitions.EndpointDefinition;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseKestrel();
-builder.WebHost.UseUrls("http://+:5228");
+builder.WebHost.ConfigureKestrel((_, options) =>
+{
+    options.ListenAnyIP(5229, _ => { });
+    options.ListenAnyIP(5228, listenOptions =>
+    {
+        listenOptions.Protocols = HttpProtocols.Http1AndHttp2AndHttp3;
+        listenOptions.UseHttps();
+    });
+});
 builder.Services.AddCors();
 
 builder.Services.AddHttpClient("arch", _ => { });
+
 builder.Services.AddArchMiddleware<ExceptionHandlerMiddleware>();
 builder.Services.AddArchMiddleware<RequestExtractorMiddleware>();
 builder.Services.AddKundera(builder.Configuration);

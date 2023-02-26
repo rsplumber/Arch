@@ -13,9 +13,10 @@ internal sealed class KunderaAuthorizationMiddleware : ArchMiddleware
     private const string ServiceSecretMetaKey = "service_secret";
     private const string AllowAnonymousMetaKey = "allow_anonymous";
     private const string PermissionsMetaKey = "permissions";
+    private const string AuthorizationHeaderKey = "Authorization";
     private const string RolesMetaKey = "roles";
-    private static readonly string AuthorizePermissionUrl = $"{KunderaAuthorizationSettings.BaseUrl}/authorize/permission";
-    private static readonly string AuthorizeRoleUrl = $"{KunderaAuthorizationSettings.BaseUrl}/authorize/role";
+    private const string AuthorizePermissionUrl = "api/v1authorize/permission";
+    private const string AuthorizeRoleUrl = "api/v1/authorize/role";
     private const int ForbiddenCode = 403;
     private const int UnAuthorizedCode = 401;
     private const int SessionExpiredCode = 440;
@@ -37,7 +38,7 @@ internal sealed class KunderaAuthorizationMiddleware : ArchMiddleware
         string? tokenValue;
         try
         {
-            tokenValue = RequestInfo!.Headers?["Authorization"];
+            tokenValue = RequestInfo!.Headers?[AuthorizationHeaderKey];
         }
         catch (Exception)
         {
@@ -115,28 +116,28 @@ internal sealed class KunderaAuthorizationMiddleware : ArchMiddleware
     private async Task<(int, string?)> KunderaAuthorizePermissionAsync(string token, string serviceSecret, IEnumerable<string> permissions)
     {
         var client = _clientFactory.CreateClient(HttpClientFactoryKey);
+        client.DefaultRequestHeaders.Add("service_secret", serviceSecret);
         var result = await client.PostAsync(AuthorizePermissionUrl, new StringContent(JsonSerializer.Serialize(new
         {
             Authorization = token,
-            serviceSecret,
             Actions = permissions
         }), Encoding.UTF8, "application/json"));
         var response = await result.Content.ReadAsStringAsync();
         var userId = result.IsSuccessStatusCode ? response.Replace("\"", "") : null;
-        return ((int) result.StatusCode, userId);
+        return ((int)result.StatusCode, userId);
     }
 
     private async Task<(int, string?)> KunderaAuthorizeRoleAsync(string token, string serviceSecret, IEnumerable<string> roles)
     {
         var client = _clientFactory.CreateClient(HttpClientFactoryKey);
+        client.DefaultRequestHeaders.Add("service_secret", serviceSecret);
         var result = await client.PostAsync(AuthorizeRoleUrl, new StringContent(JsonSerializer.Serialize(new
         {
             Authorization = token,
-            serviceSecret,
             Roles = roles
         }), Encoding.UTF8, "application/json"));
         var response = await result.Content.ReadAsStringAsync();
         var userId = result.IsSuccessStatusCode ? response.Replace("\"", "") : null;
-        return ((int) result.StatusCode, userId);
+        return ((int)result.StatusCode, userId);
     }
 }

@@ -18,22 +18,26 @@ public static class ApplicationBuilderExtension
 
         using var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>()?.CreateScope();
         var dbContext = serviceScope!.ServiceProvider.GetRequiredService<AppDbContext>();
-
-        if (dbContext.ServiceConfigs.Any(config => config.Name == "kundera")) return;
+        var currentConfig = dbContext.ServiceConfigs.FirstOrDefault(config => config.Name == "kundera");
+        if (currentConfig is not null)
+        {
+            dbContext.ServiceConfigs.Remove(currentConfig);
+            dbContext.SaveChanges();
+        }
 
         var kunderaServiceConfig = new ServiceConfig
         {
             Name = "kundera",
             Primary = true,
-            BaseUrl = "http://localhost:5179"
+            BaseUrl = configuration.GetSection("Kundera:BaseUrl").Value ??
+                      throw new Exception("Enter Kundera:BaseUrl in appsettings.json")
         };
 
-        var kunderaServiceSecret = configuration.GetSection("Kundera:Kundera_Service_Secret").Value ??
-                                   throw new Exception("Enter Kundera:Kundera_Service_Secret in appsettings.json");
         kunderaServiceConfig.Meta.Add(new()
         {
             Key = "service_secret",
-            Value = kunderaServiceSecret
+            Value = configuration.GetSection("Kundera:Kundera_Service_Secret").Value ??
+                    throw new Exception("Enter Kundera:Kundera_Service_Secret in appsettings.json")
         });
 
         dbContext.ServiceConfigs.Add(kunderaServiceConfig);
@@ -78,12 +82,11 @@ public static class ApplicationBuilderExtension
         var archServiceConfig = dbContext.ServiceConfigs
             .Include(config => config.EndpointDefinitions)
             .First(config => config.Name == "arch");
-        var archServiceSecret = configuration.GetSection("Kundera:Arch_Service_Secret").Value ??
-                                throw new Exception("Enter Kundera:Arch_Service_Secret in appsettings.json");
         archServiceConfig.Meta.Add(new()
         {
             Key = "service_secret",
-            Value = archServiceSecret
+            Value = configuration.GetSection("Kundera:Arch_Service_Secret").Value ??
+                    throw new Exception("Enter Kundera:Arch_Service_Secret in appsettings.json")
         });
         archServiceConfig.EndpointDefinitions.Add(new EndpointDefinition
         {
@@ -114,7 +117,7 @@ public static class ApplicationBuilderExtension
                 },
             }
         });
-        
+
 
         dbContext.ServiceConfigs.Update(archServiceConfig);
         dbContext.SaveChanges();

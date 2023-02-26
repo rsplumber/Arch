@@ -1,4 +1,6 @@
-﻿using Core.Library;
+﻿using System.Net;
+using System.Net.Http.Headers;
+using Core.Library;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -8,9 +10,14 @@ public static class ServiceCollectionExtension
 {
     public static void AddKundera(this IServiceCollection services, IConfiguration configuration)
     {
-        KunderaAuthorizationSettings.BaseUrl = configuration.GetSection("Kundera:BaseUrl").Value ??
-                                               throw new Exception("Enter Kundera:BaseUrl in appsettings.json");
         services.AddArchMiddleware<KunderaAuthorizationMiddleware>();
-        services.AddHttpClient("kundera", _ => { });
+        services.AddHttpClient("kundera", client =>
+        {
+            client.DefaultRequestVersion = HttpVersion.Version20;
+            client.DefaultVersionPolicy = HttpVersionPolicy.RequestVersionOrHigher;
+            client.BaseAddress = new Uri(configuration.GetSection("Kundera:BaseUrl").Value ??
+                                         throw new Exception("Enter Kundera:BaseUrl in appsettings.json"));
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        });
     }
 }
