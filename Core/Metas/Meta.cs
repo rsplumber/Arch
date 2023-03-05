@@ -3,7 +3,7 @@ using Core.ServiceConfigs;
 
 namespace Core.Metas;
 
-public sealed class Meta
+public sealed class Meta : BaseEntity
 {
     public Guid Id { get; set; }
 

@@ -26,7 +26,7 @@ internal sealed class RequestExtractorMiddleware : ArchMiddleware
             Body = string.IsNullOrEmpty(body) ? null : body,
             Path = path
         };
-        var definition = _endpointDefinitionResolver.Resolve(path, method);
+        var definition = await _endpointDefinitionResolver.ResolveAsync(path, method);
         context.Items[ArchEndpointDefinitionKey] = definition is not null
             ? new RequestEndpointDefinition
             {

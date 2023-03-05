@@ -32,6 +32,8 @@ public sealed class EndpointDefinitionRepository : IEndpointDefinitionRepository
 
     public Task<EndpointDefinition?> FindAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return _dbContext.EndpointDefinitions.FirstOrDefaultAsync(model => model.Id == id, cancellationToken);
+        return _dbContext.EndpointDefinitions
+            .Include(definition => definition.ServiceConfig)
+            .FirstOrDefaultAsync(model => model.Id == id, cancellationToken);
     }
 }

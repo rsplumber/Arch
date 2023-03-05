@@ -1,6 +1,5 @@
 using Application.Middlewares;
 using Arch.Clerk;
-using Arch.Kundera;
 using Core.EndpointDefinitions.Containers;
 using Core.EndpointDefinitions.Containers.Resolvers;
 using Core.EndpointDefinitions.Services;
@@ -32,7 +31,7 @@ builder.Services.AddHttpClient("arch", _ => { });
 
 builder.Services.AddArchMiddleware<ExceptionHandlerMiddleware>();
 builder.Services.AddArchMiddleware<RequestExtractorMiddleware>();
-builder.Services.AddKundera(builder.Configuration);
+// builder.Services.AddKundera(builder.Configuration);
 builder.Services.AddClerkAccounting(builder.Configuration);
 builder.Services.AddArchMiddleware<RequestDispatcherMiddleware>();
 builder.Services.AddArchMiddleware<ResponseHandlerMiddleware>();
@@ -41,6 +40,11 @@ builder.Services.AddSingleton<IEndpointDefinitionResolver, EndpointDefinitionRes
 builder.Services.AddScoped<IEndpointDefinitionService, EndpointDefinitionService>();
 builder.Services.AddScoped<IServiceConfigService, ServiceConfigService>();
 
+builder.Services.AddCap(options =>
+{
+    options.UseKafka("localhost:9092");
+    options.UsePostgreSql(builder.Configuration.GetConnectionString("default")!);
+});
 
 builder.Services.AddData(builder.Configuration);
 builder.Services.AddInMemoryDataContainers();
@@ -58,7 +62,7 @@ await SeedDataAsync();
 
 app.UseArchMiddleware<ExceptionHandlerMiddleware>();
 app.UseArchMiddleware<RequestExtractorMiddleware>();
-app.UseKundera(builder.Configuration);
+// app.UseKundera(builder.Configuration);
 app.UseClerkAccounting(builder.Configuration);
 app.UseArchMiddleware<RequestDispatcherMiddleware>();
 // app.UseAllElasticApm(builder.Configuration);

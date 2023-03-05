@@ -1,6 +1,6 @@
 ﻿using Core;
 
-namespace Application.Exceptions;
+namespace Application.Middlewares.Exceptions;
 
 public class BaseUrlNotfoundException : ArchException
 {

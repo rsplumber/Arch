@@ -17,7 +17,7 @@ namespace Data.Sql.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.2")
+                .HasAnnotation("ProductVersion", "7.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -49,6 +49,10 @@ namespace Data.Sql.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Endpoint");
+
+                    b.HasIndex("Pattern");
+
                     b.HasIndex("service_config_id");
 
                     b.ToTable("endpoint_definitions", (string)null);
@@ -78,6 +82,8 @@ namespace Data.Sql.Migrations
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Key");
 
                     b.HasIndex("endpoint_definition_id");
 
@@ -113,6 +119,8 @@ namespace Data.Sql.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Name");
+
                     b.ToTable("service_configs", (string)null);
                 });
 
@@ -121,7 +129,7 @@ namespace Data.Sql.Migrations
                     b.HasOne("Core.ServiceConfigs.ServiceConfig", "ServiceConfig")
                         .WithMany("EndpointDefinitions")
                         .HasForeignKey("service_config_id")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("ServiceConfig");

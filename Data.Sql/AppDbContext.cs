@@ -1,6 +1,7 @@
 ﻿using Core.EndpointDefinitions;
 using Core.Metas;
 using Core.ServiceConfigs;
+using DotNetCore.CAP;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -8,8 +9,11 @@ namespace Data.Sql;
 
 public class AppDbContext : DbContext
 {
-    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
+    private readonly ICapPublisher _eventBus;
+
+    public AppDbContext(DbContextOptions<AppDbContext> options, ICapPublisher eventBus) : base(options)
     {
+        _eventBus = eventBus;
     }
 
     public DbSet<ServiceConfig> ServiceConfigs { get; set; }
@@ -39,6 +43,8 @@ public class AppDbContext : DbContext
                 .UsePropertyAccessMode(PropertyAccessMode.Property)
                 .HasColumnName("name");
 
+            builder.HasIndex(config => config.Name);
+
             builder.Property(serviceConfig => serviceConfig.BaseUrl)
                 .UsePropertyAccessMode(PropertyAccessMode.Property)
                 .HasColumnName("base_url");
@@ -53,7 +59,7 @@ public class AppDbContext : DbContext
 
             builder.HasMany(serviceConfig => serviceConfig.EndpointDefinitions)
                 .WithOne(definition => definition.ServiceConfig)
-                .OnDelete(DeleteBehavior.Cascade)
+                .OnDelete(DeleteBehavior.Restrict)
                 .HasPrincipalKey(config => config.Id)
                 .HasForeignKey("service_config_id");
 
@@ -80,13 +86,19 @@ public class AppDbContext : DbContext
                 .UsePropertyAccessMode(PropertyAccessMode.Property)
                 .HasColumnName("pattern");
 
+            builder.HasIndex(definition => definition.Pattern);
+
             builder.Property(definition => definition.Endpoint)
                 .UsePropertyAccessMode(PropertyAccessMode.Property)
                 .HasColumnName("endpoint");
 
+            builder.HasIndex(definition => definition.Endpoint);
+
             builder.Property(definition => definition.Method)
                 .UsePropertyAccessMode(PropertyAccessMode.Property)
                 .HasColumnName("method");
+
+            builder.HasIndex(definition => definition.Pattern);
 
             builder.HasMany(definition => definition.Meta)
                 .WithOne(meta => meta.EndpointDefinition)
@@ -111,14 +123,17 @@ public class AppDbContext : DbContext
                 .UsePropertyAccessMode(PropertyAccessMode.Property)
                 .HasColumnName("key");
 
+            builder.HasIndex(definition => definition.Key);
+
             builder.Property(meta => meta.Value)
                 .UsePropertyAccessMode(PropertyAccessMode.Property)
                 .HasColumnName("value");
         }
     }
 
-    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new())
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
+        await _eventBus.DispatchDomainEventsAsync(this);
         return await base.SaveChangesAsync(cancellationToken);
     }
 }

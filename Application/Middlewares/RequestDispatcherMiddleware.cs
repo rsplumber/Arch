@@ -1,10 +1,6 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using System.Text.Json;
-using Application.Exceptions;
+﻿using System.Text.Json;
+using Application.Middlewares.Exceptions;
 using Core.Library;
-using Microsoft.IdentityModel.Tokens;
 
 namespace Application.Middlewares;
 
@@ -40,11 +36,9 @@ internal sealed class RequestDispatcherMiddleware : ArchMiddleware
             }
         }
 
-        var userId = context.Items[UserIdKey];
-        if (userId is not null)
+        if (context.Items[UserIdKey] is string userId)
         {
-            var userToken = GenerateUserToken();
-            client.DefaultRequestHeaders.TryAddWithoutValidation(UserTokenKey, userToken);
+            client.DefaultRequestHeaders.TryAddWithoutValidation(UserTokenKey, userId);
         }
 
         object? requestBody = null;
@@ -83,20 +77,6 @@ internal sealed class RequestDispatcherMiddleware : ArchMiddleware
             }
 
             return $"{EndpointDefinition.BaseUrl}/{RequestInfo.Path}";
-        }
-
-        string GenerateUserToken()
-        {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(RequestInfo.Headers.First(pair => pair.Key == "service_secret").Value);
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new[] { new Claim("id", userId.ToString()!) }),
-                Expires = DateTime.UtcNow.AddSeconds(10),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-            };
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            return tokenHandler.WriteToken(token);
         }
     }
 }

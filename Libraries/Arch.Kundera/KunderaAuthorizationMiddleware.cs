@@ -1,8 +1,11 @@
-﻿using System.Text;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using System.Text.Json;
 using Arch.Kundera.Exceptions;
 using Core.Library;
 using Microsoft.AspNetCore.Http;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Arch.Kundera;
 
@@ -88,7 +91,7 @@ internal sealed class KunderaAuthorizationMiddleware : ArchMiddleware
             throw new KunderaUnAuthorizedException();
         }
 
-        context.Items[UserIdKey] = userId;
+        context.Items[UserIdKey] = GenerateUserToken();
 
         await next(context);
 
@@ -110,6 +113,20 @@ internal sealed class KunderaAuthorizationMiddleware : ArchMiddleware
             }
 
             return secret;
+        }
+
+        string GenerateUserToken()
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(RequestInfo!.Headers!.First(pair => pair.Key == "service_secret").Value);
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new[] { new Claim("id", userId) }),
+                Expires = DateTime.UtcNow.AddSeconds(10),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
         }
     }
 
