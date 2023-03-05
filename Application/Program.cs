@@ -8,6 +8,7 @@ using Core.Library;
 using Core.Metas;
 using Core.ServiceConfigs;
 using Core.ServiceConfigs.Services;
+using Data.InMemory;
 using Data.Sql;
 using FastEndpoints;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
@@ -37,14 +38,12 @@ builder.Services.AddArchMiddleware<RequestDispatcherMiddleware>();
 builder.Services.AddArchMiddleware<ResponseHandlerMiddleware>();
 
 builder.Services.AddSingleton<IEndpointDefinitionResolver, EndpointDefinitionResolver>();
-builder.Services.AddSingleton<IEndpointPatternTree, InMemoryEndpointPatternTree>();
-builder.Services.AddSingleton<IEndpointDefinitionContainer, InMemoryEndpointDefinitionContainer>();
-builder.Services.AddSingleton<IEndpointPatternTree, InMemoryEndpointPatternTree>();
 builder.Services.AddScoped<IEndpointDefinitionService, EndpointDefinitionService>();
 builder.Services.AddScoped<IServiceConfigService, ServiceConfigService>();
-builder.Services.AddScoped<IContainerInitializer, InMemoryContainerInitializer>();
+
 
 builder.Services.AddData(builder.Configuration);
+builder.Services.AddInMemoryDataContainers();
 
 builder.Services.AddFastEndpoints();
 

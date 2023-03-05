@@ -1,8 +1,10 @@
 ﻿using System.Collections.Concurrent;
+using Core.EndpointDefinitions;
+using Core.EndpointDefinitions.Containers;
 
-namespace Core.EndpointDefinitions.Containers;
+namespace Data.InMemory;
 
-public sealed class InMemoryEndpointDefinitionContainer : IEndpointDefinitionContainer
+internal sealed class InMemoryEndpointDefinitionContainer : IEndpointDefinitionContainer
 {
     private static readonly ConcurrentDictionary<DefinitionKey, ContainerEndpointDefinition> EndpointDefinitions = new();
 

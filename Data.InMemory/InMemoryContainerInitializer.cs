@@ -1,8 +1,9 @@
-﻿using Core.ServiceConfigs;
+﻿using Core.EndpointDefinitions.Containers;
+using Core.ServiceConfigs;
 
-namespace Core.EndpointDefinitions.Containers;
+namespace Data.InMemory;
 
-public sealed class InMemoryContainerInitializer : IContainerInitializer
+internal sealed class InMemoryContainerInitializer : IContainerInitializer
 {
     private readonly IEndpointPatternTree _endpointPatternTree;
     private readonly IEndpointDefinitionContainer _endpointDefinitionContainer;

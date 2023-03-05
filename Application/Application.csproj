@@ -8,8 +8,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Elastic.Apm.NetCoreAll" Version="1.19.0" />
-        <PackageReference Include="FastEndpoints" Version="5.7.2" />
+        <PackageReference Include="Elastic.Apm.NetCoreAll" Version="1.20.0" />
+        <PackageReference Include="FastEndpoints" Version="5.8.0" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.3">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -20,6 +20,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Core\Core.csproj" />
+      <ProjectReference Include="..\Data.InMemory\Data.InMemory.csproj" />
       <ProjectReference Include="..\Data.Sql\Data.Sql.csproj" />
       <ProjectReference Include="..\Libraries\Arch.Clerk\Arch.Clerk.csproj" />
       <ProjectReference Include="..\Libraries\Arch.Kundera\Arch.Kundera.csproj" />
