@@ -13,6 +13,8 @@
 
     <ItemGroup>
       <PackageReference Include="BenchmarkDotNet" Version="0.13.5" />
+      <PackageReference Include="DataSpreads.Core" Version="2019.0.412" />
+      <PackageReference Include="Spreads" Version="2019.0.412" />
     </ItemGroup>
 
 </Project>
