@@ -8,8 +8,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="DotNetCore.CAP.Kafka" Version="7.1.0" />
         <PackageReference Include="DotNetCore.CAP.PostgreSql" Version="7.1.0" />
+        <PackageReference Include="DotNetCore.CAP.RabbitMQ" Version="7.1.0" />
         <PackageReference Include="Elastic.Apm.NetCoreAll" Version="1.20.0" />
         <PackageReference Include="FastEndpoints" Version="5.8.1" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.4">
