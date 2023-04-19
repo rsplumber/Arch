@@ -13,8 +13,6 @@ public static class ServiceCollectionExtension
         services.AddArchMiddleware<CheckAccountingMiddleware>();
         services.AddHttpClient("clerk", client =>
         {
-            client.DefaultRequestVersion = HttpVersion.Version20;
-            client.DefaultVersionPolicy = HttpVersionPolicy.RequestVersionOrHigher;
             client.BaseAddress = new Uri(configuration.GetSection("Clerk:BaseUrl").Value ??
                                          throw new Exception("Enter Clerk:BaseUrl in appsettings.json"));
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));

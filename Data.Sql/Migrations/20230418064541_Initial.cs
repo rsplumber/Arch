@@ -44,7 +44,7 @@ namespace Data.Sql.Migrations
                         column: x => x.service_config_id,
                         principalTable: "service_configs",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(

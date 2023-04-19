@@ -14,21 +14,18 @@ internal sealed class InMemoryContainerInitializer : IContainerInitializer
         _endpointDefinitionContainer = endpointDefinitionContainer;
     }
 
-    public Task InitializeAsync(List<ServiceConfig> serviceConfigs, CancellationToken cancellationToken = default)
+    public async Task InitializeAsync(List<ServiceConfig> serviceConfigs, CancellationToken cancellationToken = default)
     {
-        return Task.Run(async () =>
+        _endpointPatternTree.Clear();
+        _endpointDefinitionContainer.Clear();
+        foreach (var config in serviceConfigs)
         {
-            _endpointPatternTree.Clear();
-            _endpointDefinitionContainer.Clear();
-            foreach (var config in serviceConfigs)
+            foreach (var definition in config.EndpointDefinitions)
             {
-                foreach (var definition in config.EndpointDefinitions)
-                {
-                    definition.Meta.AddRange(config.Meta);
-                    await _endpointPatternTree.AddAsync(definition.Endpoint, cancellationToken);
-                    await _endpointDefinitionContainer.AddAsync(definition, cancellationToken);
-                }
+                definition.Meta.AddRange(config.Meta);
+                await _endpointPatternTree.AddAsync(definition.Endpoint, cancellationToken);
+                await _endpointDefinitionContainer.AddAsync(definition, cancellationToken);
             }
-        }, cancellationToken);
+        }
     }
 }

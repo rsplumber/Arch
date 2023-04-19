@@ -22,6 +22,7 @@ internal sealed class Endpoint : Endpoint<Request>
     public override void Configure()
     {
         Patch("endpoint-definitions/{id}/disable");
+        // Permissions("arch_endpoint-definitions_disable");
         AllowAnonymous();
     }
 

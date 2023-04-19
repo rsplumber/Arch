@@ -18,6 +18,7 @@ internal sealed class Endpoint : Endpoint<Request>
     public override void Configure()
     {
         Get("endpoint-definitions/{id}");
+        // Permissions("arch_endpoint-definitions_details");
         AllowAnonymous();
     }
 

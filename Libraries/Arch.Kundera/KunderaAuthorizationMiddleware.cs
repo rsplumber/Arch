@@ -18,7 +18,7 @@ internal sealed class KunderaAuthorizationMiddleware : ArchMiddleware
     private const string PermissionsMetaKey = "permissions";
     private const string AuthorizationHeaderKey = "Authorization";
     private const string RolesMetaKey = "roles";
-    private const string AuthorizePermissionUrl = "api/v1authorize/permission";
+    private const string AuthorizePermissionUrl = "api/v1/authorize/permission";
     private const string AuthorizeRoleUrl = "api/v1/authorize/role";
     private const int ForbiddenCode = 403;
     private const int UnAuthorizedCode = 401;
@@ -91,7 +91,7 @@ internal sealed class KunderaAuthorizationMiddleware : ArchMiddleware
             throw new KunderaUnAuthorizedException();
         }
 
-        context.Items[UserIdKey] = GenerateUserToken();
+        context.Items[UserIdKey] = GenerateUserToken(serviceSecret);
 
         await next(context);
 
@@ -115,10 +115,10 @@ internal sealed class KunderaAuthorizationMiddleware : ArchMiddleware
             return secret;
         }
 
-        string GenerateUserToken()
+        string GenerateUserToken(string secret)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(RequestInfo!.Headers!.First(pair => pair.Key == "service_secret").Value);
+            var key = Encoding.ASCII.GetBytes(secret);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new[] { new Claim("id", userId) }),

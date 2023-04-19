@@ -1,5 +1,6 @@
 using Application.Middlewares;
 using Arch.Clerk;
+using Arch.Kundera;
 using Core.EndpointDefinitions.Containers;
 using Core.EndpointDefinitions.Containers.Resolvers;
 using Core.EndpointDefinitions.Services;
@@ -10,7 +11,6 @@ using Core.ServiceConfigs.Services;
 using Data.InMemory;
 using Data.Sql;
 using FastEndpoints;
-using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 using EndpointDefinition = Core.EndpointDefinitions.EndpointDefinition;
 
@@ -18,20 +18,20 @@ var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseKestrel();
 builder.WebHost.ConfigureKestrel((_, options) =>
 {
-    options.ListenAnyIP(5229, _ => { });
-    options.ListenAnyIP(5228, listenOptions =>
-    {
-        listenOptions.Protocols = HttpProtocols.Http1AndHttp2AndHttp3;
-        listenOptions.UseHttps();
-    });
+    // options.ListenAnyIP(80, _ => { });
+    options.ListenAnyIP(2131, _ => { });
+    // options.ListenAnyIP(5228, listenOptions =>
+    // {
+    //     listenOptions.Protocols = HttpProtocols.Http1AndHttp2AndHttp3;
+    //     listenOptions.UseHttps();
+    // });
 });
 builder.Services.AddCors();
-
 builder.Services.AddHttpClient("arch", _ => { });
 
 builder.Services.AddArchMiddleware<ExceptionHandlerMiddleware>();
 builder.Services.AddArchMiddleware<RequestExtractorMiddleware>();
-// builder.Services.AddKundera(builder.Configuration);
+builder.Services.AddKundera(builder.Configuration);
 builder.Services.AddClerkAccounting(builder.Configuration);
 builder.Services.AddArchMiddleware<RequestDispatcherMiddleware>();
 builder.Services.AddArchMiddleware<ResponseHandlerMiddleware>();
@@ -60,7 +60,9 @@ builder.Services.AddData(builder.Configuration);
 builder.Services.AddInMemoryDataContainers();
 
 builder.Services.AddFastEndpoints();
-
+// builder.Services.AddAuthentication(KunderaDefaults.Scheme)
+//     .AddKundera(builder.Configuration);
+// builder.Services.AddAuthorization();
 var app = builder.Build();
 
 app.UseCors(b => b.AllowAnyHeader()
@@ -72,7 +74,7 @@ await SeedDataAsync();
 
 app.UseArchMiddleware<ExceptionHandlerMiddleware>();
 app.UseArchMiddleware<RequestExtractorMiddleware>();
-// app.UseKundera(builder.Configuration);
+app.UseKundera(builder.Configuration);
 app.UseClerkAccounting(builder.Configuration);
 app.UseArchMiddleware<RequestDispatcherMiddleware>();
 // app.UseAllElasticApm(builder.Configuration);

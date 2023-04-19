@@ -16,6 +16,7 @@ internal sealed class Endpoint : Endpoint<Request>
     public override void Configure()
     {
         Put("service-configs/{id}");
+        // Permissions("arch_service-configs_update");
         AllowAnonymous();
     }
 

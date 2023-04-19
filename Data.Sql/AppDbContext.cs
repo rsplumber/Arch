@@ -59,7 +59,7 @@ public class AppDbContext : DbContext
 
             builder.HasMany(serviceConfig => serviceConfig.EndpointDefinitions)
                 .WithOne(definition => definition.ServiceConfig)
-                .OnDelete(DeleteBehavior.Restrict)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasPrincipalKey(config => config.Id)
                 .HasForeignKey("service_config_id");
 

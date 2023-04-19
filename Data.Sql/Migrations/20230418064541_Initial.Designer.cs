@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Data.Sql.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20230305110111_Initial")]
+    [Migration("20230418064541_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -20,7 +20,7 @@ namespace Data.Sql.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.3")
+                .HasAnnotation("ProductVersion", "7.0.5")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -132,7 +132,7 @@ namespace Data.Sql.Migrations
                     b.HasOne("Core.ServiceConfigs.ServiceConfig", "ServiceConfig")
                         .WithMany("EndpointDefinitions")
                         .HasForeignKey("service_config_id")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("ServiceConfig");
