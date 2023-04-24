@@ -16,19 +16,19 @@ public class EndpointDefinitionEventHandlers : ICapSubscribe
         _containerInitializer = containerInitializer;
     }
 
-    [CapSubscribe("arch_endpoint-definition_created")]
+    [CapSubscribe("arch.endpoint-definition.changed", Group = "arch.core.queue")]
     public Task EndpointCreatedAsync(EndpointDefinitionCreatedEvent message, CancellationToken cancellationToken = default)
     {
         return ReInitializeContainersAsync(cancellationToken);
     }
 
-    [CapSubscribe("arch_endpoint-definition_changed")]
+    [CapSubscribe("arch.endpoint-definition.changed", Group = "arch.core.queue")]
     public Task EndpointCreatedAsync(EndpointDefinitionChangedEvent message, CancellationToken cancellationToken = default)
     {
         return ReInitializeContainersAsync(cancellationToken);
     }
 
-    [CapSubscribe("arch_endpoint-definition_removed")]
+    [CapSubscribe("arch.endpoint-definition.removed", Group = "arch.core.queue")]
     public Task EndpointCreatedAsync(EndpointDefinitionRemovedEvent message, CancellationToken cancellationToken = default)
     {
         return ReInitializeContainersAsync(cancellationToken);

@@ -10,7 +10,7 @@
     <ItemGroup>
         <PackageReference Include="DotNetCore.CAP.PostgreSql" Version="7.1.1" />
         <PackageReference Include="DotNetCore.CAP.RabbitMQ" Version="7.1.1" />
-        <PackageReference Include="FastEndpoints" Version="5.8.1" />
+        <PackageReference Include="FastEndpoints" Version="5.9.0" />
         <PackageReference Include="KunderaNet.FastEndpoints.Authorization" Version="1.0.3" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.5">
           <PrivateAssets>all</PrivateAssets>
