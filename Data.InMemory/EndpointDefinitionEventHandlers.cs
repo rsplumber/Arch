@@ -16,7 +16,7 @@ public class EndpointDefinitionEventHandlers : ICapSubscribe
         _containerInitializer = containerInitializer;
     }
 
-    [CapSubscribe("arch.endpoint-definition.changed", Group = "arch.core.queue")]
+    [CapSubscribe("arch.endpoint-definition.created", Group = "arch.core.queue")]
     public Task EndpointCreatedAsync(EndpointDefinitionCreatedEvent message, CancellationToken cancellationToken = default)
     {
         return ReInitializeContainersAsync(cancellationToken);

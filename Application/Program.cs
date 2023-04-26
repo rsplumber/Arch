@@ -19,7 +19,7 @@ builder.WebHost.UseKestrel();
 builder.WebHost.ConfigureKestrel((_, options) =>
 {
     // options.ListenAnyIP(80, _ => { });
-    options.ListenAnyIP(2131, _ => { });
+    options.ListenAnyIP(2010, _ => { });
     // options.ListenAnyIP(5228, listenOptions =>
     // {
     //     listenOptions.Protocols = HttpProtocols.Http1AndHttp2AndHttp3;

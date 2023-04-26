@@ -28,12 +28,9 @@ internal sealed class RequestDispatcherMiddleware : ArchMiddleware
 
         var client = _httpClientFactory.CreateClient(HttpFactoryName);
         client.DefaultRequestHeaders.Clear();
-        if (RequestInfo.Headers is not null)
+        foreach (var header in RequestInfo.Headers)
         {
-            foreach (var header in RequestInfo.Headers)
-            {
-                client.DefaultRequestHeaders.TryAddWithoutValidation(header.Key, header.Value);
-            }
+            client.DefaultRequestHeaders.TryAddWithoutValidation(header.Key, header.Value);
         }
 
         if (context.Items[UserIdKey] is string userId)
@@ -41,26 +38,19 @@ internal sealed class RequestDispatcherMiddleware : ArchMiddleware
             client.DefaultRequestHeaders.TryAddWithoutValidation(UserTokenKey, userId);
         }
 
-        object? requestBody = null;
+
+        var message = new HttpRequestMessage(MapToHttpMethod(), ApiUrl());
         if (RequestInfo.Body is not null)
         {
-            requestBody = JsonSerializer.Deserialize<object>(RequestInfo.Body);
+            message.Content = RequestInfo.ContentType switch
+            {
+                RequestInfo.ApplicationJsonContentType => JsonContent.Create(JsonSerializer.Deserialize<object>(RequestInfo.Body)),
+                RequestInfo.FormDataContentType => new StringContent(RequestInfo.Body),
+                _ => message.Content
+            };
         }
 
-        // HttpRequestMessage requestMessage = this.CreateRequestMessage(HttpMethod.Put, ApiUrl());
-        // requestMessage.Content = content;
-        // client.SendAsync(new HttpRequestMessage(requestMessage)
-
-        var httpResponse = RequestInfo.Method switch
-        {
-            HttpRequestMethods.Get => await client.GetAsync(ApiUrl()),
-            HttpRequestMethods.Delete => await client.DeleteAsync(ApiUrl()),
-            HttpRequestMethods.Patch => await client.PatchAsJsonAsync(ApiUrl(), requestBody),
-            HttpRequestMethods.Post => await client.PostAsJsonAsync(ApiUrl(), requestBody),
-            HttpRequestMethods.Put => await client.PutAsJsonAsync(ApiUrl(), requestBody),
-            _ => throw new ArgumentOutOfRangeException()
-        };
-
+        var httpResponse = await client.SendAsync(message);
         var response = await httpResponse.Content.ReadAsStringAsync();
         context.Items[ResponseKey] = new ResponseInfo
         {
@@ -76,7 +66,19 @@ internal sealed class RequestDispatcherMiddleware : ArchMiddleware
                 throw new BaseUrlNotfoundException();
             }
 
-            return $"{EndpointDefinition.BaseUrl}/{RequestInfo.Path}";
+            return $"{EndpointDefinition.BaseUrl}/{RequestInfo.Path}{RequestInfo.QueryString}";
         }
+
+        HttpMethod MapToHttpMethod() => RequestInfo.Method switch
+        {
+            HttpRequestMethods.Get => HttpMethod.Get,
+            HttpRequestMethods.Delete => HttpMethod.Delete,
+            HttpRequestMethods.Patch => HttpMethod.Patch,
+            HttpRequestMethods.Post => HttpMethod.Post,
+            HttpRequestMethods.Put => HttpMethod.Put,
+            HttpRequestMethods.Head => HttpMethod.Head,
+            HttpRequestMethods.Options => HttpMethod.Options,
+            _ => throw new ArgumentOutOfRangeException()
+        };
     }
 }
