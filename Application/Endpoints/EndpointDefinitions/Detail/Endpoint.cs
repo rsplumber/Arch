@@ -18,8 +18,8 @@ internal sealed class Endpoint : Endpoint<Request>
     public override void Configure()
     {
         Get("endpoint-definitions/{id}");
-        // Permissions("arch_endpoint-definitions_details");
         AllowAnonymous();
+        Version(1);
     }
 
     public override async Task HandleAsync(Request req, CancellationToken ct)
@@ -32,6 +32,7 @@ internal sealed class Endpoint : Endpoint<Request>
                 definition.Method,
                 definition.Pattern,
                 definition.Endpoint,
+                definition.MapTo,
                 Meta = definition.Meta.Select(meta => new
                 {
                     meta.Key,

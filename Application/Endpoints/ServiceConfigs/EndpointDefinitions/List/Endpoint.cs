@@ -18,8 +18,8 @@ internal sealed class Endpoint : Endpoint<Request>
     public override void Configure()
     {
         Get("service-configs/{id}/endpoint-definitions");
-        // Permissions("arch_service-configs_endpoint-definitions_list");
         AllowAnonymous();
+        Version(1);
     }
 
     public override async Task HandleAsync(Request req, CancellationToken ct)
@@ -44,7 +44,8 @@ internal sealed class Endpoint : Endpoint<Request>
             definition.Id,
             definition.Endpoint,
             definition.Pattern,
-            definition.Method
+            definition.Method,
+            definition.MapTo
         }).ToList(), ct);
     }
 }

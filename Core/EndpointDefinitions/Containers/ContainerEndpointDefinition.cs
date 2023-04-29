@@ -10,6 +10,8 @@ public sealed record ContainerEndpointDefinition : IComparable<ContainerEndpoint
 
     public required string Endpoint { get; init; } = default!;
 
+    public required string MapTo { get; init; } = default!;
+
     public required string Method { get; init; } = default!;
 
     public required Dictionary<string, string> Meta { get; init; } = new();

@@ -11,6 +11,8 @@ public sealed class EndpointDefinition : BaseEntity
 
     public string Pattern { get; set; } = default!;
 
+    public string MapTo { get; set; } = default!;
+
     public string Endpoint { get; set; } = default!;
 
     public string Method { get; set; } = default!;

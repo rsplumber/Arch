@@ -22,8 +22,8 @@ internal sealed class Endpoint : Endpoint<Request>
     public override void Configure()
     {
         Patch("endpoint-definitions/{id}/disable");
-        // Permissions("arch_endpoint-definitions_disable");
         AllowAnonymous();
+        Version(1);
     }
 
     public override async Task HandleAsync(Request req, CancellationToken ct)

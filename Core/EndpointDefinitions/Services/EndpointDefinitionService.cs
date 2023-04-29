@@ -34,13 +34,14 @@ public sealed class EndpointDefinitionService : IEndpointDefinitionService
 
         var sanitizedEndpoint = SanitizedEndpoint();
         await _endpointPatternTree.AddAsync(sanitizedEndpoint, cancellationToken);
-        var endpointPattern = await _endpointPatternTree.FindAsync(request.Endpoint, cancellationToken);
+        var (endpointPattern, endpointParams) = await _endpointPatternTree.FindAsync(request.Endpoint, cancellationToken);
 
         var endpointDefinition = new EndpointDefinition
         {
             Pattern = endpointPattern,
             Endpoint = sanitizedEndpoint,
-            Method = request.Method.ToLower()
+            Method = request.Method.ToLower(),
+            MapTo = request.MapTo
         };
 
         AddServiceConfigMetaToEndpoint();

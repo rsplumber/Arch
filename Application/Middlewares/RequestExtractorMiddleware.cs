@@ -16,11 +16,10 @@ internal sealed class RequestExtractorMiddleware : ArchMiddleware
     {
         context.Request.EnableBuffering();
         var path = ExtractPath();
-        Console.WriteLine(context.Request.ContentType);
         var body = await new StreamReader(context.Request.Body).ReadToEndAsync();
         context.Request.Body.Position = 0;
         var method = context.Request.Method.ToLower();
-        var definition = await _endpointDefinitionResolver.ResolveAsync(path, method);
+        var (definition, pathParameters) = await _endpointDefinitionResolver.ResolveAsync(path, method);
 
         context.Items[ArchEndpointDefinitionKey] = definition is not null
             ? new RequestEndpointDefinition
@@ -33,15 +32,17 @@ internal sealed class RequestExtractorMiddleware : ArchMiddleware
             }
             : null;
 
-        context.Items[RequestInfoKey] = new RequestInfo
-        {
-            Headers = context.Request.Headers.ToDictionary(a => a.Key, a => string.Join(";", a.Value!)),
-            Method = method,
-            Body = string.IsNullOrEmpty(body) ? null : body,
-            Path = path,
-            QueryString = context.Request.QueryString.Value,
-            ContentType = context.Request.ContentType
-        };
+        context.Items[RequestInfoKey] = definition is not null
+            ? new RequestInfo
+            {
+                Headers = context.Request.Headers.ToDictionary(a => a.Key, a => string.Join(";", a.Value!)),
+                Method = method,
+                Body = string.IsNullOrEmpty(body) ? null : body,
+                Path = string.Format(definition.MapTo, pathParameters),
+                QueryString = context.Request.QueryString.Value,
+                ContentType = context.Request.ContentType
+            }
+            : null;
 
         await next(context);
 

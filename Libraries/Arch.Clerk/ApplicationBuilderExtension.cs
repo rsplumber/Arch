@@ -18,58 +18,65 @@ public static class ApplicationBuilderExtension
 
         using var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>()?.CreateScope();
         var dbContext = serviceScope!.ServiceProvider.GetRequiredService<AppDbContext>();
-        var currentConfig = dbContext.ServiceConfigs.FirstOrDefault(config => config.Name == "clerk");
-        if (currentConfig is not null)
+        if (!dbContext.ServiceConfigs.Any(config => config.Name == "clerk"))
         {
-            dbContext.ServiceConfigs.Remove(currentConfig);
+            var serviceConfig = new ServiceConfig
+            {
+                Name = "clerk",
+                Primary = true,
+                BaseUrl = configuration.GetSection("Clerk:BaseUrl").Value ??
+                          throw new Exception("Enter Clerk:BaseUrl in appsettings.json")
+            };
+
+            dbContext.ServiceConfigs.Add(serviceConfig);
             dbContext.SaveChanges();
         }
 
-        var serviceConfig = new ServiceConfig
-        {
-            Name = "clerk",
-            Primary = true,
-            BaseUrl = configuration.GetSection("Clerk:BaseUrl").Value ??
-                      throw new Exception("Enter Clerk:BaseUrl in appsettings.json")
-        };
-
-        dbContext.ServiceConfigs.Add(serviceConfig);
-        dbContext.SaveChanges();
-
 
         var archServiceConfig = dbContext.ServiceConfigs
+            .Include(config => config.Meta)
             .Include(config => config.EndpointDefinitions)
-            .FirstAsync(config => config.Name == "arch").Result;
+            .ThenInclude(definition => definition.Meta)
+            .First(config => config.Name == "arch");
 
-        archServiceConfig.EndpointDefinitions.Add(new EndpointDefinition
+        if (archServiceConfig.EndpointDefinitions.All(definition => definition.Pattern != "gateway/api/v1/endpoint-definitions/##/accounting/enable"))
         {
-            Endpoint = "endpoint-definitions/{id}/accounting/enable",
-            Pattern = "endpoint-definitions/##/accounting/enable",
-            Method = HttpRequestMethods.Post,
-            Meta = new List<Meta>
+            archServiceConfig.EndpointDefinitions.Add(new EndpointDefinition
             {
-                new()
+                Endpoint = "gateway/api/v1/endpoint-definitions/{id}/accounting/enable",
+                Pattern = "gateway/api/v1/endpoint-definitions/##/accounting/enable",
+                MapTo = "gateway/api/v1/endpoint-definitions{0}/accounting/enable",
+                Method = HttpRequestMethods.Post,
+                Meta = new List<Meta>
                 {
-                    Key = "permissions",
-                    Value = "arch_endpoint_definition_accounting_enable"
-                },
-            }
-        });
+                    new()
+                    {
+                        Key = "permissions",
+                        Value = "arch_endpoint_definition_accounting_enable"
+                    },
+                }
+            });
+        }
 
-        archServiceConfig.EndpointDefinitions.Add(new EndpointDefinition
+
+        if (archServiceConfig.EndpointDefinitions.All(definition => definition.Pattern != "gateway/api/v1/endpoint-definitions/##/accounting/disable"))
         {
-            Endpoint = "endpoint-definitions/{id}/accounting/disable",
-            Pattern = "endpoint-definitions/##/accounting/disable",
-            Method = HttpRequestMethods.Post,
-            Meta = new List<Meta>
+            archServiceConfig.EndpointDefinitions.Add(new EndpointDefinition
             {
-                new()
+                Endpoint = "gateway/api/v1/endpoint-definitions/{id}/accounting/disable",
+                Pattern = "gateway/api/v1/endpoint-definitions/##/accounting/disable",
+                MapTo = "gateway/api/v1/endpoint-definitions{0}/accounting/disable",
+                Method = HttpRequestMethods.Post,
+                Meta = new List<Meta>
                 {
-                    Key = "permissions",
-                    Value = "arch_endpoint_definition_accounting_disable"
-                },
-            }
-        });
+                    new()
+                    {
+                        Key = "permissions",
+                        Value = "arch_endpoint_definition_accounting_disable"
+                    },
+                }
+            });
+        }
 
         dbContext.ServiceConfigs.Update(archServiceConfig);
         dbContext.SaveChanges();

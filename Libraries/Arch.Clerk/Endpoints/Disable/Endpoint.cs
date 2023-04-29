@@ -20,7 +20,7 @@ internal sealed class Endpoint : Endpoint<Request>
 
     public override void Configure()
     {
-        Post("endpoint-definitions/{id}/accounting/enable");
+        Post("gateway/api/v1/endpoint-definitions{id}/accounting/enable");
         AllowAnonymous();
     }
 

@@ -23,7 +23,7 @@ public class AppDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.ApplyConfiguration(new ServiceConfigEntityTypeConfiguration());
-        builder.ApplyConfiguration(new BinderEntityTypeConfiguration());
+        builder.ApplyConfiguration(new EndpointDefinitionEntityTypeConfiguration());
         builder.ApplyConfiguration(new MetaEntityTypeConfiguration());
         base.OnModelCreating(builder);
     }
@@ -71,7 +71,7 @@ public class AppDbContext : DbContext
         }
     }
 
-    private class BinderEntityTypeConfiguration : IEntityTypeConfiguration<EndpointDefinition>
+    private class EndpointDefinitionEntityTypeConfiguration : IEntityTypeConfiguration<EndpointDefinition>
     {
         public void Configure(EntityTypeBuilder<EndpointDefinition> builder)
         {
@@ -93,6 +93,12 @@ public class AppDbContext : DbContext
                 .HasColumnName("endpoint");
 
             builder.HasIndex(definition => definition.Endpoint);
+
+            builder.Property(definition => definition.MapTo)
+                .UsePropertyAccessMode(PropertyAccessMode.Property)
+                .HasColumnName("map_to");
+
+            builder.HasIndex(definition => definition.MapTo);
 
             builder.Property(definition => definition.Method)
                 .UsePropertyAccessMode(PropertyAccessMode.Property)

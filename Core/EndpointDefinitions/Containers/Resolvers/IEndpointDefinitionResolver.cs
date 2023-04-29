@@ -4,5 +4,5 @@ public interface IEndpointDefinitionResolver
 {
     ContainerEndpointDefinition? Resolve(string url, string method);
 
-    ValueTask<ContainerEndpointDefinition?> ResolveAsync(string url, string method, CancellationToken cancellationToken = default);
+    ValueTask<(ContainerEndpointDefinition?, object[])> ResolveAsync(string url, string method, CancellationToken cancellationToken = default);
 }

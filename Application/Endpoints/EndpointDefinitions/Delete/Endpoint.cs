@@ -16,8 +16,8 @@ internal sealed class Endpoint : Endpoint<Request>
     public override void Configure()
     {
         Delete("endpoint-definitions/{id}");
-        // Permissions("arch_endpoint-definitions_delete");
         AllowAnonymous();
+        Version(1);
     }
 
     public override async Task HandleAsync(Request req, CancellationToken ct)

@@ -56,27 +56,35 @@ public sealed class EndpointNode
         node._end = true;
     }
 
-    public string Find(string url)
+    public (string, object[]) Find(string url)
     {
-        return string.Join("/", FindEnumerable(url));
+        var (pattern, urlParams) = FindEnumerable(url);
+        return (string.Join("/", pattern), urlParams.ToArray());
     }
 
-    public async ValueTask<string> FindAsync(string url, CancellationToken cancellationToken = new())
+    public async ValueTask<(string, object[])> FindAsync(string url, CancellationToken cancellationToken = new())
     {
-        var foundedValues = await FindEnumerableAsync(url, cancellationToken);
-        return string.Join("/", foundedValues);
+        var (pattern, urlParams) = await FindEnumerableAsync(url, cancellationToken);
+
+        return (string.Join("/", pattern), urlParams.ToArray());
     }
 
-    private async ValueTask<List<string>> FindEnumerableAsync(string url, CancellationToken cancellationToken)
+    private async ValueTask<(List<string>, List<object>)> FindEnumerableAsync(string url, CancellationToken cancellationToken)
     {
         var currentNode = this;
-        return await Task.Run(() => currentNode.FindEnumerable(url).ToList(), cancellationToken);
+        return await Task.Run(() =>
+        {
+            var (pattern, urlParams) = currentNode.FindEnumerable(url);
+            return (pattern, urlParams);
+        }, cancellationToken);
     }
 
-    private IEnumerable<string> FindEnumerable(string url)
+    private (List<string>, List<object>) FindEnumerable(string url)
     {
         using var urlArray = url.Split(UrlSplitter).AsEnumerable().GetEnumerator();
         var node = this;
+        var urlParams = new List<object>();
+        var urlPattern = new List<string>();
         while (urlArray.MoveNext())
         {
             if (IsQueryParameter(urlArray.Current))
@@ -91,12 +99,15 @@ public sealed class EndpointNode
                     throw new NodePathNotFoundException();
                 }
 
+                urlParams.Add(urlArray.Current);
                 value = pathValue;
             }
 
             node = value ?? throw new NodePathNotFoundException();
-            yield return node._item;
+            urlPattern.Add(node._item);
         }
+
+        return (urlPattern, urlParams);
     }
 
     private static bool IsPathParameter(string key) => key.StartsWith(StartPathParameterKey) && key.EndsWith(EndPathParameterKey);

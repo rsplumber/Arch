@@ -16,8 +16,8 @@ internal sealed class Endpoint : Endpoint<Request>
     public override void Configure()
     {
         Post("service-configs");
-        // Permissions("arch_service-configs_create");
         AllowAnonymous();
+        Version(1);
     }
 
     public override async Task HandleAsync(Request req, CancellationToken ct)

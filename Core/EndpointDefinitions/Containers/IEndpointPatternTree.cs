@@ -13,7 +13,7 @@ public interface IEndpointPatternTree
     /// <param name="url">requested url</param>
     /// <param name="cancellationToken">cancel search</param>
     /// <returns>returns url pattern</returns>
-    ValueTask<string> FindAsync(string url, CancellationToken cancellationToken = default);
+    ValueTask<(string, object[])> FindAsync(string url, CancellationToken cancellationToken = default);
 
     void Add(string url);
 
@@ -22,7 +22,7 @@ public interface IEndpointPatternTree
     /// </summary>
     /// <param name="url">requested url</param>
     /// <returns>returns url pattern</returns>
-    string Find(string url);
+    (string, object[]) Find(string url);
 
     void Remove(string urlPattern, CancellationToken cancellationToken = default);
 

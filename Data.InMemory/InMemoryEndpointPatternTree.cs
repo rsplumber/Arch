@@ -17,7 +17,7 @@ internal sealed class InMemoryEndpointPatternTree : IEndpointPatternTree
         throw new NotImplementedException();
     }
 
-    public ValueTask<string> FindAsync(string url, CancellationToken cancellationToken = default)
+    public ValueTask<(string, object[])> FindAsync(string url, CancellationToken cancellationToken = default)
     {
         return _patternTree.FindAsync(url, cancellationToken);
     }
@@ -28,7 +28,7 @@ internal sealed class InMemoryEndpointPatternTree : IEndpointPatternTree
     }
 
 
-    public string Find(string url)
+    public (string, object[]) Find(string url)
     {
         return _patternTree.Find(url);
     }

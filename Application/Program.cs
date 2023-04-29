@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Application.Middlewares;
 using Arch.Clerk;
 using Arch.Kundera;
@@ -18,8 +19,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseKestrel();
 builder.WebHost.ConfigureKestrel((_, options) =>
 {
-    // options.ListenAnyIP(80, _ => { });
-    options.ListenAnyIP(2010, _ => { });
+    options.ListenAnyIP(5228, _ => { });
     // options.ListenAnyIP(5228, listenOptions =>
     // {
     //     listenOptions.Protocols = HttpProtocols.Http1AndHttp2AndHttp3;
@@ -82,7 +82,13 @@ app.UseArchMiddleware<ResponseHandlerMiddleware>();
 
 await InitializeInMemoryContainers();
 
-app.UseFastEndpoints();
+app.UseFastEndpoints(config =>
+{
+    config.Serializer.Options.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+    config.Endpoints.RoutePrefix = "gateway/api";
+    config.Versioning.Prefix = "v";
+    config.Versioning.PrependToRoute = true;
+});
 
 await app.RunAsync();
 
@@ -131,206 +137,272 @@ async Task SeedDataAsync()
         .ThenInclude(definition => definition.Meta)
         .FirstAsync(config => config.Id == serviceConfig.Id);
 
-    createdConfig.EndpointDefinitions.Add(new EndpointDefinition
+    if (!createdConfig.EndpointDefinitions.Any(definition => definition is { Pattern: "gateway/api/v1/endpoint-definitions/##", Method: HttpRequestMethods.Get }))
     {
-        Endpoint = "endpoint-definitions/{id}",
-        Pattern = "endpoint-definitions/##",
-        Method = HttpRequestMethods.Get,
-        Meta = new List<Meta>
+        createdConfig.EndpointDefinitions.Add(new EndpointDefinition
         {
-            new()
+            Endpoint = "gateway/api/v1/endpoint-definitions/{id}",
+            Pattern = "gateway/api/v1/endpoint-definitions/##",
+            MapTo = "gateway/api/v1/endpoint-definitions{0]",
+            Method = HttpRequestMethods.Get,
+            Meta = new List<Meta>
             {
-                Key = "permissions",
-                Value = "arch_details_endpoint_definition"
-            },
-        }
-    });
+                new()
+                {
+                    Key = "permissions",
+                    Value = "arch_details_endpoint_definition"
+                },
+            }
+        });
+    }
 
-    createdConfig.EndpointDefinitions.Add(new EndpointDefinition
+    if (!createdConfig.EndpointDefinitions.Any(definition => definition is { Pattern: "gateway/api/v1/endpoint-definitions/##/enable", Method: HttpRequestMethods.Post }))
     {
-        Endpoint = "endpoint-definitions/{id}/enable",
-        Pattern = "endpoint-definitions/##/enable",
-        Method = HttpRequestMethods.Post,
-        Meta = new List<Meta>
+        createdConfig.EndpointDefinitions.Add(new EndpointDefinition
         {
-            new()
+            Endpoint = "gateway/api/v1/endpoint-definitions/{id}/enable",
+            Pattern = "gateway/api/v1/endpoint-definitions/##/enable",
+            MapTo = "gateway/api/v1/endpoint-definitions{0}/enable",
+            Method = HttpRequestMethods.Post,
+            Meta = new List<Meta>
             {
-                Key = "permissions",
-                Value = "arch_enable_endpoint_definition"
-            },
-        }
-    });
+                new()
+                {
+                    Key = "permissions",
+                    Value = "arch_enable_endpoint_definition"
+                },
+            }
+        });
+    }
 
-    createdConfig.EndpointDefinitions.Add(new EndpointDefinition
+    if (!createdConfig.EndpointDefinitions.Any(definition => definition is { Pattern: "gateway/api/v1/endpoint-definitions/##/disable", Method: HttpRequestMethods.Post }))
     {
-        Endpoint = "endpoint-definitions/{id}/disable",
-        Pattern = "endpoint-definitions/##/disable",
-        Method = HttpRequestMethods.Post,
-        Meta = new List<Meta>
+        createdConfig.EndpointDefinitions.Add(new EndpointDefinition
         {
-            new()
+            Endpoint = "gateway/api/v1/endpoint-definitions/{id}/disable",
+            Pattern = "gateway/api/v1/endpoint-definitions/##/disable",
+            MapTo = "gateway/api/v1/endpoint-definitions{0}/disable",
+            Method = HttpRequestMethods.Post,
+            Meta = new List<Meta>
             {
-                Key = "permissions",
-                Value = "arch_disable_endpoint_definition"
-            },
-        }
-    });
+                new()
+                {
+                    Key = "permissions",
+                    Value = "arch_disable_endpoint_definition"
+                },
+            }
+        });
+    }
 
+    if (!createdConfig.EndpointDefinitions.Any(definition => definition is { Pattern: "gateway/api/v1/endpoint-definitions/##", Method: HttpRequestMethods.Delete }))
+    {
+        createdConfig.EndpointDefinitions.Add(new EndpointDefinition
+        {
+            Endpoint = "gateway/api/v1/endpoint-definitions/{id}",
+            Pattern = "gateway/api/v1/endpoint-definitions/##",
+            MapTo = "gateway/api/v1/endpoint-definitions{0}",
+            Method = HttpRequestMethods.Delete,
+            Meta = new List<Meta>
+            {
+                new()
+                {
+                    Key = "permissions",
+                    Value = "arch_delete_endpoint_definition"
+                },
+            }
+        });
+    }
 
-    createdConfig.EndpointDefinitions.Add(new EndpointDefinition
+    if (!createdConfig.EndpointDefinitions.Any(definition => definition is { Pattern: "gateway/api/v1/endpoint-definitions/##", Method: HttpRequestMethods.Put }))
     {
-        Endpoint = "endpoint-definitions/{id}",
-        Pattern = "endpoint-definitions/##",
-        Method = HttpRequestMethods.Delete,
-        Meta = new List<Meta>
+        createdConfig.EndpointDefinitions.Add(new EndpointDefinition
         {
-            new()
+            Endpoint = "gateway/api/v1/endpoint-definitions/{id}",
+            Pattern = "gateway/api/v1/endpoint-definitions/##",
+            MapTo = "gateway/api/v1/endpoint-definitions{0}",
+            Method = HttpRequestMethods.Put,
+            Meta = new List<Meta>
             {
-                Key = "permissions",
-                Value = "arch_delete_endpoint_definition"
-            },
-        }
-    });
-    createdConfig.EndpointDefinitions.Add(new EndpointDefinition
+                new()
+                {
+                    Key = "permissions",
+                    Value = "arch_update_endpoint_definition"
+                },
+            }
+        });
+    }
+
+    if (!createdConfig.EndpointDefinitions.Any(definition => definition is { Pattern: "gateway/api/v1/endpoint-definitions/required-meta", Method: HttpRequestMethods.Get }))
     {
-        Endpoint = "endpoint-definitions/{id}",
-        Pattern = "endpoint-definitions/##",
-        Method = HttpRequestMethods.Put,
-        Meta = new List<Meta>
+        createdConfig.EndpointDefinitions.Add(new EndpointDefinition
         {
-            new()
+            Endpoint = "gateway/api/v1/endpoint-definitions/required-meta",
+            Pattern = "gateway/api/v1/endpoint-definitions/required-meta",
+            MapTo = "gateway/api/v1/endpoint-definitionsrequired-meta",
+            Method = HttpRequestMethods.Get,
+            Meta = new List<Meta>
             {
-                Key = "permissions",
-                Value = "arch_update_endpoint_definition"
-            },
-        }
-    });
-    createdConfig.EndpointDefinitions.Add(new EndpointDefinition
+                new()
+                {
+                    Key = "permissions",
+                    Value = "arch_required-meta_endpoint_definition"
+                },
+            }
+        });
+    }
+
+    if (!createdConfig.EndpointDefinitions.Any(definition => definition is { Pattern: "gateway/api/v1/service-configs", Method: HttpRequestMethods.Post }))
     {
-        Endpoint = "endpoint-definitions/required-meta",
-        Pattern = "endpoint-definitions/required-meta",
-        Method = HttpRequestMethods.Get,
-        Meta = new List<Meta>
+        createdConfig.EndpointDefinitions.Add(new EndpointDefinition
         {
-            new()
+            Endpoint = "gateway/api/v1/service-configs",
+            Pattern = "gateway/api/v1/service-configs",
+            MapTo = "service-configs",
+            Method = HttpRequestMethods.Post,
+            Meta = new List<Meta>
             {
-                Key = "permissions",
-                Value = "arch_required-meta_endpoint_definition"
-            },
-        }
-    });
-    createdConfig.EndpointDefinitions.Add(new EndpointDefinition
+                new()
+                {
+                    Key = "permissions",
+                    Value = "arch_create_service_config"
+                }
+            }
+        });
+    }
+
+    if (!createdConfig.EndpointDefinitions.Any(definition => definition is { Pattern: "gateway/api/v1/service-configs/required-meta", Method: HttpRequestMethods.Get }))
     {
-        Endpoint = "service-configs",
-        Pattern = "service-configs",
-        Method = HttpRequestMethods.Post,
-        Meta = new List<Meta>
+        createdConfig.EndpointDefinitions.Add(new EndpointDefinition
         {
-            new()
+            Endpoint = "gateway/api/v1/service-configs/required-meta",
+            Pattern = "gateway/api/v1/service-configs/required-meta",
+            MapTo = "service-configs/required-meta",
+            Method = HttpRequestMethods.Get,
+            Meta = new List<Meta>
             {
-                Key = "permissions",
-                Value = "arch_create_service_config"
-            },
-        }
-    });
-    createdConfig.EndpointDefinitions.Add(new EndpointDefinition
+                new()
+                {
+                    Key = "permissions",
+                    Value = "arch_required-meta_service_config"
+                },
+            }
+        });
+    }
+
+    if (!createdConfig.EndpointDefinitions.Any(definition => definition is { Pattern: "gateway/api/v1/service-configs", Method: HttpRequestMethods.Get }))
     {
-        Endpoint = "service-configs/required-meta",
-        Pattern = "service-configs/required-meta",
-        Method = HttpRequestMethods.Get,
-        Meta = new List<Meta>
+        createdConfig.EndpointDefinitions.Add(new EndpointDefinition
         {
-            new()
+            Endpoint = "gateway/api/v1/service-configs",
+            Pattern = "gateway/api/v1/service-configs",
+            MapTo = "service-configs",
+            Method = HttpRequestMethods.Get,
+            Meta = new List<Meta>
             {
-                Key = "permissions",
-                Value = "arch_required-meta_service_config"
-            },
-        }
-    });
-    createdConfig.EndpointDefinitions.Add(new EndpointDefinition
+                new()
+                {
+                    Key = "permissions",
+                    Value = "arch_list_service_config"
+                },
+            }
+        });
+    }
+
+    if (!createdConfig.EndpointDefinitions.Any(definition => definition is { Pattern: "gateway/api/v1/service-configs/##", Method: HttpRequestMethods.Delete }))
     {
-        Endpoint = "service-configs",
-        Pattern = "service-configs",
-        Method = HttpRequestMethods.Get,
-        Meta = new List<Meta>
+        createdConfig.EndpointDefinitions.Add(new EndpointDefinition
         {
-            new()
+            Endpoint = "gateway/api/v1/service-configs/{id}",
+            Pattern = "gateway/api/v1/service-configs/##",
+            MapTo = "service-configs/{0}",
+            Method = HttpRequestMethods.Delete,
+            Meta = new List<Meta>
             {
-                Key = "permissions",
-                Value = "arch_list_service_config"
-            },
-        }
-    });
-    createdConfig.EndpointDefinitions.Add(new EndpointDefinition
+                new()
+                {
+                    Key = "permissions",
+                    Value = "arch_delete_service_config"
+                },
+            }
+        });
+    }
+
+    if (!createdConfig.EndpointDefinitions.Any(definition => definition is { Pattern: "gateway/api/v1/service-configs/##", Method: HttpRequestMethods.Get }))
     {
-        Endpoint = "service-configs/{id}",
-        Pattern = "service-configs/##",
-        Method = HttpRequestMethods.Delete,
-        Meta = new List<Meta>
+        createdConfig.EndpointDefinitions.Add(new EndpointDefinition
         {
-            new()
+            Endpoint = "gateway/api/v1/service-configs/{id}",
+            Pattern = "gateway/api/v1/service-configs/##",
+            MapTo = "service-configs/{0}",
+            Method = HttpRequestMethods.Get,
+            Meta = new List<Meta>
             {
-                Key = "permissions",
-                Value = "arch_delete_service_config"
-            },
-        }
-    });
-    createdConfig.EndpointDefinitions.Add(new EndpointDefinition
+                new()
+                {
+                    Key = "permissions",
+                    Value = "arch_details_service_config"
+                },
+            }
+        });
+    }
+
+    if (!createdConfig.EndpointDefinitions.Any(definition => definition is { Pattern: "gateway/api/v1/service-configs/##", Method: HttpRequestMethods.Put }))
     {
-        Endpoint = "service-configs/{id}",
-        Pattern = "service-configs/##",
-        Method = HttpRequestMethods.Get,
-        Meta = new List<Meta>
+        createdConfig.EndpointDefinitions.Add(new EndpointDefinition
         {
-            new()
+            Endpoint = "gateway/api/v1/service-configs/{id}",
+            Pattern = "gateway/api/v1/service-configs/##",
+            MapTo = "service-configs/##",
+            Method = HttpRequestMethods.Put,
+            Meta = new List<Meta>
             {
-                Key = "permissions",
-                Value = "arch_details_service_config"
-            },
-        }
-    });
-    createdConfig.EndpointDefinitions.Add(new EndpointDefinition
+                new()
+                {
+                    Key = "permissions",
+                    Value = "arch_update_service_config"
+                },
+            }
+        });
+    }
+
+    if (!createdConfig.EndpointDefinitions.Any(definition => definition is { Pattern: "gateway/api/v1/service-configs/##/endpoint-definitions", Method: HttpRequestMethods.Post }))
     {
-        Endpoint = "service-configs/{id}",
-        Pattern = "service-configs/##",
-        Method = HttpRequestMethods.Put,
-        Meta = new List<Meta>
+        createdConfig.EndpointDefinitions.Add(new EndpointDefinition
         {
-            new()
+            Endpoint = "gateway/api/v1/service-configs/{id}/endpoint-definitions",
+            Pattern = "gateway/api/v1/service-configs/##/endpoint-definitions",
+            MapTo = "service-configs/{0}/endpoint-definitions",
+            Method = HttpRequestMethods.Post,
+            Meta = new List<Meta>
             {
-                Key = "permissions",
-                Value = "arch_update_service_config"
-            },
-        }
-    });
-    createdConfig.EndpointDefinitions.Add(new EndpointDefinition
+                new()
+                {
+                    Key = "permissions",
+                    Value = "arch_create_endpoint_definition"
+                },
+            }
+        });
+    }
+
+    if (!createdConfig.EndpointDefinitions.Any(definition => definition is { Pattern: "gateway/api/v1/service-configs/##/endpoint-definitions", Method: HttpRequestMethods.Get }))
     {
-        Endpoint = "service-configs/{id}/endpoint-definitions",
-        Pattern = "service-configs/##/endpoint-definitions",
-        Method = HttpRequestMethods.Post,
-        Meta = new List<Meta>
+        createdConfig.EndpointDefinitions.Add(new EndpointDefinition
         {
-            new()
+            Endpoint = "gateway/api/v1/service-configs/{id}/endpoint-definitions",
+            Pattern = "gateway/api/v1/service-configs/##/endpoint-definitions",
+            MapTo = "service-configs/{0}/endpoint-definitions",
+            Method = HttpRequestMethods.Get,
+            Meta = new List<Meta>
             {
-                Key = "permissions",
-                Value = "arch_create_endpoint_definition"
-            },
-        }
-    });
-    createdConfig.EndpointDefinitions.Add(new EndpointDefinition
-    {
-        Endpoint = "service-configs/{id}/endpoint-definitions",
-        Pattern = "service-configs/##/endpoint-definitions",
-        Method = HttpRequestMethods.Get,
-        Meta = new List<Meta>
-        {
-            new()
-            {
-                Key = "permissions",
-                Value = "arch_list_endpoint_definition"
-            },
-        }
-    });
+                new()
+                {
+                    Key = "permissions",
+                    Value = "arch_list_endpoint_definition"
+                },
+            }
+        });
+    }
+
     dbContext.ServiceConfigs.Update(createdConfig);
     dbContext.SaveChanges();
 }

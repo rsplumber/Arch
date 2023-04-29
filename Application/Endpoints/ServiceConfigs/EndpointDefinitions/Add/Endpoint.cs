@@ -16,8 +16,8 @@ internal sealed class Endpoint : Endpoint<Request>
     public override void Configure()
     {
         Post("service-configs/{id}/endpoint-definitions");
-        // Permissions("arch_service-configs_endpoint-definitions_add");
         AllowAnonymous();
+        Version(1);
     }
 
     public override async Task HandleAsync(Request req, CancellationToken ct)
@@ -27,7 +27,8 @@ internal sealed class Endpoint : Endpoint<Request>
             Endpoint = req.Endpoint,
             Method = req.Method,
             Meta = req.Meta,
-            ServiceConfigId = req.Id
+            ServiceConfigId = req.Id,
+            MapTo = req.MapTo
         }, ct);
         await SendOkAsync(ct);
     }
@@ -38,6 +39,8 @@ internal sealed class Request
     public Guid Id { get; init; } = default!;
 
     public string Endpoint { get; init; } = default!;
+    
+    public string MapTo { get; init; } = default!;
 
     public string Method { get; init; } = default!;
 
@@ -55,5 +58,13 @@ internal sealed class RequestValidator : Validator<Request>
         RuleFor(request => request.Endpoint)
             .NotEmpty().WithMessage("Enter Endpoint")
             .NotNull().WithMessage("Enter Endpoint");
+        
+        RuleFor(request => request.MapTo)
+            .NotEmpty().WithMessage("Enter MapTo")
+            .NotNull().WithMessage("Enter MapTo");
+        
+        RuleFor(request => request.Method)
+            .NotEmpty().WithMessage("Enter Method")
+            .NotNull().WithMessage("Enter Method");
     }
 }

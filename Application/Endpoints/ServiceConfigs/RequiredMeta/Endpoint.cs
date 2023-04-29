@@ -7,8 +7,8 @@ internal sealed class Endpoint : EndpointWithoutRequest
     public override void Configure()
     {
         Get("service-configs/required-meta");
-        // Permissions("arch_service-configs_required-meta");
         AllowAnonymous();
+        Version(1);
     }
 
     public override async Task HandleAsync(CancellationToken ct)
