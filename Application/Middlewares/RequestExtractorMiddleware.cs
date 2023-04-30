@@ -14,10 +14,7 @@ internal sealed class RequestExtractorMiddleware : ArchMiddleware
 
     public override async Task HandleAsync(HttpContext context, RequestDelegate next)
     {
-        context.Request.EnableBuffering();
         var path = ExtractPath();
-        var body = await new StreamReader(context.Request.Body).ReadToEndAsync();
-        context.Request.Body.Position = 0;
         var method = context.Request.Method.ToLower();
         var (definition, pathParameters) = await _endpointDefinitionResolver.ResolveAsync(path, method);
 
@@ -32,12 +29,21 @@ internal sealed class RequestExtractorMiddleware : ArchMiddleware
             }
             : null;
 
+        string? body = null;
+        if (method is HttpRequestMethods.Post or HttpRequestMethods.Patch or HttpRequestMethods.Put)
+        {
+            context.Request.EnableBuffering();
+            body = await new StreamReader(context.Request.Body).ReadToEndAsync();
+            context.Request.Body.Position = 0;
+            body = string.IsNullOrEmpty(body) ? null : body;
+        }
+
         context.Items[RequestInfoKey] = definition is not null
             ? new RequestInfo
             {
                 Headers = context.Request.Headers.ToDictionary(a => a.Key, a => string.Join(";", a.Value!)),
                 Method = method,
-                Body = string.IsNullOrEmpty(body) ? null : body,
+                Body = body,
                 Path = string.Format(definition.MapTo, pathParameters),
                 QueryString = context.Request.QueryString.Value,
                 ContentType = context.Request.ContentType

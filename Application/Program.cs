@@ -143,7 +143,7 @@ async Task SeedDataAsync()
         {
             Endpoint = "gateway/api/v1/endpoint-definitions/{id}",
             Pattern = "gateway/api/v1/endpoint-definitions/##",
-            MapTo = "gateway/api/v1/endpoint-definitions{0]",
+            MapTo = "gateway/api/v1/endpoint-definitions/{0}",
             Method = HttpRequestMethods.Get,
             Meta = new List<Meta>
             {
@@ -162,7 +162,7 @@ async Task SeedDataAsync()
         {
             Endpoint = "gateway/api/v1/endpoint-definitions/{id}/enable",
             Pattern = "gateway/api/v1/endpoint-definitions/##/enable",
-            MapTo = "gateway/api/v1/endpoint-definitions{0}/enable",
+            MapTo = "gateway/api/v1/endpoint-definitions/{0}/enable",
             Method = HttpRequestMethods.Post,
             Meta = new List<Meta>
             {
@@ -181,7 +181,7 @@ async Task SeedDataAsync()
         {
             Endpoint = "gateway/api/v1/endpoint-definitions/{id}/disable",
             Pattern = "gateway/api/v1/endpoint-definitions/##/disable",
-            MapTo = "gateway/api/v1/endpoint-definitions{0}/disable",
+            MapTo = "gateway/api/v1/endpoint-definitions/{0}/disable",
             Method = HttpRequestMethods.Post,
             Meta = new List<Meta>
             {
@@ -200,7 +200,7 @@ async Task SeedDataAsync()
         {
             Endpoint = "gateway/api/v1/endpoint-definitions/{id}",
             Pattern = "gateway/api/v1/endpoint-definitions/##",
-            MapTo = "gateway/api/v1/endpoint-definitions{0}",
+            MapTo = "gateway/api/v1/endpoint-definitions/{0}",
             Method = HttpRequestMethods.Delete,
             Meta = new List<Meta>
             {
@@ -219,7 +219,7 @@ async Task SeedDataAsync()
         {
             Endpoint = "gateway/api/v1/endpoint-definitions/{id}",
             Pattern = "gateway/api/v1/endpoint-definitions/##",
-            MapTo = "gateway/api/v1/endpoint-definitions{0}",
+            MapTo = "gateway/api/v1/endpoint-definitions/{0}",
             Method = HttpRequestMethods.Put,
             Meta = new List<Meta>
             {
@@ -238,7 +238,7 @@ async Task SeedDataAsync()
         {
             Endpoint = "gateway/api/v1/endpoint-definitions/required-meta",
             Pattern = "gateway/api/v1/endpoint-definitions/required-meta",
-            MapTo = "gateway/api/v1/endpoint-definitionsrequired-meta",
+            MapTo = "gateway/api/v1/endpoint-definitions/required-meta",
             Method = HttpRequestMethods.Get,
             Meta = new List<Meta>
             {
@@ -257,7 +257,7 @@ async Task SeedDataAsync()
         {
             Endpoint = "gateway/api/v1/service-configs",
             Pattern = "gateway/api/v1/service-configs",
-            MapTo = "service-configs",
+            MapTo = "gateway/service-configs",
             Method = HttpRequestMethods.Post,
             Meta = new List<Meta>
             {
@@ -276,7 +276,7 @@ async Task SeedDataAsync()
         {
             Endpoint = "gateway/api/v1/service-configs/required-meta",
             Pattern = "gateway/api/v1/service-configs/required-meta",
-            MapTo = "service-configs/required-meta",
+            MapTo = "gateway/service-configs/required-meta",
             Method = HttpRequestMethods.Get,
             Meta = new List<Meta>
             {
@@ -295,7 +295,7 @@ async Task SeedDataAsync()
         {
             Endpoint = "gateway/api/v1/service-configs",
             Pattern = "gateway/api/v1/service-configs",
-            MapTo = "service-configs",
+            MapTo = "gateway/service-configs",
             Method = HttpRequestMethods.Get,
             Meta = new List<Meta>
             {
@@ -314,7 +314,7 @@ async Task SeedDataAsync()
         {
             Endpoint = "gateway/api/v1/service-configs/{id}",
             Pattern = "gateway/api/v1/service-configs/##",
-            MapTo = "service-configs/{0}",
+            MapTo = "gateway/service-configs/{0}",
             Method = HttpRequestMethods.Delete,
             Meta = new List<Meta>
             {
@@ -333,7 +333,7 @@ async Task SeedDataAsync()
         {
             Endpoint = "gateway/api/v1/service-configs/{id}",
             Pattern = "gateway/api/v1/service-configs/##",
-            MapTo = "service-configs/{0}",
+            MapTo = "gateway/service-configs/{0}",
             Method = HttpRequestMethods.Get,
             Meta = new List<Meta>
             {
@@ -352,7 +352,7 @@ async Task SeedDataAsync()
         {
             Endpoint = "gateway/api/v1/service-configs/{id}",
             Pattern = "gateway/api/v1/service-configs/##",
-            MapTo = "service-configs/##",
+            MapTo = "gateway/service-configs/{0}",
             Method = HttpRequestMethods.Put,
             Meta = new List<Meta>
             {
@@ -371,7 +371,7 @@ async Task SeedDataAsync()
         {
             Endpoint = "gateway/api/v1/service-configs/{id}/endpoint-definitions",
             Pattern = "gateway/api/v1/service-configs/##/endpoint-definitions",
-            MapTo = "service-configs/{0}/endpoint-definitions",
+            MapTo = "gateway/service-configs/{0}/endpoint-definitions",
             Method = HttpRequestMethods.Post,
             Meta = new List<Meta>
             {
@@ -390,7 +390,7 @@ async Task SeedDataAsync()
         {
             Endpoint = "gateway/api/v1/service-configs/{id}/endpoint-definitions",
             Pattern = "gateway/api/v1/service-configs/##/endpoint-definitions",
-            MapTo = "service-configs/{0}/endpoint-definitions",
+            MapTo = "gateway/service-configs/{0}/endpoint-definitions",
             Method = HttpRequestMethods.Get,
             Meta = new List<Meta>
             {
