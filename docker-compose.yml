@@ -1,0 +1,19 @@
+version: '3.1'
+
+services:
+  arch_gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: arch_gateway
+    ports:
+      - "80:5228"
+    volumes:
+      - arch_data
+    restart: always
+    links:
+      - 172.17.0.4:5432
+
+volumes:
+  arch_data:
+    driver: local

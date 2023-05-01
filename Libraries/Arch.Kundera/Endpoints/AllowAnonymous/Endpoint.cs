@@ -20,8 +20,9 @@ internal sealed class Endpoint : Endpoint<Request>
 
     public override void Configure()
     {
-        Post("gateway/api/v1/endpoint-definitions{id}/security/allow-anonymous");
+        Post("endpoint-definitions/{id}/security/allow-anonymous");
         AllowAnonymous();
+        Version(1);
     }
 
     public override async Task HandleAsync(Request req, CancellationToken ct)

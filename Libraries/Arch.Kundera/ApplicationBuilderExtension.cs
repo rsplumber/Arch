@@ -45,8 +45,8 @@ public static class ApplicationBuilderExtension
 
             createdConfig.EndpointDefinitions.Add(new EndpointDefinition
             {
-                Endpoint = "identity/api/v1/authenticate",
-                Pattern = "identity/api/v1/authenticate",
+                Endpoint = "api/v1/authenticate",
+                Pattern = "api/v1/authenticate",
                 MapTo = "api/v1/authenticate",
                 Method = HttpRequestMethods.Post,
                 Meta = new List<Meta>
@@ -60,8 +60,8 @@ public static class ApplicationBuilderExtension
             });
             createdConfig.EndpointDefinitions.Add(new EndpointDefinition
             {
-                Endpoint = "identity/api/v1/authenticate/refresh",
-                Pattern = "identity/api/v1/authenticate/refresh",
+                Endpoint = "api/v1/authenticate/refresh",
+                Pattern = "api/v1/authenticate/refresh",
                 MapTo = "api/v1/authenticate/refresh",
                 Method = HttpRequestMethods.Post,
                 Meta = new List<Meta>
@@ -99,7 +99,7 @@ public static class ApplicationBuilderExtension
             {
                 Endpoint = "gateway/api/v1/endpoint-definitions/{id}/security/permissions",
                 Pattern = "gateway/api/v1/endpoint-definitions/##/security/permissions",
-                MapTo = "gateway/api/v1/endpoint-definitions{0}/security/permissions",
+                MapTo = "gateway/api/v1/endpoint-definitions/{0}/security/permissions",
                 Method = HttpRequestMethods.Post,
                 Meta = new List<Meta>
                 {
@@ -118,7 +118,7 @@ public static class ApplicationBuilderExtension
             {
                 Endpoint = "gateway/api/v1/endpoint-definitions/{id}/security/allow-anonymous",
                 Pattern = "gateway/api/v1/endpoint-definitions/##/security/allow-anonymous",
-                MapTo = "gateway/api/v1/endpoint-definitions{0}/security/allow-anonymous",
+                MapTo = "gateway/api/v1/endpoint-definitions/{0}/security/allow-anonymous",
                 Method = HttpRequestMethods.Post,
                 Meta = new List<Meta>
                 {

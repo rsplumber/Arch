@@ -45,7 +45,7 @@ public static class ApplicationBuilderExtension
             {
                 Endpoint = "gateway/api/v1/endpoint-definitions/{id}/accounting/enable",
                 Pattern = "gateway/api/v1/endpoint-definitions/##/accounting/enable",
-                MapTo = "gateway/api/v1/endpoint-definitions{0}/accounting/enable",
+                MapTo = "gateway/api/v1/endpoint-definitions/{0}/accounting/enable",
                 Method = HttpRequestMethods.Post,
                 Meta = new List<Meta>
                 {
@@ -65,7 +65,7 @@ public static class ApplicationBuilderExtension
             {
                 Endpoint = "gateway/api/v1/endpoint-definitions/{id}/accounting/disable",
                 Pattern = "gateway/api/v1/endpoint-definitions/##/accounting/disable",
-                MapTo = "gateway/api/v1/endpoint-definitions{0}/accounting/disable",
+                MapTo = "gateway/api/v1/endpoint-definitions/{0}/accounting/disable",
                 Method = HttpRequestMethods.Post,
                 Meta = new List<Meta>
                 {

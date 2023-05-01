@@ -15,9 +15,8 @@ internal sealed class RequestExtractorMiddleware : ArchMiddleware
     public override async Task HandleAsync(HttpContext context, RequestDelegate next)
     {
         var path = ExtractPath();
-        var method = context.Request.Method.ToLower();
+        var method = ExtractMethod();
         var (definition, pathParameters) = await _endpointDefinitionResolver.ResolveAsync(path, method);
-
         context.Items[ArchEndpointDefinitionKey] = definition is not null
             ? new RequestEndpointDefinition
             {
@@ -33,9 +32,12 @@ internal sealed class RequestExtractorMiddleware : ArchMiddleware
         if (method is HttpRequestMethods.Post or HttpRequestMethods.Patch or HttpRequestMethods.Put)
         {
             context.Request.EnableBuffering();
-            body = await new StreamReader(context.Request.Body).ReadToEndAsync();
-            context.Request.Body.Position = 0;
-            body = string.IsNullOrEmpty(body) ? null : body;
+            if (context.Request.ContentLength > 0)
+            {
+                body = await new StreamReader(context.Request.Body).ReadToEndAsync();
+                context.Request.Body.Position = 0;
+                body = string.IsNullOrEmpty(body) ? null : body;
+            }
         }
 
         context.Items[RequestInfoKey] = definition is not null
@@ -54,9 +56,15 @@ internal sealed class RequestExtractorMiddleware : ArchMiddleware
 
         string ExtractPath()
         {
-            var requestPath = context.Request.Path.Value!;
-            var sanitizedPath = requestPath.StartsWith("/") ? requestPath.Remove(0, 1) : requestPath;
-            return sanitizedPath.ToLower();
+            return Sanitize(context.Request.Path.Value!).ToLower();
+
+            string Sanitize(string rp)
+            {
+                var removedFirst = rp.StartsWith("/") ? rp.Remove(0, 1) : rp;
+                return removedFirst.EndsWith("/") ? removedFirst.Remove(removedFirst.Length - 1, 1) : removedFirst;
+            }
         }
+
+        string ExtractMethod() => context.Request.Method.ToLower();
     }
 }
