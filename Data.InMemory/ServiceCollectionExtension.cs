@@ -1,4 +1,4 @@
-﻿using Core.EndpointDefinitions.Containers;
+﻿using Core.Entities.EndpointDefinitions.Containers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 

@@ -1,5 +1,5 @@
-using Core.EndpointDefinitions.Exceptions;
-using Core.EndpointDefinitions.Services;
+using Core.Entities.EndpointDefinitions.Exceptions;
+using Core.Entities.EndpointDefinitions.Services;
 using Data.Sql;
 using FastEndpoints;
 using FluentValidation;

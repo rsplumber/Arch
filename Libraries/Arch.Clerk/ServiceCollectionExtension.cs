@@ -1,6 +1,6 @@
 ﻿using System.Net;
 using System.Net.Http.Headers;
-using Core.Library;
+using Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -10,7 +10,7 @@ public static class ServiceCollectionExtension
 {
     public static void AddClerkAccounting(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddArchMiddleware<CheckAccountingMiddleware>();
+        services.AddSingleton<CheckAccountingMiddleware>();
         services.AddHttpClient("clerk", client =>
         {
             client.BaseAddress = new Uri(configuration.GetSection("Clerk:BaseUrl").Value ??

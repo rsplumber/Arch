@@ -3,7 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using Arch.Kundera.Exceptions;
-using Core.Library;
+using Core;
 using Microsoft.AspNetCore.Http;
 using Microsoft.IdentityModel.Tokens;
 

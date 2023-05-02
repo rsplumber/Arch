@@ -1,7 +1,7 @@
-﻿using Core.EndpointDefinitions;
-using Core.Library;
-using Core.Metas;
-using Core.ServiceConfigs;
+﻿using Core;
+using Core.Entities.EndpointDefinitions;
+using Core.Entities.Metas;
+using Core.Entities.ServiceConfigs;
 using Data.Sql;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
@@ -14,7 +14,7 @@ public static class ApplicationBuilderExtension
 {
     public static void UseClerkAccounting(this IApplicationBuilder app, IConfiguration configuration)
     {
-        app.UseArchMiddleware<CheckAccountingMiddleware>();
+        app.UseMiddleware<CheckAccountingMiddleware>();
 
         using var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>()?.CreateScope();
         var dbContext = serviceScope!.ServiceProvider.GetRequiredService<AppDbContext>();

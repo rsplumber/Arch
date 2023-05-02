@@ -2,7 +2,7 @@
 
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Running;
-using Core.EndpointDefinitions;
+using Core.Entities.EndpointDefinitions;
 
 BenchmarkRunner.Run<TreeBenchmark>();
 

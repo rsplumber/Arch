@@ -1,6 +1,5 @@
 ﻿using System.Text.Json;
 using Core;
-using Core.Library;
 using FluentValidation;
 
 namespace Application.Middlewares;
@@ -39,6 +38,8 @@ internal sealed class ExceptionHandlerMiddleware : ArchMiddleware
 
             await response.WriteAsync(JsonSerializer.Serialize(new
             {
+                RequestInfo!.RequestId,
+                RequestInfo!.RequestDateUtc,
                 message
             }));
         }

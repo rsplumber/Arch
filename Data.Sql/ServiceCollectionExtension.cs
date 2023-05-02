@@ -1,5 +1,5 @@
-﻿using Core.EndpointDefinitions;
-using Core.ServiceConfigs;
+﻿using Core.Entities.EndpointDefinitions;
+using Core.Entities.ServiceConfigs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

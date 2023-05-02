@@ -1,6 +1,6 @@
-using Core.EndpointDefinitions.Containers;
-using Core.EndpointDefinitions.Events;
-using Core.ServiceConfigs;
+using Core.Entities.EndpointDefinitions.Containers;
+using Core.Entities.EndpointDefinitions.Events;
+using Core.Entities.ServiceConfigs;
 using DotNetCore.CAP;
 
 namespace Data.InMemory;

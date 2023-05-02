@@ -1,4 +1,4 @@
-﻿using Core.EndpointDefinitions;
+﻿using Core.Entities.EndpointDefinitions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Data.Sql;

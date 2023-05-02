@@ -1,4 +1,4 @@
-﻿using Core.ServiceConfigs;
+﻿using Core.Entities.ServiceConfigs;
 using Microsoft.EntityFrameworkCore;
 
 namespace Data.Sql;

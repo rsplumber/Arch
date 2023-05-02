@@ -7,13 +7,23 @@ services:
       dockerfile: Dockerfile
     container_name: arch_gateway
     ports:
-      - "80:5228"
+      - "8186:5228"
     volumes:
-      - arch_data
+      - arch_data:/app/data
     restart: always
-    links:
-      - 172.17.0.4:5432
+    environment:
+      - CLERK_URL=https://localhost:5140/clerk
+      - APM_URL=http://localhost:8200
+    networks:
+      - my_network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:5228/health" ]
+      interval: 60s
+      timeout: 20s
+      retries: 3
+
+networks:
+  my_network:
 
 volumes:
   arch_data:
-    driver: local

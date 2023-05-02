@@ -1,6 +1,6 @@
-﻿using Core.EndpointDefinitions;
-using Core.Metas;
-using Core.ServiceConfigs;
+﻿using Core.Entities.EndpointDefinitions;
+using Core.Entities.Metas;
+using Core.Entities.ServiceConfigs;
 using DotNetCore.CAP;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
