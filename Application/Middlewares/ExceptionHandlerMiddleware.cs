@@ -7,6 +7,7 @@ namespace Application.Middlewares;
 internal sealed class ExceptionHandlerMiddleware : ArchMiddleware
 {
     private const string InternalServerErrorMessage = "Whoops :( , somthing impossibly went wrong!";
+    private const string ContentType = "application/json; charset=utf-8";
 
     public override async Task HandleAsync(HttpContext context, RequestDelegate next)
     {
@@ -17,7 +18,7 @@ internal sealed class ExceptionHandlerMiddleware : ArchMiddleware
         catch (Exception exception)
         {
             var response = context.Response;
-            response.ContentType = "application/json";
+            response.ContentType = ContentType;
             string message;
             switch (exception)
             {
@@ -28,6 +29,7 @@ internal sealed class ExceptionHandlerMiddleware : ArchMiddleware
                 case ValidationException validationException:
                     response.StatusCode = 400;
                     message = string.Join(", ", validationException.Errors
+                        .DistinctBy(failure => failure.PropertyName)
                         .Select(failure => $"{failure.PropertyName} : {failure.ErrorMessage}"));
                     break;
                 default:

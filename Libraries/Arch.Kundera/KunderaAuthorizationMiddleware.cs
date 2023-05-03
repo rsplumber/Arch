@@ -1,7 +1,7 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
+using System.Net.Http.Json;
 using System.Security.Claims;
 using System.Text;
-using System.Text.Json;
 using Arch.Kundera.Exceptions;
 using Core;
 using Microsoft.AspNetCore.Http;
@@ -23,6 +23,7 @@ internal sealed class KunderaAuthorizationMiddleware : ArchMiddleware
     private const int ForbiddenCode = 403;
     private const int UnAuthorizedCode = 401;
     private const int SessionExpiredCode = 440;
+    private static readonly JwtSecurityTokenHandler JwtSecurityTokenHandler = new();
 
 
     public KunderaAuthorizationMiddleware(IHttpClientFactory clientFactory)
@@ -41,7 +42,7 @@ internal sealed class KunderaAuthorizationMiddleware : ArchMiddleware
         string? tokenValue;
         try
         {
-            tokenValue = RequestInfo!.Headers?[AuthorizationHeaderKey];
+            tokenValue = RequestInfo!.Headers[AuthorizationHeaderKey];
         }
         catch (Exception)
         {
@@ -117,7 +118,6 @@ internal sealed class KunderaAuthorizationMiddleware : ArchMiddleware
 
         string GenerateUserToken(string secret)
         {
-            var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(secret);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
@@ -125,8 +125,8 @@ internal sealed class KunderaAuthorizationMiddleware : ArchMiddleware
                 Expires = DateTime.UtcNow.AddSeconds(10),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            return tokenHandler.WriteToken(token);
+            var token = JwtSecurityTokenHandler.CreateToken(tokenDescriptor);
+            return JwtSecurityTokenHandler.WriteToken(token);
         }
     }
 
@@ -134,13 +134,13 @@ internal sealed class KunderaAuthorizationMiddleware : ArchMiddleware
     {
         var client = _clientFactory.CreateClient(HttpClientFactoryKey);
         client.DefaultRequestHeaders.Add("service_secret", serviceSecret);
-        var result = await client.PostAsync(AuthorizePermissionUrl, new StringContent(JsonSerializer.Serialize(new
+        var result = await client.PostAsJsonAsync(AuthorizePermissionUrl, new
         {
             Authorization = token,
             Actions = permissions
-        }), Encoding.UTF8, "application/json"));
+        });
         var response = await result.Content.ReadAsStringAsync();
-        var userId = result.IsSuccessStatusCode ? response.Replace("\"", "") : null;
+        var userId = result.IsSuccessStatusCode ? response.Replace("\"", string.Empty) : null;
         return ((int)result.StatusCode, userId);
     }
 
@@ -148,13 +148,13 @@ internal sealed class KunderaAuthorizationMiddleware : ArchMiddleware
     {
         var client = _clientFactory.CreateClient(HttpClientFactoryKey);
         client.DefaultRequestHeaders.Add("service_secret", serviceSecret);
-        var result = await client.PostAsync(AuthorizeRoleUrl, new StringContent(JsonSerializer.Serialize(new
+        var result = await client.PostAsJsonAsync(AuthorizeRoleUrl, new
         {
             Authorization = token,
             Roles = roles
-        }), Encoding.UTF8, "application/json"));
+        });
         var response = await result.Content.ReadAsStringAsync();
-        var userId = result.IsSuccessStatusCode ? response.Replace("\"", "") : null;
+        var userId = result.IsSuccessStatusCode ? response.Replace("\"", string.Empty) : null;
         return ((int)result.StatusCode, userId);
     }
 }

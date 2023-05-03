@@ -18,7 +18,10 @@ internal sealed class RequestDispatcherMiddleware : ArchMiddleware
 
     public override async Task HandleAsync(HttpContext context, RequestDelegate next)
     {
-        if (EndpointDefinition is null || RequestInfo is null) return;
+        if (EndpointDefinition is null || RequestInfo is null)
+        {
+            throw new InvalidRequestException();
+        }
 
 
         if (IgnoreDispatch())
@@ -28,7 +31,6 @@ internal sealed class RequestDispatcherMiddleware : ArchMiddleware
         }
 
         var client = _httpClientFactory.CreateClient(HttpFactoryName);
-        client.DefaultRequestHeaders.Clear();
         foreach (var header in RequestInfo.Headers)
         {
             client.DefaultRequestHeaders.TryAddWithoutValidation(header.Key, header.Value);
@@ -40,14 +42,14 @@ internal sealed class RequestDispatcherMiddleware : ArchMiddleware
         }
 
 
-        var message = new HttpRequestMessage(MapToHttpMethod(), ApiUrl());
+        var message = new HttpRequestMessage(MapToHttpMethod(), ExtractApiUrl());
         if (RequestInfo.Body is not null)
         {
             message.Content = RequestInfo.ContentType switch
             {
                 RequestInfo.ApplicationJsonContentType => JsonContent.Create(JsonSerializer.Deserialize<object>(RequestInfo.Body)),
                 RequestInfo.FormDataContentType => new StringContent(RequestInfo.Body),
-                _ => message.Content
+                _ => throw new ContentTypeNotSupportedException()
             };
         }
 
@@ -60,7 +62,7 @@ internal sealed class RequestDispatcherMiddleware : ArchMiddleware
         };
         await next(context);
 
-        string ApiUrl()
+        string ExtractApiUrl()
         {
             if (EndpointDefinition.BaseUrl is null)
             {

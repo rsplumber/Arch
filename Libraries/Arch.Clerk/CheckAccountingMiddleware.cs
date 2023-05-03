@@ -1,6 +1,7 @@
 ﻿using System.Net.Http.Json;
 using Arch.Clerk.Exceptions;
 using Core;
+using Core.Middlewares.Exceptions;
 using Microsoft.AspNetCore.Http;
 
 namespace Arch.Clerk;
@@ -18,13 +19,12 @@ internal class CheckAccountingMiddleware : ArchMiddleware
 
     public override async Task HandleAsync(HttpContext context, RequestDelegate next)
     {
-        if (!HasAccounting())
+        if (RequestInfo is null)
         {
-            await next(context);
-            return;
+            throw new InvalidRequestException();
         }
 
-        if (RequestInfo is null)
+        if (!HasAccounting())
         {
             await next(context);
             return;
@@ -37,7 +37,7 @@ internal class CheckAccountingMiddleware : ArchMiddleware
             throw new AccountingUserNotFoundException();
         }
 
-        var httpResponseMessage = await client.PostAsJsonAsync($"{ClerkAccountingSettings.BaseUrl}/api/v1/accounts/{userId}/tariff/pay", new
+        var httpResponseMessage = await client.PostAsJsonAsync($"api/v1/accounts/{userId}/tariff/pay", new
         {
             TariffIdentifier = RequestInfo.Path, RequestInfo.Method
         });

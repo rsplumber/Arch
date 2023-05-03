@@ -1,4 +1,5 @@
 ﻿using Core.Entities.EndpointDefinitions.Containers.Resolvers;
+using Core.Middlewares.Exceptions;
 using Microsoft.AspNetCore.Http;
 
 namespace Core.Middlewares;
@@ -17,6 +18,12 @@ internal sealed class RequestExtractorMiddleware : ArchMiddleware
         var path = ExtractPath();
         var method = ExtractMethod();
         var (definition, pathParameters) = await _endpointDefinitionResolver.ResolveAsync(path, method);
+
+        if (IsDisabled())
+        {
+            throw new EndpointNotFoundException();
+        }
+
         context.Items[ArchEndpointDefinitionKey] = definition is not null
             ? new RequestEndpointDefinition
             {
@@ -29,15 +36,11 @@ internal sealed class RequestExtractorMiddleware : ArchMiddleware
             : null;
 
         string? body = null;
-        if (method is HttpRequestMethods.Post or HttpRequestMethods.Patch or HttpRequestMethods.Put)
+        if (method is HttpRequestMethods.Post or HttpRequestMethods.Patch or HttpRequestMethods.Put && context.Request.ContentLength > 0)
         {
-            if (context.Request.ContentLength > 0)
-            {
-                var streamReader = new StreamReader(context.Request.Body);
-                body = await streamReader.ReadToEndAsync();
-                context.Request.Body.Position = 0;
-                body = string.IsNullOrEmpty(body) ? null : body;
-            }
+            var streamReader = new StreamReader(context.Request.Body);
+            body = await streamReader.ReadToEndAsync();
+            context.Request.Body.Position = 0;
         }
 
         context.Items[RequestInfoKey] = definition is not null
@@ -56,7 +59,7 @@ internal sealed class RequestExtractorMiddleware : ArchMiddleware
 
         string ExtractPath()
         {
-            return Sanitize(context.Request.Path.Value!).ToLower();
+            return context.Request.Path.Value is not null ? Sanitize(context.Request.Path.Value).ToLower() : string.Empty;
 
             string Sanitize(string rp)
             {

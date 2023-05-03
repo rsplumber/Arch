@@ -18,8 +18,17 @@ public static class ApplicationBuilderExtension
 
         using var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>()?.CreateScope();
         var dbContext = serviceScope!.ServiceProvider.GetRequiredService<AppDbContext>();
-        if (!dbContext.ServiceConfigs.Any(config => config.Name == "kundera"))
+
+        var currentConfig = dbContext.ServiceConfigs
+            .Include(config => config.EndpointDefinitions)
+            .ThenInclude(definition => definition.Meta)
+            .Include(config => config.Meta)
+            .FirstOrDefault(config => config.Name == "kundera");
+        if (currentConfig is not null)
         {
+            dbContext.ServiceConfigs.Remove(currentConfig);
+            dbContext.SaveChanges();
+
             var kunderaServiceConfig = new ServiceConfig
             {
                 Name = "kundera",
@@ -83,15 +92,18 @@ public static class ApplicationBuilderExtension
             .ThenInclude(definition => definition.Meta)
             .First(config => config.Name == "arch");
 
-        if (archServiceConfig.Meta.All(meta => meta.Key != "service_secret"))
+        var secretMeta = archServiceConfig.Meta.Find(meta => meta.Key == "service_secret");
+        if (secretMeta is not null)
         {
-            archServiceConfig.Meta.Add(new()
-            {
-                Key = "service_secret",
-                Value = configuration.GetSection("Kundera:Arch_Service_Secret").Value ??
-                        throw new Exception("Enter Kundera:Arch_Service_Secret in appsettings.json")
-            });
+            archServiceConfig.Meta.Remove(secretMeta);
         }
+
+        archServiceConfig.Meta.Add(new()
+        {
+            Key = "service_secret",
+            Value = configuration.GetSection("Kundera:Arch_Service_Secret").Value ??
+                    throw new Exception("Enter Kundera:Arch_Service_Secret in appsettings.json")
+        });
 
         if (archServiceConfig.EndpointDefinitions.All(definition => definition.Pattern != "gateway/api/v1/endpoint-definitions/##/security/permissions"))
         {

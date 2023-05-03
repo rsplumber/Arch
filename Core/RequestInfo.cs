@@ -5,7 +5,6 @@ public class RequestInfo
     public const string ApplicationJsonContentType = "application/json";
     public const string FormDataContentType = "application/x-www-form-urlencoded";
 
-
     public Guid RequestId { get; } = Guid.NewGuid();
 
     public required string Method { get; init; }

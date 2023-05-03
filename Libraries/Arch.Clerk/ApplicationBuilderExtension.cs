@@ -18,8 +18,17 @@ public static class ApplicationBuilderExtension
 
         using var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>()?.CreateScope();
         var dbContext = serviceScope!.ServiceProvider.GetRequiredService<AppDbContext>();
-        if (!dbContext.ServiceConfigs.Any(config => config.Name == "clerk"))
+
+        var currentConfig = dbContext.ServiceConfigs
+            .Include(config => config.EndpointDefinitions)
+            .ThenInclude(definition => definition.Meta)
+            .Include(config => config.Meta)
+            .FirstOrDefault(config => config.Name == "clerk");
+        if (currentConfig is not null)
         {
+            dbContext.ServiceConfigs.Remove(currentConfig);
+            dbContext.SaveChanges();
+
             var serviceConfig = new ServiceConfig
             {
                 Name = "clerk",
@@ -31,7 +40,6 @@ public static class ApplicationBuilderExtension
             dbContext.ServiceConfigs.Add(serviceConfig);
             dbContext.SaveChanges();
         }
-
 
         var archServiceConfig = dbContext.ServiceConfigs
             .Include(config => config.Meta)
