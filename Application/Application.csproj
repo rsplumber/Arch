@@ -10,7 +10,7 @@
     <ItemGroup>
         <PackageReference Include="DotNetCore.CAP.PostgreSql" Version="7.1.2" />
         <PackageReference Include="DotNetCore.CAP.RabbitMQ" Version="7.1.2" />
-        <PackageReference Include="FastEndpoints" Version="5.9.0" />
+        <PackageReference Include="FastEndpoints" Version="5.10.0" />
         <PackageReference Include="KunderaNet.FastEndpoints.Authorization" Version="1.0.3" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.5">
           <PrivateAssets>all</PrivateAssets>
@@ -24,6 +24,10 @@
       <ProjectReference Include="..\Data.Sql\Data.Sql.csproj" />
       <ProjectReference Include="..\Libraries\Arch.Clerk\Arch.Clerk.csproj" />
       <ProjectReference Include="..\Libraries\Arch.Kundera\Arch.Kundera.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Middlewares\" />
     </ItemGroup>
 
 </Project>

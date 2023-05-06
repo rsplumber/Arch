@@ -39,7 +39,7 @@ internal sealed class Request
     public Guid Id { get; init; } = default!;
 
     public string Endpoint { get; init; } = default!;
-    
+
     public string MapTo { get; init; } = default!;
 
     public string Method { get; init; } = default!;
@@ -58,11 +58,11 @@ internal sealed class RequestValidator : Validator<Request>
         RuleFor(request => request.Endpoint)
             .NotEmpty().WithMessage("Enter Endpoint")
             .NotNull().WithMessage("Enter Endpoint");
-        
+
         RuleFor(request => request.MapTo)
             .NotEmpty().WithMessage("Enter MapTo")
             .NotNull().WithMessage("Enter MapTo");
-        
+
         RuleFor(request => request.Method)
             .NotEmpty().WithMessage("Enter Method")
             .NotNull().WithMessage("Enter Method");

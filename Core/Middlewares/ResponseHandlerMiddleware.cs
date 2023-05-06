@@ -1,4 +1,5 @@
-﻿using Core.Middlewares.Exceptions;
+﻿using System.Text.Json;
+using Core.Middlewares.Exceptions;
 using Microsoft.AspNetCore.Http;
 
 namespace Core.Middlewares;
@@ -9,7 +10,7 @@ internal sealed class ResponseHandlerMiddleware : ArchMiddleware
 
     public override async Task HandleAsync(HttpContext context, RequestDelegate next)
     {
-        if (EndpointDefinition is null)
+        if (EndpointDefinition is null || RequestInfo is null)
         {
             throw new InvalidRequestException();
         }
@@ -27,6 +28,12 @@ internal sealed class ResponseHandlerMiddleware : ArchMiddleware
 
         context.Response.ContentType = ContentType;
         context.Response.StatusCode = ResponseInfo.Code;
-        await context.Response.WriteAsync(ResponseInfo.Value);
+
+        await context.Response.WriteAsync(JsonSerializer.Serialize(new
+        {
+            requestId = RequestInfo.RequestId,
+            requestDateUtc = RequestInfo.RequestDateUtc,
+            data = ResponseInfo.Value is not null ? JsonSerializer.Deserialize<dynamic>(ResponseInfo.Value) : null
+        }));
     }
 }

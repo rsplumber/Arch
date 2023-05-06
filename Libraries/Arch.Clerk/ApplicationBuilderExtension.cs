@@ -28,18 +28,18 @@ public static class ApplicationBuilderExtension
         {
             dbContext.ServiceConfigs.Remove(currentConfig);
             dbContext.SaveChanges();
-
-            var serviceConfig = new ServiceConfig
-            {
-                Name = "clerk",
-                Primary = true,
-                BaseUrl = configuration.GetSection("Clerk:BaseUrl").Value ??
-                          throw new Exception("Enter Clerk:BaseUrl in appsettings.json")
-            };
-
-            dbContext.ServiceConfigs.Add(serviceConfig);
-            dbContext.SaveChanges();
         }
+
+        var createdConfig = new ServiceConfig
+        {
+            Name = "clerk",
+            Primary = true,
+            BaseUrl = configuration.GetSection("Clerk:BaseUrl").Value ??
+                      throw new Exception("Enter Clerk:BaseUrl in appsettings.json")
+        };
+
+        dbContext.ServiceConfigs.Add(createdConfig);
+        dbContext.SaveChanges();
 
         var archServiceConfig = dbContext.ServiceConfigs
             .Include(config => config.Meta)

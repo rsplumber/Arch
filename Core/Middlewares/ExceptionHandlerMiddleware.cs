@@ -1,8 +1,6 @@
-﻿using System.Text.Json;
-using Core;
-using FluentValidation;
+﻿using Microsoft.AspNetCore.Http;
 
-namespace Application.Middlewares;
+namespace Core.Middlewares;
 
 internal sealed class ExceptionHandlerMiddleware : ArchMiddleware
 {
@@ -26,24 +24,13 @@ internal sealed class ExceptionHandlerMiddleware : ArchMiddleware
                     response.StatusCode = arch.Code;
                     message = arch.Message;
                     break;
-                case ValidationException validationException:
-                    response.StatusCode = 400;
-                    message = string.Join(", ", validationException.Errors
-                        .DistinctBy(failure => failure.PropertyName)
-                        .Select(failure => $"{failure.PropertyName} : {failure.ErrorMessage}"));
-                    break;
                 default:
                     response.StatusCode = 500;
                     message = InternalServerErrorMessage;
                     break;
             }
 
-            await response.WriteAsync(JsonSerializer.Serialize(new
-            {
-                RequestInfo!.RequestId,
-                RequestInfo!.RequestDateUtc,
-                message
-            }));
+            await response.WriteAsync(message);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Core.Middlewares;
+﻿using Core.Logs;
+using Core.Middlewares;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -8,10 +9,13 @@ public static class ServiceCollectionExtension
 {
     public static void AddCore(this IServiceCollection services, Action<IServiceCollection> libraries)
     {
+        services.TryAddSingleton<ExceptionHandlerMiddleware>();
         services.TryAddSingleton<RequestExtractorMiddleware>();
         libraries(services);
         services.TryAddSingleton<RequestDispatcherMiddleware>();
         services.TryAddSingleton<ResponseHandlerMiddleware>();
+        services.TryAddSingleton<LoggerMiddleware>();
+        services.TryAddScoped<IArcLogger, ArcLoggerEventSender>();
         services.AddHttpClient("arch", client =>
         {
             client.DefaultRequestHeaders.Clear();

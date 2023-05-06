@@ -38,7 +38,7 @@ public class TreeBenchmark
     }
 
     [Benchmark(OperationsPerInvoke = 10)]
-    public (string , object[]) Find()
+    public (string, object[]) Find()
     {
         return BaseNode.Find(Url);
     }

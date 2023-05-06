@@ -1,5 +1,4 @@
 using System.Text.Json;
-using Application.Middlewares;
 using Arch.Clerk;
 using Arch.Kundera;
 using Core;
@@ -24,7 +23,6 @@ builder.WebHost.ConfigureKestrel((_, options) =>
 builder.Services.AddCors();
 builder.Services.AddHttpClient("arch", _ => { });
 builder.Services.AddHealthChecks();
-builder.Services.AddSingleton<ExceptionHandlerMiddleware>();
 builder.Services.AddCore(collection =>
 {
     collection.AddKundera(builder.Configuration);
@@ -37,6 +35,9 @@ builder.Services.AddScoped<IServiceConfigService, ServiceConfigService>();
 
 builder.Services.AddCap(options =>
 {
+    options.FailedRetryCount = 2;
+    options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+    options.JsonSerializerOptions.IgnoreReadOnlyFields = true;
     options.UseRabbitMQ(op =>
     {
         op.HostName = builder.Configuration.GetValue<string>("RabbitMQ:HostName") ?? throw new ArgumentNullException("RabbitMQ:HostName", "Enter RabbitMQ:HostName in app settings");
@@ -64,7 +65,6 @@ app.UseCors(b => b.AllowAnyHeader()
 
 
 app.UseHealthChecks("/health");
-app.UseMiddleware<ExceptionHandlerMiddleware>();
 app.Use(async (context, next) =>
 {
     context.Request.EnableBuffering();

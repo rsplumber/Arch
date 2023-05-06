@@ -31,12 +31,13 @@ internal sealed class RequestExtractorMiddleware : ArchMiddleware
                 Meta = definition.Meta,
                 Endpoint = definition.Endpoint,
                 Pattern = definition.Pattern,
-                BaseUrl = definition.BaseUrl
+                BaseUrl = definition.BaseUrl,
+                MapTo = definition.MapTo
             }
             : null;
 
         string? body = null;
-        if (method is HttpRequestMethods.Post or HttpRequestMethods.Patch or HttpRequestMethods.Put && context.Request.ContentLength > 0)
+        if (HasBody())
         {
             var streamReader = new StreamReader(context.Request.Body);
             body = await streamReader.ReadToEndAsync();
@@ -69,5 +70,7 @@ internal sealed class RequestExtractorMiddleware : ArchMiddleware
         }
 
         string ExtractMethod() => context.Request.Method.ToLower();
+
+        bool HasBody() => method is HttpRequestMethods.Post or HttpRequestMethods.Patch or HttpRequestMethods.Put && context.Request.ContentLength > 0;
     }
 }

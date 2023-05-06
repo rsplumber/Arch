@@ -1,5 +1,4 @@
-﻿using Core;
-using Core.Entities;
+﻿using Core.Entities;
 using DotNetCore.CAP;
 
 namespace Data.Sql;
