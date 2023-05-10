@@ -92,7 +92,8 @@ internal sealed class KunderaAuthorizationMiddleware : ArchMiddleware
             throw new KunderaUnAuthorizedException();
         }
 
-        context.Items[UserIdKey] = GenerateUserToken(serviceSecret);
+        context.Items[UserIdKey] = userId;
+        context.Items[UserIdTokenKey] = GenerateUserToken(serviceSecret);
 
         await next(context);
 

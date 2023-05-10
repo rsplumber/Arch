@@ -18,6 +18,7 @@ public abstract class ArchMiddlewareHandler
     protected const string RequestInfoKey = "request_info";
     protected const string ArchEndpointDefinitionKey = "arch_endpoint_definition";
     protected const string ResponseKey = "arch_response";
+    protected const string UserIdTokenKey = "user_id_token";
     protected const string UserIdKey = "user_id";
     private const string DisableKey = "disable";
     private const string IgnoreDispatchKey = "ignore_dispatch";
@@ -27,6 +28,7 @@ public abstract class ArchMiddlewareHandler
         RequestInfo = context.Items[RequestInfoKey] as RequestInfo;
         ResponseInfo = context.Items[ResponseKey] as ResponseInfo;
         EndpointDefinition = context.Items[ArchEndpointDefinitionKey] as RequestEndpointDefinition;
+        UserIdToken = context.Items[UserIdTokenKey] as string;
         UserId = context.Items[UserIdKey] as string;
     }
 
@@ -35,6 +37,8 @@ public abstract class ArchMiddlewareHandler
     protected ResponseInfo? ResponseInfo { get; private set; }
 
     protected RequestEndpointDefinition? EndpointDefinition { get; private set; }
+
+    protected string? UserIdToken { get; private set; }
 
     protected string? UserId { get; private set; }
 

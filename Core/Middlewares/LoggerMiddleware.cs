@@ -21,6 +21,7 @@ internal sealed class LoggerMiddleware : ArchMiddleware
             var logger = serviceScope!.ServiceProvider.GetRequiredService<IArcLogger>();
             logger.LogAsync(new
             {
+                userId = UserId,
                 request = RequestInfo,
                 response = ResponseInfo,
                 endpoint = EndpointDefinition

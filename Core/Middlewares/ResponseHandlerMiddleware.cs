@@ -6,8 +6,6 @@ namespace Core.Middlewares;
 
 internal sealed class ResponseHandlerMiddleware : ArchMiddleware
 {
-    private const string ContentType = "application/json; charset=utf-8";
-
     public override async Task HandleAsync(HttpContext context, RequestDelegate next)
     {
         if (EndpointDefinition is null || RequestInfo is null)
@@ -26,23 +24,14 @@ internal sealed class ResponseHandlerMiddleware : ArchMiddleware
             throw new InvalidResponseException();
         }
 
-        context.Response.ContentType = ContentType;
+        context.Response.ContentType = ResponseInfo.ContentType;
         context.Response.StatusCode = ResponseInfo.Code;
-        dynamic? data;
-        try
-        {
-            data = ResponseInfo.Value is not null ? JsonSerializer.Deserialize<dynamic>(ResponseInfo.Value) : null;
-        }
-        catch (Exception e)
-        {
-            data = ResponseInfo.Value;
-        }
 
         await context.Response.WriteAsync(JsonSerializer.Serialize(new
         {
             requestId = RequestInfo.RequestId,
             requestDateUtc = RequestInfo.RequestDateUtc,
-            data
+            data = ResponseInfo.Value
         }));
     }
 }

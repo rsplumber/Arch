@@ -1,4 +1,6 @@
-﻿using System.Net.Http.Json;
+﻿using System.Diagnostics;
+using System.Net.Http.Json;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using Core.Middlewares.Exceptions;
 using Microsoft.AspNetCore.Http;
@@ -10,6 +12,13 @@ internal sealed class RequestDispatcherMiddleware : ArchMiddleware
     private readonly IHttpClientFactory _httpClientFactory;
     private const string HttpFactoryName = "arch";
     private const string UserTokenKey = "uid_token";
+    private const string ApplicationJsonMediaType = "application/json";
+
+    private static readonly JsonSerializerOptions DefaultSerializerOptions = new()
+    {
+        PropertyNameCaseInsensitive = true,
+        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+    };
 
     public RequestDispatcherMiddleware(IHttpClientFactory httpClientFactory)
     {
@@ -36,9 +45,9 @@ internal sealed class RequestDispatcherMiddleware : ArchMiddleware
             client.DefaultRequestHeaders.TryAddWithoutValidation(header.Key, header.Value);
         }
 
-        if (context.Items[UserIdKey] is string userId)
+        if (UserIdToken is not null)
         {
-            client.DefaultRequestHeaders.TryAddWithoutValidation(UserTokenKey, userId);
+            client.DefaultRequestHeaders.TryAddWithoutValidation(UserTokenKey, UserIdToken);
         }
 
 
@@ -62,12 +71,27 @@ internal sealed class RequestDispatcherMiddleware : ArchMiddleware
             }
         }
 
+        var watch = Stopwatch.StartNew();
         var httpResponse = await client.SendAsync(message);
-        var response = await httpResponse.Content.ReadAsStringAsync();
+        watch.Stop();
+
+        var mediaType = httpResponse.Content.Headers.ContentType?.MediaType;
+        dynamic? response;
+        if (mediaType is not null && mediaType == ApplicationJsonMediaType)
+        {
+            response = await httpResponse.Content.ReadFromJsonAsync<dynamic>(DefaultSerializerOptions);
+        }
+        else
+        {
+            response = await httpResponse.Content.ReadAsStringAsync();
+        }
+
         context.Items[ResponseKey] = new ResponseInfo
         {
             Code = (int)httpResponse.StatusCode,
-            Value = response
+            Value = response,
+            ResponseTimeMilliseconds = watch.ElapsedMilliseconds,
+            ContentType = httpResponse.Content.Headers.ContentType?.ToString()
         };
         await next(context);
 

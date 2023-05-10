@@ -34,7 +34,7 @@ internal class CheckAccountingMiddleware : ArchMiddleware
             return;
         }
 
-        if (context.Items[UserIdKey] is not string userId)
+        if (context.Items[UserIdTokenKey] is not string userId)
         {
             throw new AccountingUserNotFoundException();
         }
