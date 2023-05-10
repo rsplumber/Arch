@@ -1,4 +1,4 @@
-﻿using Core.Entities.EndpointDefinitions.Containers;
+﻿using Core.Containers;
 using Core.Entities.ServiceConfigs;
 
 namespace Data.InMemory;

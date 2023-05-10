@@ -116,18 +116,13 @@ internal sealed class KunderaAuthorizationMiddleware : ArchMiddleware
             return secret;
         }
 
-        string GenerateUserToken(string secret)
-        {
-            var key = Encoding.ASCII.GetBytes(secret);
-            var tokenDescriptor = new SecurityTokenDescriptor
+        string GenerateUserToken(string secret) => JwtSecurityTokenHandler.WriteToken(JwtSecurityTokenHandler
+            .CreateToken(new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new[] { new Claim("id", userId) }),
                 Expires = DateTime.UtcNow.AddSeconds(10),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-            };
-            var token = JwtSecurityTokenHandler.CreateToken(tokenDescriptor);
-            return JwtSecurityTokenHandler.WriteToken(token);
-        }
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secret)), SecurityAlgorithms.HmacSha256Signature)
+            }));
     }
 
     private async Task<(int, string?)> KunderaAuthorizePermissionAsync(string token, string serviceSecret, IEnumerable<string> permissions)

@@ -1,4 +1,4 @@
-﻿using Core.Entities.EndpointDefinitions.Containers;
+﻿using Core.Containers;
 using Data.Sql;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;

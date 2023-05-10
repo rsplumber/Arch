@@ -45,12 +45,21 @@ internal sealed class RequestDispatcherMiddleware : ArchMiddleware
         var message = new HttpRequestMessage(MapToHttpMethod(), ExtractApiUrl());
         if (RequestInfo.Body is not null)
         {
-            message.Content = RequestInfo.ContentType switch
+            switch (RequestInfo.ContentType)
             {
-                RequestInfo.ApplicationJsonContentType => JsonContent.Create(JsonSerializer.Deserialize<object>(RequestInfo.Body)),
-                RequestInfo.FormDataContentType => new StringContent(RequestInfo.Body),
-                _ => throw new ContentTypeNotSupportedException()
-            };
+                case RequestInfo.ApplicationJsonContentType:
+                    message.Content = JsonContent.Create(JsonSerializer.Deserialize<object>(RequestInfo.Body));
+                    break;
+                case RequestInfo.FormDataContentType:
+                    var formCollection = (IFormCollection)RequestInfo.Body;
+                    message.Content = new FormUrlEncodedContent(formCollection
+                        .ToList()
+                        .Select(keyValuePair => new KeyValuePair<string, string>(keyValuePair.Key, keyValuePair.Value.ToString()))
+                        .ToArray());
+                    break;
+                default:
+                    throw new ContentTypeNotSupportedException();
+            }
         }
 
         var httpResponse = await client.SendAsync(message);

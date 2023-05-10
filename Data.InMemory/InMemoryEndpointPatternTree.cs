@@ -1,5 +1,5 @@
-﻿using Core.Entities.EndpointDefinitions;
-using Core.Entities.EndpointDefinitions.Containers;
+﻿using Core.Containers;
+using Core.Entities.EndpointDefinitions;
 
 namespace Data.InMemory;
 

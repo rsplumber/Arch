@@ -13,7 +13,7 @@ public class RequestInfo
 
     public Dictionary<string, string> Headers { get; init; } = new();
 
-    public string? Body { get; init; }
+    public dynamic? Body { get; init; }
 
     public required string? ContentType { get; init; }
 

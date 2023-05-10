@@ -1,4 +1,6 @@
-﻿namespace Core.Entities.EndpointDefinitions.Containers;
+﻿using Core.Entities.EndpointDefinitions;
+
+namespace Core.Containers;
 
 public interface IEndpointDefinitionContainer
 {

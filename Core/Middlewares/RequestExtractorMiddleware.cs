@@ -1,4 +1,4 @@
-﻿using Core.Entities.EndpointDefinitions.Containers.Resolvers;
+﻿using Core.Containers.Resolvers;
 using Core.Middlewares.Exceptions;
 using Microsoft.AspNetCore.Http;
 
@@ -15,8 +15,8 @@ internal sealed class RequestExtractorMiddleware : ArchMiddleware
 
     public override async Task HandleAsync(HttpContext context, RequestDelegate next)
     {
-        var path = ExtractPath();
-        var method = ExtractMethod();
+        var path = context.Request.Path.Value.ToLower();
+        var method = context.Request.Method.ToLower();
         var (definition, pathParameters) = await _endpointDefinitionResolver.ResolveAsync(path, method);
 
         if (IsDisabled())
@@ -36,11 +36,16 @@ internal sealed class RequestExtractorMiddleware : ArchMiddleware
             }
             : null;
 
-        string? body = null;
+        dynamic? body = null;
         if (HasBody())
         {
             var streamReader = new StreamReader(context.Request.Body);
-            body = await streamReader.ReadToEndAsync();
+            body = context.Request.ContentType switch
+            {
+                RequestInfo.ApplicationJsonContentType => await streamReader.ReadToEndAsync(),
+                RequestInfo.FormDataContentType => context.Request.Form,
+                _ => throw new ContentTypeNotSupportedException()
+            };
             context.Request.Body.Position = 0;
         }
 
@@ -57,19 +62,6 @@ internal sealed class RequestExtractorMiddleware : ArchMiddleware
             : null;
 
         await next(context);
-
-        string ExtractPath()
-        {
-            return context.Request.Path.Value is not null ? Sanitize(context.Request.Path.Value).ToLower() : string.Empty;
-
-            string Sanitize(string rp)
-            {
-                var removedFirst = rp.StartsWith("/") ? rp.Remove(0, 1) : rp;
-                return removedFirst.EndsWith("/") ? removedFirst.Remove(removedFirst.Length - 1, 1) : removedFirst;
-            }
-        }
-
-        string ExtractMethod() => context.Request.Method.ToLower();
 
         bool HasBody() => method is HttpRequestMethods.Post or HttpRequestMethods.Patch or HttpRequestMethods.Put && context.Request.ContentLength > 0;
     }

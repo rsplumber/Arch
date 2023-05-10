@@ -1,6 +1,6 @@
 ﻿using Core.Entities.ServiceConfigs;
 
-namespace Core.Entities.EndpointDefinitions.Containers;
+namespace Core.Containers;
 
 public interface IContainerInitializer
 {

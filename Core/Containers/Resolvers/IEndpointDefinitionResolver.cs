@@ -1,4 +1,4 @@
-﻿namespace Core.Entities.EndpointDefinitions.Containers.Resolvers;
+﻿namespace Core.Containers.Resolvers;
 
 public interface IEndpointDefinitionResolver
 {

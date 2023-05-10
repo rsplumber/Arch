@@ -1,4 +1,4 @@
-﻿namespace Core.Entities.EndpointDefinitions.Containers;
+﻿namespace Core.Containers;
 
 public sealed record DefinitionKey
 {

@@ -81,7 +81,10 @@ public sealed class EndpointNode
 
     private (List<string>, List<object>) FindEnumerable(string url)
     {
-        using var urlArray = url.Split(UrlSplitter).AsEnumerable().GetEnumerator();
+        using var urlArray = url.Split(UrlSplitter)
+            .Where(s => !string.IsNullOrEmpty(s))
+            .AsEnumerable()
+            .GetEnumerator();
         var node = this;
         var urlParams = new List<object>();
         var urlPattern = new List<string>();

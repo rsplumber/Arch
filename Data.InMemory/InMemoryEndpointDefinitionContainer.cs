@@ -1,6 +1,6 @@
 ﻿using System.Collections.Concurrent;
+using Core.Containers;
 using Core.Entities.EndpointDefinitions;
-using Core.Entities.EndpointDefinitions.Containers;
 
 namespace Data.InMemory;
 

@@ -11,6 +11,7 @@ public static class ServiceCollectionExtension
         services.AddSingleton<CheckAccountingMiddleware>();
         services.AddHttpClient("clerk", client =>
         {
+            client.DefaultRequestHeaders.Clear();
             client.BaseAddress = new Uri(configuration.GetSection("Clerk:BaseUrl").Value ??
                                          throw new Exception("Enter Clerk:BaseUrl in appsettings.json"));
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));

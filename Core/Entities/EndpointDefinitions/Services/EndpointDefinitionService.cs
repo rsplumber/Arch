@@ -1,4 +1,4 @@
-using Core.Entities.EndpointDefinitions.Containers;
+using Core.Containers;
 using Core.Entities.EndpointDefinitions.Exceptions;
 using Core.Entities.Metas;
 using Core.Entities.ServiceConfigs;

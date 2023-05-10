@@ -19,13 +19,12 @@ internal sealed class LoggerMiddleware : ArchMiddleware
         {
             using var serviceScope = _serviceProvider.GetService<IServiceScopeFactory>()?.CreateScope();
             var logger = serviceScope!.ServiceProvider.GetRequiredService<IArcLogger>();
-            var logData = new
+            logger.LogAsync(new
             {
                 request = RequestInfo,
                 response = ResponseInfo,
                 endpoint = EndpointDefinition
-            };
-            logger.LogAsync(logData);
+            });
         });
         await next(context);
     }

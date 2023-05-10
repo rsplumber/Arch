@@ -2,11 +2,12 @@ using System.Text.Json;
 using Arch.Clerk;
 using Arch.Kundera;
 using Core;
-using Core.Entities.EndpointDefinitions.Containers.Resolvers;
+using Core.Containers.Resolvers;
 using Core.Entities.EndpointDefinitions.Services;
 using Core.Entities.ServiceConfigs.Services;
 using Data.InMemory;
 using Data.Sql;
+using Elastic.Apm.NetCoreAll;
 using FastEndpoints;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -77,7 +78,7 @@ app.UseCore(applicationBuilder =>
     applicationBuilder.UseClerkAccounting(builder.Configuration);
 }, applicationBuilder =>
 {
-    // applicationBuilder.UseAllElasticApm(builder.Configuration);
+    applicationBuilder.UseAllElasticApm(builder.Configuration);
 });
 app.UseInMemoryData(builder.Configuration);
 
