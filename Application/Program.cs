@@ -11,7 +11,7 @@ using Elastic.Apm.NetCoreAll;
 using FastEndpoints;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.WebHost.UseKestrel();
+builder.WebHost.UseKestrel(options => { options.Limits.MaxRequestBodySize = 50_000_000; });
 builder.WebHost.ConfigureKestrel((_, options) =>
 {
     options.ListenAnyIP(5228, _ => { });
