@@ -78,7 +78,7 @@ app.UseCore(applicationBuilder =>
     applicationBuilder.UseClerkAccounting(builder.Configuration);
 }, applicationBuilder =>
 {
-    applicationBuilder.UseAllElasticApm(builder.Configuration);
+    // applicationBuilder.UseAllElasticApm(builder.Configuration);
 });
 app.UseInMemoryData(builder.Configuration);
 

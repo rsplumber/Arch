@@ -15,17 +15,14 @@ internal sealed class LoggerMiddleware : ArchMiddleware
 
     public override async Task HandleAsync(HttpContext context, RequestDelegate next)
     {
-        await Task.Run(() =>
+        using var serviceScope = _serviceProvider.GetService<IServiceScopeFactory>()?.CreateScope();
+        var logger = serviceScope!.ServiceProvider.GetRequiredService<IArcLogger>();
+        await logger.LogAsync(new
         {
-            using var serviceScope = _serviceProvider.GetService<IServiceScopeFactory>()?.CreateScope();
-            var logger = serviceScope!.ServiceProvider.GetRequiredService<IArcLogger>();
-            logger.LogAsync(new
-            {
-                userId = UserId,
-                request = RequestInfo,
-                response = ResponseInfo,
-                endpoint = EndpointDefinition
-            });
+            userId = UserId,
+            request = RequestInfo,
+            response = ResponseInfo,
+            endpoint = EndpointDefinition
         });
         await next(context);
     }

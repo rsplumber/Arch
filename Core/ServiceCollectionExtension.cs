@@ -13,9 +13,9 @@ public static class ServiceCollectionExtension
         services.TryAddSingleton<RequestExtractorMiddleware>();
         libraries(services);
         services.TryAddSingleton<RequestDispatcherMiddleware>();
-        services.TryAddSingleton<ResponseHandlerMiddleware>();
         services.TryAddSingleton<LoggerMiddleware>();
         services.TryAddScoped<IArcLogger, ArcLoggerEventSender>();
+        services.TryAddSingleton<ResponseHandlerMiddleware>();
         services.AddHttpClient("arch", client =>
         {
             client.DefaultRequestHeaders.Clear();
