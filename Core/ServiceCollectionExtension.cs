@@ -1,5 +1,4 @@
-﻿using Core.Logs;
-using Core.Middlewares;
+﻿using Core.Middlewares;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -14,8 +13,8 @@ public static class ServiceCollectionExtension
         libraries(services);
         services.TryAddSingleton<RequestDispatcherMiddleware>();
         services.TryAddSingleton<LoggerMiddleware>();
-        services.TryAddScoped<IArcLogger, ArcLoggerEventSender>();
         services.TryAddSingleton<ResponseHandlerMiddleware>();
+        services.TryAddTransient<ArchInternalLogEventHandler>();
         services.AddHttpClient("arch", client =>
         {
             client.DefaultRequestHeaders.Clear();

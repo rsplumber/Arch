@@ -8,12 +8,9 @@
 
     <ItemGroup>
         <PackageReference Include="DotNetCore.CAP" Version="7.1.3" />
-        <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
-        <PackageReference Include="Microsoft.Extensions.Http" Version="7.0.0" />
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Libraries\Logging\Logging.Abstractions\Logging.Abstractions.csproj" />
+      <ProjectReference Include="..\Logging.Abstractions\Logging.Abstractions.csproj" />
     </ItemGroup>
-
 </Project>

@@ -1,4 +1,5 @@
-﻿using Core.Logs;
+﻿using DotNetCore.CAP;
+using Logging.Abstractions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -7,6 +8,7 @@ namespace Core.Middlewares;
 internal sealed class LoggerMiddleware : ArchMiddleware
 {
     private readonly IServiceProvider _serviceProvider;
+    private const string EventName = "arch.internal.logs";
 
     public LoggerMiddleware(IServiceProvider serviceProvider)
     {
@@ -16,8 +18,8 @@ internal sealed class LoggerMiddleware : ArchMiddleware
     public override async Task HandleAsync(HttpContext context, RequestDelegate next)
     {
         using var serviceScope = _serviceProvider.GetService<IServiceScopeFactory>()?.CreateScope();
-        var logger = serviceScope!.ServiceProvider.GetRequiredService<IArcLogger>();
-        await logger.LogAsync(new
+        var publisher = serviceScope!.ServiceProvider.GetRequiredService<ICapPublisher>();
+        await publisher.PublishAsync(EventName, new
         {
             userId = UserId,
             request = RequestInfo,
@@ -25,5 +27,21 @@ internal sealed class LoggerMiddleware : ArchMiddleware
             endpoint = EndpointDefinition
         });
         await next(context);
+    }
+}
+
+internal sealed class ArchInternalLogEventHandler : ICapSubscribe
+{
+    private readonly IArchLogger _logger;
+
+    public ArchInternalLogEventHandler(IArchLogger logger)
+    {
+        _logger = logger;
+    }
+
+    [CapSubscribe("arch.internal.logs", Group = "arch.core.queue")]
+    public async Task HandleAsync(dynamic message)
+    {
+        await _logger.LogAsync(message);
     }
 }

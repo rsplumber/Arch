@@ -1,13 +1,14 @@
 using DotNetCore.CAP;
+using Logging.Abstractions;
 
-namespace Core.Logs;
+namespace Logging.Logstash;
 
-internal class ArcLoggerEventSender : IArcLogger
+internal sealed class ArchLogger : IArchLogger
 {
     private readonly ICapPublisher _eventBus;
     private const string EventName = "arch.logs";
 
-    public ArcLoggerEventSender(ICapPublisher eventBus)
+    public ArchLogger(ICapPublisher eventBus)
     {
         _eventBus = eventBus;
     }

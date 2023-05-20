@@ -113,7 +113,6 @@ internal sealed class KunderaAuthorizationMiddleware : ArchMiddleware
             {
                 throw new KunderaServiceSecretNotDefinedException();
             }
-
             return secret;
         }
 

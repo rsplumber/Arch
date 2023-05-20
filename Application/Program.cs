@@ -9,6 +9,7 @@ using Data.InMemory;
 using Data.Sql;
 using Elastic.Apm.NetCoreAll;
 using FastEndpoints;
+using Logging.Logstash;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseKestrel(options => { options.Limits.MaxRequestBodySize = 50_000_000; });
@@ -33,12 +34,13 @@ builder.Services.AddCore(collection =>
 builder.Services.AddSingleton<IEndpointDefinitionResolver, EndpointDefinitionResolver>();
 builder.Services.AddScoped<IEndpointDefinitionService, EndpointDefinitionService>();
 builder.Services.AddScoped<IServiceConfigService, ServiceConfigService>();
-
+builder.Services.AddLoggingLogstash();
 builder.Services.AddCap(options =>
 {
     options.FailedRetryCount = 2;
     options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
     options.JsonSerializerOptions.IgnoreReadOnlyFields = true;
+    options.SucceedMessageExpiredAfter = 1;
     options.UseRabbitMQ(op =>
     {
         op.HostName = builder.Configuration.GetValue<string>("RabbitMQ:HostName") ?? throw new ArgumentNullException("RabbitMQ:HostName", "Enter RabbitMQ:HostName in app settings");
@@ -78,7 +80,7 @@ app.UseCore(applicationBuilder =>
     applicationBuilder.UseClerkAccounting(builder.Configuration);
 }, applicationBuilder =>
 {
-    // applicationBuilder.UseAllElasticApm(builder.Configuration);
+    applicationBuilder.UseAllElasticApm(builder.Configuration);
 });
 app.UseInMemoryData(builder.Configuration);
 
@@ -86,7 +88,7 @@ app.UseInMemoryData(builder.Configuration);
 app.UseFastEndpoints(config =>
 {
     config.Serializer.Options.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-    config.Endpoints.RoutePrefix = "gateway/api";
+    config.Endpoints.RoutePrefix = "api";
     config.Versioning.Prefix = "v";
     config.Versioning.PrependToRoute = true;
 });
