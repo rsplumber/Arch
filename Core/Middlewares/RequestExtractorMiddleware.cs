@@ -17,6 +17,7 @@ internal sealed class RequestExtractorMiddleware : ArchMiddleware
     {
         var path = context.Request.Path.Value.ToLower();
         var method = context.Request.Method.ToLower();
+        var contentType = string.Empty;
         var (definition, pathParameters) = await _endpointDefinitionResolver.ResolveAsync(path, method);
 
         if (IsDisabled())
@@ -40,12 +41,18 @@ internal sealed class RequestExtractorMiddleware : ArchMiddleware
         if (HasBody())
         {
             var streamReader = new StreamReader(context.Request.Body);
-            body = context.Request.ContentType switch
+            if (context.Request.ContentType == RequestInfo.ApplicationJsonContentType)
             {
-                RequestInfo.ApplicationJsonContentType => await streamReader.ReadToEndAsync(),
-                RequestInfo.FormDataContentType => context.Request.Form,
-                _ => throw new ContentTypeNotSupportedException()
-            };
+                contentType = RequestInfo.ApplicationJsonContentType;
+                body = await streamReader.ReadToEndAsync();
+            }
+
+            if (context.Request.HasFormContentType)
+            {
+                body = context.Request.Form;
+                contentType = context.Request.ContentType.StartsWith("multipart/form-data") ? RequestInfo.MultiPartFormData : RequestInfo.UrlEncodedFormDataContentType;
+            }
+
             context.Request.Body.Position = 0;
         }
 
@@ -57,7 +64,7 @@ internal sealed class RequestExtractorMiddleware : ArchMiddleware
                 Body = body,
                 Path = string.Format(definition.MapTo, pathParameters),
                 QueryString = context.Request.QueryString.Value,
-                ContentType = context.Request.ContentType
+                ContentType = contentType
             }
             : null;
 

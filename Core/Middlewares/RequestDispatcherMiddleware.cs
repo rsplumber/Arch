@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Encodings.Web;
 using System.Text.Json;
@@ -13,6 +14,7 @@ internal sealed class RequestDispatcherMiddleware : ArchMiddleware
     private const string HttpFactoryName = "arch";
     private const string UserTokenKey = "uid_token";
     private const string ApplicationJsonMediaType = "application/json";
+    private const string ApplicationProblemJsonMediaType = "application/problem+json";
 
     private static readonly JsonSerializerOptions DefaultSerializerOptions = new()
     {
@@ -59,7 +61,28 @@ internal sealed class RequestDispatcherMiddleware : ArchMiddleware
                 case RequestInfo.ApplicationJsonContentType:
                     message.Content = JsonContent.Create(JsonSerializer.Deserialize<object>(RequestInfo.Body));
                     break;
-                case RequestInfo.FormDataContentType:
+                case RequestInfo.MultiPartFormData:
+                    var multiPartFormCollection = (IFormCollection)RequestInfo.Body;
+                    var multipartFormDataContent = new MultipartFormDataContent();
+                    foreach (var keyValuePair in multiPartFormCollection)
+                    {
+                        multipartFormDataContent.Add(new StringContent(keyValuePair.Value!), keyValuePair.Key);
+                    }
+
+                    foreach (var formFile in multiPartFormCollection.Files)
+                    {
+                        var memoryStream = new MemoryStream();
+                        formFile.OpenReadStream();
+                        await formFile.CopyToAsync(memoryStream);
+                        memoryStream.Position = 0;
+                        var streamContent = new StreamContent(memoryStream);
+                        streamContent.Headers.ContentType = new MediaTypeHeaderValue(formFile.ContentType);
+                        multipartFormDataContent.Add(streamContent, formFile.Name, formFile.FileName);
+                    }
+
+                    message.Content = multipartFormDataContent;
+                    break;
+                case RequestInfo.UrlEncodedFormDataContentType:
                     var formCollection = (IFormCollection)RequestInfo.Body;
                     message.Content = new FormUrlEncodedContent(formCollection
                         .ToList()
@@ -77,7 +100,7 @@ internal sealed class RequestDispatcherMiddleware : ArchMiddleware
 
         var mediaType = httpResponse.Content.Headers.ContentType?.MediaType;
         dynamic? response;
-        if (mediaType is not null && mediaType == ApplicationJsonMediaType)
+        if (mediaType is ApplicationJsonMediaType or ApplicationProblemJsonMediaType)
         {
             response = await httpResponse.Content.ReadFromJsonAsync<dynamic>(DefaultSerializerOptions);
         }
