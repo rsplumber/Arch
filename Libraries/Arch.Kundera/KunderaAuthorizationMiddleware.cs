@@ -1,9 +1,9 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
-using System.Net.Http.Json;
 using System.Security.Claims;
 using System.Text;
 using Arch.Kundera.Exceptions;
 using Core;
+using KunderaNet.Services.Authorization.Abstractions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.IdentityModel.Tokens;
 
@@ -11,25 +11,22 @@ namespace Arch.Kundera;
 
 internal sealed class KunderaAuthorizationMiddleware : ArchMiddleware
 {
-    private readonly IHttpClientFactory _clientFactory;
-    private const string HttpClientFactoryKey = "kundera";
     private const string ServiceSecretMetaKey = "service_secret";
     private const string AllowAnonymousMetaKey = "allow_anonymous";
     private const string PermissionsMetaKey = "permissions";
     private const string AuthorizationHeaderKey = "Authorization";
     private const string RolesMetaKey = "roles";
-    private const string AuthorizePermissionUrl = "api/v1/authorize/permission";
-    private const string AuthorizeRoleUrl = "api/v1/authorize/role";
-    private const int ForbiddenCode = 403;
     private const int UnAuthorizedCode = 401;
+    private const int ForbiddenCode = 403;
     private const int SessionExpiredCode = 440;
     private static readonly JwtSecurityTokenHandler JwtSecurityTokenHandler = new();
+    private readonly IAuthorizeService _authorizeService;
 
-
-    public KunderaAuthorizationMiddleware(IHttpClientFactory clientFactory)
+    public KunderaAuthorizationMiddleware(IAuthorizeService authorizeService)
     {
-        _clientFactory = clientFactory;
+        _authorizeService = authorizeService;
     }
+
 
     public override async Task HandleAsync(HttpContext context, RequestDelegate next)
     {
@@ -62,15 +59,16 @@ internal sealed class KunderaAuthorizationMiddleware : ArchMiddleware
 
         var serviceSecret = ExtractServiceSecret();
 
-        string? userId;
+        AuthorizedResponse? authorized;
         int code;
+        var headers = GenerateHeaders();
         if (allowedPermissions is not null && allowedRoles is null)
         {
-            (code, userId) = await KunderaAuthorizePermissionAsync(tokenValue, serviceSecret, allowedPermissions);
+            (code, authorized) = await _authorizeService.AuthorizePermissionAsync(tokenValue, allowedPermissions, headers);
         }
         else if (allowedRoles is not null && allowedPermissions is null)
         {
-            (code, userId) = await KunderaAuthorizeRoleAsync(tokenValue, serviceSecret, allowedRoles);
+            (code, authorized) = await _authorizeService.AuthorizeRoleAsync(tokenValue, allowedRoles, headers);
         }
         else
         {
@@ -87,13 +85,13 @@ internal sealed class KunderaAuthorizationMiddleware : ArchMiddleware
                 throw new KunderaSessionExpiredException();
         }
 
-        if (userId is null)
+        if (authorized is null)
         {
             throw new KunderaUnAuthorizedException();
         }
 
-        context.Items[UserIdKey] = userId;
-        context.Items[UserIdTokenKey] = GenerateUserToken(serviceSecret);
+        context.Items[UserIdKey] = authorized.UserId;
+        context.Items[UserTokenKey] = GenerateUserToken(serviceSecret);
 
         await next(context);
 
@@ -113,43 +111,32 @@ internal sealed class KunderaAuthorizationMiddleware : ArchMiddleware
             {
                 throw new KunderaServiceSecretNotDefinedException();
             }
+
             return secret;
         }
 
         string GenerateUserToken(string secret) => JwtSecurityTokenHandler.WriteToken(JwtSecurityTokenHandler
             .CreateToken(new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new[] { new Claim("id", userId) }),
+                Subject = new ClaimsIdentity(new[]
+                {
+                    new Claim("id", authorized.UserId),
+                    new Claim("service_id", authorized.ServiceId ?? string.Empty),
+                    new Claim("scope_id", authorized.ScopeId ?? string.Empty),
+                }),
                 Expires = DateTime.UtcNow.AddSeconds(10),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secret)), SecurityAlgorithms.HmacSha256Signature)
             }));
-    }
 
-    private async Task<(int, string?)> KunderaAuthorizePermissionAsync(string token, string serviceSecret, IEnumerable<string> permissions)
-    {
-        var client = _clientFactory.CreateClient(HttpClientFactoryKey);
-        client.DefaultRequestHeaders.Add("service_secret", serviceSecret);
-        var result = await client.PostAsJsonAsync(AuthorizePermissionUrl, new
+        Dictionary<string, string> GenerateHeaders()
         {
-            Authorization = token,
-            Actions = permissions
-        });
-        var response = await result.Content.ReadAsStringAsync();
-        var userId = result.IsSuccessStatusCode ? response.Replace("\"", string.Empty) : null;
-        return ((int)result.StatusCode, userId);
-    }
+            var requestHeaders = context.Request
+                .Headers
+                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value[0]!);
 
-    private async Task<(int, string?)> KunderaAuthorizeRoleAsync(string token, string serviceSecret, IEnumerable<string> roles)
-    {
-        var client = _clientFactory.CreateClient(HttpClientFactoryKey);
-        client.DefaultRequestHeaders.Add("service_secret", serviceSecret);
-        var result = await client.PostAsJsonAsync(AuthorizeRoleUrl, new
-        {
-            Authorization = token,
-            Roles = roles
-        });
-        var response = await result.Content.ReadAsStringAsync();
-        var userId = result.IsSuccessStatusCode ? response.Replace("\"", string.Empty) : null;
-        return ((int)result.StatusCode, userId);
+            requestHeaders.Remove("service_secret");
+            requestHeaders.Add("service_secret", serviceSecret);
+            return requestHeaders;
+        }
     }
 }
