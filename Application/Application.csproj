@@ -11,8 +11,6 @@
         <PackageReference Include="DotNetCore.CAP.PostgreSql" Version="7.2.0" />
         <PackageReference Include="DotNetCore.CAP.RabbitMQ" Version="7.2.0" />
         <PackageReference Include="Elastic.Apm.NetCoreAll" Version="1.22.0" />
-        <PackageReference Include="FastEndpoints" Version="5.14.0" />
-        <PackageReference Include="KunderaNet.FastEndpoints.Authorization" Version="1.0.3" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.9">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

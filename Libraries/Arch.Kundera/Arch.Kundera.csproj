@@ -6,14 +6,9 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
-        <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="7.0.0" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Http" Version="7.0.0" />
-        <PackageReference Include="FastEndpoints" Version="5.14.0" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.9" />
         <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.32.1" />
-        <PackageReference Include="KunderaNet.Services.Authorization.Http" Version="1.0.1" />
+        <PackageReference Include="KunderaNet.Services.Authorization.Http" Version="1.0.2" />
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\..\Core\Core.csproj" />

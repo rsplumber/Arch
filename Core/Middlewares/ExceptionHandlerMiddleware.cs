@@ -2,12 +2,12 @@
 
 namespace Core.Middlewares;
 
-internal sealed class ExceptionHandlerMiddleware : ArchMiddleware
+internal sealed class ExceptionHandlerMiddleware : IMiddleware
 {
     private const string InternalServerErrorMessage = "Whoops :( , somthing impossibly went wrong!";
     private const string ContentType = "application/json; charset=utf-8";
 
-    public override async Task HandleAsync(HttpContext context, RequestDelegate next)
+    public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
         try
         {

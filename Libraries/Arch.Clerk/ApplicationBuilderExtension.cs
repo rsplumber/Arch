@@ -60,7 +60,7 @@ public static class ApplicationBuilderExtension
                     new()
                     {
                         Key = "permissions",
-                        Value = "arch_endpoint_definition_accounting_enable"
+                        Value = "endpoint_definition_accounting_enable"
                     },
                 }
             });
@@ -80,7 +80,7 @@ public static class ApplicationBuilderExtension
                     new()
                     {
                         Key = "permissions",
-                        Value = "arch_endpoint_definition_accounting_disable"
+                        Value = "endpoint_definition_accounting_disable"
                     },
                 }
             });

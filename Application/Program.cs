@@ -68,27 +68,20 @@ app.UseCors(b => b.AllowAnyHeader()
 
 
 app.UseHealthChecks("/health");
-app.Use(async (context, next) =>
-{
-    context.Request.EnableBuffering();
-    await next();
-});
 app.UseData(builder.Configuration);
 app.UseCore(applicationBuilder =>
 {
     applicationBuilder.UseKundera(builder.Configuration);
     applicationBuilder.UseClerkAccounting(builder.Configuration);
-}, applicationBuilder =>
-{
-    applicationBuilder.UseAllElasticApm(builder.Configuration);
-});
+}, applicationBuilder => { applicationBuilder.UseAllElasticApm(builder.Configuration); });
 app.UseInMemoryData(builder.Configuration);
 
 
 app.UseFastEndpoints(config =>
 {
+    config.Endpoints.Configurator = ep => { ep.DontAutoTag(); };
     config.Serializer.Options.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-    config.Endpoints.RoutePrefix = "api";
+    config.Endpoints.RoutePrefix = "gateway/api";
     config.Versioning.Prefix = "v";
     config.Versioning.PrependToRoute = true;
 });

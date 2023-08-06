@@ -14,6 +14,8 @@ public class RequestInfo
 
     public Dictionary<string, string> Headers { get; init; } = new();
 
+    public Dictionary<string, string> AttachedHeaders { get; init; } = new();
+
     public dynamic? Body { get; init; }
 
     public required string? ContentType { get; init; }

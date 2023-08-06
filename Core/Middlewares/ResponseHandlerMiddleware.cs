@@ -1,37 +1,38 @@
 ﻿using System.Text.Json;
-using Core.Middlewares.Exceptions;
+using FastEndpoints;
 using Microsoft.AspNetCore.Http;
 
 namespace Core.Middlewares;
 
-internal sealed class ResponseHandlerMiddleware : ArchMiddleware
+internal sealed class ResponseHandlerMiddleware : IMiddleware
 {
-    public override async Task HandleAsync(HttpContext context, RequestDelegate next)
-    {
-        if (EndpointDefinition is null || RequestInfo is null)
-        {
-            throw new InvalidRequestException();
-        }
+    private const string IgnoreDispatchKey = "ignore_dispatch";
 
+    public async Task InvokeAsync(HttpContext context, RequestDelegate next)
+    {
+        var requestState = context.ProcessorState<RequestState>();
         if (IgnoreDispatch())
         {
             await next(context);
             return;
         }
 
-        if (ResponseInfo is null)
+        if (requestState.ResponseInfo is null)
         {
-            throw new InvalidResponseException();
+            await context.Response.SendOkAsync();
+            return;
         }
 
-        context.Response.ContentType = ResponseInfo.ContentType;
-        context.Response.StatusCode = ResponseInfo.Code;
+        context.Response.ContentType = requestState.ResponseInfo.ContentType;
+        context.Response.StatusCode = requestState.ResponseInfo.Code;
 
         await context.Response.WriteAsync(JsonSerializer.Serialize(new
         {
-            requestId = RequestInfo.RequestId,
-            requestDateUtc = RequestInfo.RequestDateUtc,
-            data = ResponseInfo.Value
+            requestId = requestState.RequestInfo.RequestId,
+            requestDateUtc = requestState.RequestInfo.RequestDateUtc,
+            data = requestState.ResponseInfo.Value
         }));
+
+        bool IgnoreDispatch() => requestState.EndpointDefinition.Meta.TryGetValue(IgnoreDispatchKey, out _);
     }
 }

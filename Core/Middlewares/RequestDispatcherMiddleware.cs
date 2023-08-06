@@ -3,18 +3,17 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Encodings.Web;
 using System.Text.Json;
-using Core.Middlewares.Exceptions;
+using FastEndpoints;
 using Microsoft.AspNetCore.Http;
 
 namespace Core.Middlewares;
 
-internal sealed class RequestDispatcherMiddleware : ArchMiddleware
+internal sealed class RequestDispatcherMiddleware : IMiddleware
 {
-    private readonly IHttpClientFactory _httpClientFactory;
     private const string HttpFactoryName = "arch";
-    private const string UserTokenKey = "uid_token";
     private const string ApplicationJsonMediaType = "application/json";
     private const string ApplicationProblemJsonMediaType = "application/problem+json";
+    private const string IgnoreDispatchKey = "ignore_dispatch";
 
     private static readonly JsonSerializerOptions DefaultSerializerOptions = new()
     {
@@ -22,47 +21,43 @@ internal sealed class RequestDispatcherMiddleware : ArchMiddleware
         Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
     };
 
-    public RequestDispatcherMiddleware(IHttpClientFactory httpClientFactory)
+    public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
-        _httpClientFactory = httpClientFactory;
-    }
-
-    public override async Task HandleAsync(HttpContext context, RequestDelegate next)
-    {
-        if (EndpointDefinition is null || RequestInfo is null)
-        {
-            throw new InvalidRequestException();
-        }
-
-
+        var requestState = context.ProcessorState<RequestState>();
         if (IgnoreDispatch())
         {
             await next(context);
             return;
         }
 
-        var client = _httpClientFactory.CreateClient(HttpFactoryName);
-        foreach (var header in RequestInfo.Headers)
+        var client = context.Resolve<IHttpClientFactory>().CreateClient(HttpFactoryName);
+        foreach (var header in requestState.RequestInfo.Headers)
         {
             client.DefaultRequestHeaders.TryAddWithoutValidation(header.Key, header.Value);
         }
 
-        if (UserIdToken is not null)
+        foreach (var header in requestState.RequestInfo.AttachedHeaders)
         {
-            client.DefaultRequestHeaders.TryAddWithoutValidation(UserTokenKey, UserIdToken);
+            client.DefaultRequestHeaders.TryAddWithoutValidation(header.Key, header.Value);
         }
 
-
-        var message = new HttpRequestMessage(MapToHttpMethod(), ExtractApiUrl());
-        if (RequestInfo.Body is not null)
+        var httpMethod = MapToHttpMethod();
+        if (httpMethod is null)
         {
-            switch (RequestInfo.ContentType)
+            await context.Response.SendAsync("Invalid HttpMethod", 400);
+            return;
+        }
+
+        var message = new HttpRequestMessage(httpMethod, ExtractApiUrl());
+        if (requestState.RequestInfo.Body is not null)
+        {
+            switch (requestState.RequestInfo.ContentType)
             {
                 case RequestInfo.ApplicationJsonContentType:
-                    message.Content = JsonContent.Create(JsonSerializer.Deserialize<object>(RequestInfo.Body));
+                    message.Content = JsonContent.Create(JsonSerializer.Deserialize<object>(requestState.RequestInfo.Body));
                     break;
                 case RequestInfo.MultiPartFormData:
-                    var multiPartFormCollection = (IFormCollection)RequestInfo.Body;
+                    var multiPartFormCollection = (IFormCollection)requestState.RequestInfo.Body;
                     var multipartFormDataContent = new MultipartFormDataContent();
                     foreach (var keyValuePair in multiPartFormCollection)
                     {
@@ -83,14 +78,15 @@ internal sealed class RequestDispatcherMiddleware : ArchMiddleware
                     message.Content = multipartFormDataContent;
                     break;
                 case RequestInfo.UrlEncodedFormDataContentType:
-                    var formCollection = (IFormCollection)RequestInfo.Body;
+                    var formCollection = (IFormCollection)requestState.RequestInfo.Body;
                     message.Content = new FormUrlEncodedContent(formCollection
                         .ToList()
                         .Select(keyValuePair => new KeyValuePair<string, string>(keyValuePair.Key, keyValuePair.Value.ToString()))
                         .ToArray());
                     break;
                 default:
-                    throw new ContentTypeNotSupportedException();
+                    await context.Response.SendAsync("Invalid content type", 400);
+                    return;
             }
         }
 
@@ -109,7 +105,7 @@ internal sealed class RequestDispatcherMiddleware : ArchMiddleware
             response = await httpResponse.Content.ReadAsStringAsync();
         }
 
-        context.Items[ResponseKey] = new ResponseInfo
+        requestState.ResponseInfo = new ResponseInfo
         {
             Code = (int)httpResponse.StatusCode,
             Value = response,
@@ -117,18 +113,13 @@ internal sealed class RequestDispatcherMiddleware : ArchMiddleware
             ContentType = httpResponse.Content.Headers.ContentType?.ToString()
         };
         await next(context);
+        return;
 
-        string ExtractApiUrl()
-        {
-            if (EndpointDefinition.BaseUrl is null)
-            {
-                throw new BaseUrlNotFoundException();
-            }
+        bool IgnoreDispatch() => requestState.EndpointDefinition.Meta.TryGetValue(IgnoreDispatchKey, out _);
 
-            return $"{EndpointDefinition.BaseUrl}/{RequestInfo.Path}{RequestInfo.QueryString}";
-        }
+        string ExtractApiUrl() => $"{requestState.EndpointDefinition.BaseUrl}/{requestState.RequestInfo.Path}{requestState.RequestInfo.QueryString}";
 
-        HttpMethod MapToHttpMethod() => RequestInfo.Method switch
+        HttpMethod? MapToHttpMethod() => requestState.RequestInfo.Method switch
         {
             HttpRequestMethods.Get => HttpMethod.Get,
             HttpRequestMethods.Delete => HttpMethod.Delete,
@@ -137,7 +128,7 @@ internal sealed class RequestDispatcherMiddleware : ArchMiddleware
             HttpRequestMethods.Put => HttpMethod.Put,
             HttpRequestMethods.Head => HttpMethod.Head,
             HttpRequestMethods.Options => HttpMethod.Options,
-            _ => throw new ArgumentOutOfRangeException()
+            _ => null
         };
     }
 }

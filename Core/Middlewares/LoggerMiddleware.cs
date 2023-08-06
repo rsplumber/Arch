@@ -1,44 +1,43 @@
 ﻿using DotNetCore.CAP;
+using FastEndpoints;
 using Logging.Abstractions;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Core.Middlewares;
 
-internal sealed class LoggerMiddleware : ArchMiddleware
+internal sealed class LoggerMiddleware : IMiddleware
 {
-    private readonly IServiceProvider _serviceProvider;
     private const string EventName = "arch.internal.logs";
     private const string LoggingMetaKey = "logging";
     private const string LoggingJustErrorsMetaValue = "error";
 
-    public LoggerMiddleware(IServiceProvider serviceProvider)
-    {
-        _serviceProvider = serviceProvider;
-    }
 
-    public override async Task HandleAsync(HttpContext context, RequestDelegate next)
+    public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
+        var requestState = context.ProcessorState<RequestState>();
         if (LoggingDisabled() || IsJustErrorLogging())
         {
             await next(context);
             return;
         }
 
-        using var serviceScope = _serviceProvider.GetService<IServiceScopeFactory>()?.CreateScope();
-        var publisher = serviceScope!.ServiceProvider.GetRequiredService<ICapPublisher>();
+        var publisher = context.Resolve<ICapPublisher>();
         await publisher.PublishAsync(EventName, new
         {
-            userId = UserId,
-            endpoint = EndpointDefinition,
-            request = RequestInfo,
-            response = ResponseInfo
+            Meta = requestState.Meta,
+            endpoint = requestState.EndpointDefinition,
+            request = requestState.RequestInfo,
+            response = requestState.ResponseInfo
         });
         await next(context);
 
-        bool LoggingDisabled() => GetMeta(LoggingMetaKey) is null;
+        bool LoggingDisabled() => requestState.EndpointDefinition.Meta.TryGetValue(LoggingMetaKey, out _);
 
-        bool IsJustErrorLogging() => GetMeta(LoggingMetaKey) == LoggingJustErrorsMetaValue && ResponseInfo!.Code < 250;
+        bool IsJustErrorLogging()
+        {
+            requestState.EndpointDefinition.Meta.TryGetValue(LoggingMetaKey, out var loggingValue);
+            return loggingValue == LoggingJustErrorsMetaValue && requestState.ResponseInfo!.Code < 250;
+        }
     }
 }
 

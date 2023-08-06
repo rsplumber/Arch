@@ -1,15 +1,15 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Arch.Kundera.Exceptions;
-using Core;
+using Core.Middlewares;
+using FastEndpoints;
 using KunderaNet.Services.Authorization.Abstractions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Arch.Kundera;
 
-internal sealed class KunderaAuthorizationMiddleware : ArchMiddleware
+internal sealed class KunderaAuthorizationMiddleware : IMiddleware
 {
     private const string ServiceSecretMetaKey = "service_secret";
     private const string AllowAnonymousMetaKey = "allow_anonymous";
@@ -20,16 +20,12 @@ internal sealed class KunderaAuthorizationMiddleware : ArchMiddleware
     private const int ForbiddenCode = 403;
     private const int SessionExpiredCode = 440;
     private static readonly JwtSecurityTokenHandler JwtSecurityTokenHandler = new();
-    private readonly IAuthorizeService _authorizeService;
+    private const string UserTokenKey = "user_token";
+    private const string UserIdKey = "user_id";
 
-    public KunderaAuthorizationMiddleware(IAuthorizeService authorizeService)
+    public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
-        _authorizeService = authorizeService;
-    }
-
-
-    public override async Task HandleAsync(HttpContext context, RequestDelegate next)
-    {
+        var requestState = context.ProcessorState<RequestState>();
         if (AllowAnonymous())
         {
             await next(context);
@@ -39,79 +35,83 @@ internal sealed class KunderaAuthorizationMiddleware : ArchMiddleware
         string? tokenValue;
         try
         {
-            tokenValue = RequestInfo!.Headers[AuthorizationHeaderKey];
+            tokenValue = requestState.RequestInfo.Headers[AuthorizationHeaderKey];
         }
         catch (Exception)
         {
-            throw new KunderaUnAuthorizedException();
-        }
-
-        if (tokenValue is null)
-        {
-            throw new KunderaUnAuthorizedException();
+            await context.Response.SendUnauthorizedAsync();
+            return;
         }
 
         var (allowedPermissions, allowedRoles) = AllowedPermissionsAndRoles();
         if (allowedPermissions is null && allowedRoles is null)
         {
-            throw new KunderaUnAuthorizedException();
+            await context.Response.SendUnauthorizedAsync();
+            return;
         }
 
         var serviceSecret = ExtractServiceSecret();
+        if (serviceSecret is null)
+        {
+            await context.Response.SendUnauthorizedAsync();
+            return;
+        }
 
+        var authorizeService = context.Resolve<IAuthorizeService>();
         AuthorizedResponse? authorized;
         int code;
         var headers = GenerateHeaders();
         if (allowedPermissions is not null && allowedRoles is null)
         {
-            (code, authorized) = await _authorizeService.AuthorizePermissionAsync(tokenValue, allowedPermissions, headers);
+            (code, authorized) = await authorizeService.AuthorizePermissionAsync(tokenValue, allowedPermissions, headers);
         }
         else if (allowedRoles is not null && allowedPermissions is null)
         {
-            (code, authorized) = await _authorizeService.AuthorizeRoleAsync(tokenValue, allowedRoles, headers);
+            (code, authorized) = await authorizeService.AuthorizeRoleAsync(tokenValue, allowedRoles, headers);
         }
         else
         {
-            throw new KunderaMultipleAuthorizationTypeException();
+            await context.Response.SendStringAsync("Authorization: Multiple authorization types not supported, only use permissions or roles", 400);
+            return;
         }
 
         switch (code)
         {
             case ForbiddenCode:
-                throw new KunderaForbiddenException();
+                await context.Response.SendStringAsync("Forbidden", ForbiddenCode);
+                return;
             case UnAuthorizedCode:
-                throw new KunderaUnAuthorizedException();
+                await context.Response.SendUnauthorizedAsync();
+                return;
             case SessionExpiredCode:
-                throw new KunderaSessionExpiredException();
+                await context.Response.SendStringAsync("Session expired", SessionExpiredCode);
+                return;
         }
 
         if (authorized is null)
         {
-            throw new KunderaUnAuthorizedException();
+            await context.Response.SendUnauthorizedAsync();
+            return;
         }
 
-        context.Items[UserIdKey] = authorized.UserId;
-        context.Items[UserTokenKey] = GenerateUserToken(serviceSecret);
+        requestState.Meta.Add(UserIdKey, authorized.UserId);
+        requestState.RequestInfo.AttachedHeaders.Add(UserTokenKey, GenerateUserToken(serviceSecret));
 
         await next(context);
+        return;
 
-        bool AllowAnonymous() => GetMeta(AllowAnonymousMetaKey) is not null;
+        bool AllowAnonymous() => requestState.EndpointDefinition.Meta.TryGetValue(AllowAnonymousMetaKey, out _);
 
         (string[]?, string[]?) AllowedPermissionsAndRoles()
         {
-            var permissionMeta = GetMeta(PermissionsMetaKey);
-            var roleMeta = GetMeta(RolesMetaKey);
-            return (permissionMeta?.Split(","), roleMeta?.Split(","));
+            requestState.EndpointDefinition.Meta.TryGetValue(PermissionsMetaKey, out var permission);
+            requestState.EndpointDefinition.Meta.TryGetValue(RolesMetaKey, out var role);
+            return (permission?.Split(","), role?.Split(","));
         }
 
-        string ExtractServiceSecret()
+        string? ExtractServiceSecret()
         {
-            var secret = GetMeta(ServiceSecretMetaKey);
-            if (secret is null)
-            {
-                throw new KunderaServiceSecretNotDefinedException();
-            }
-
+            requestState.EndpointDefinition.Meta.TryGetValue(ServiceSecretMetaKey, out var secret);
             return secret;
         }
 

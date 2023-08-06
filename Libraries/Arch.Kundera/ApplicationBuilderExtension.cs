@@ -117,7 +117,7 @@ public static class ApplicationBuilderExtension
                     new()
                     {
                         Key = "permissions",
-                        Value = "arch_endpoint_definition_add_permission"
+                        Value = "endpoint_definition_add_permission"
                     },
                 }
             });
@@ -136,7 +136,7 @@ public static class ApplicationBuilderExtension
                     new()
                     {
                         Key = "permissions",
-                        Value = "arch_endpoint_definition_allow_anonymous"
+                        Value = "endpoint_definition_allow_anonymous"
                     },
                 }
             });

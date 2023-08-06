@@ -57,7 +57,7 @@ public static class ApplicationBuilderExtension
                         new()
                         {
                             Key = "permissions",
-                            Value = "arch_details_endpoint_definition"
+                            Value = "details_endpoint_definition"
                         },
                     }
                 });
@@ -76,7 +76,7 @@ public static class ApplicationBuilderExtension
                         new()
                         {
                             Key = "permissions",
-                            Value = "arch_enable_endpoint_definition"
+                            Value = "enable_endpoint_definition"
                         },
                     }
                 });
@@ -95,7 +95,7 @@ public static class ApplicationBuilderExtension
                         new()
                         {
                             Key = "permissions",
-                            Value = "arch_disable_endpoint_definition"
+                            Value = "disable_endpoint_definition"
                         },
                     }
                 });
@@ -114,7 +114,7 @@ public static class ApplicationBuilderExtension
                         new()
                         {
                             Key = "permissions",
-                            Value = "arch_delete_endpoint_definition"
+                            Value = "delete_endpoint_definition"
                         },
                     }
                 });
@@ -133,7 +133,7 @@ public static class ApplicationBuilderExtension
                         new()
                         {
                             Key = "permissions",
-                            Value = "arch_update_endpoint_definition"
+                            Value = "update_endpoint_definition"
                         },
                     }
                 });
@@ -152,7 +152,7 @@ public static class ApplicationBuilderExtension
                         new()
                         {
                             Key = "permissions",
-                            Value = "arch_required-meta_endpoint_definition"
+                            Value = "required-meta_endpoint_definition"
                         },
                     }
                 });
@@ -171,7 +171,7 @@ public static class ApplicationBuilderExtension
                         new()
                         {
                             Key = "permissions",
-                            Value = "arch_create_service_config"
+                            Value = "create_service_config"
                         }
                     }
                 });
@@ -190,7 +190,7 @@ public static class ApplicationBuilderExtension
                         new()
                         {
                             Key = "permissions",
-                            Value = "arch_required-meta_service_config"
+                            Value = "required-meta_service_config"
                         },
                     }
                 });
@@ -209,7 +209,7 @@ public static class ApplicationBuilderExtension
                         new()
                         {
                             Key = "permissions",
-                            Value = "arch_list_service_config"
+                            Value = "list_service_config"
                         },
                     }
                 });
@@ -228,7 +228,7 @@ public static class ApplicationBuilderExtension
                         new()
                         {
                             Key = "permissions",
-                            Value = "arch_delete_service_config"
+                            Value = "delete_service_config"
                         },
                     }
                 });
@@ -247,7 +247,7 @@ public static class ApplicationBuilderExtension
                         new()
                         {
                             Key = "permissions",
-                            Value = "arch_details_service_config"
+                            Value = "details_service_config"
                         },
                     }
                 });
@@ -266,7 +266,7 @@ public static class ApplicationBuilderExtension
                         new()
                         {
                             Key = "permissions",
-                            Value = "arch_update_service_config"
+                            Value = "update_service_config"
                         },
                     }
                 });
@@ -285,7 +285,7 @@ public static class ApplicationBuilderExtension
                         new()
                         {
                             Key = "permissions",
-                            Value = "arch_create_endpoint_definition"
+                            Value = "create_endpoint_definition"
                         },
                     }
                 });
@@ -304,7 +304,7 @@ public static class ApplicationBuilderExtension
                         new()
                         {
                             Key = "permissions",
-                            Value = "arch_list_endpoint_definition"
+                            Value = "list_endpoint_definition"
                         },
                     }
                 });
