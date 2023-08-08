@@ -1,16 +1,15 @@
-using Core.Containers;
-using Core.Entities.EndpointDefinitions.Events;
-using Core.Entities.ServiceConfigs;
+using Core.EndpointDefinitions.Events;
+using Core.ServiceConfigs;
 using DotNetCore.CAP;
 
 namespace Data.InMemory;
 
-public class EndpointDefinitionEventHandlers : ICapSubscribe
+internal sealed class EndpointDefinitionEventHandlers : ICapSubscribe
 {
     private readonly IServiceConfigRepository _serviceConfigRepository;
-    private readonly IContainerInitializer _containerInitializer;
+    private readonly InMemoryContainerInitializer _containerInitializer;
 
-    public EndpointDefinitionEventHandlers(IServiceConfigRepository serviceConfigRepository, IContainerInitializer containerInitializer)
+    public EndpointDefinitionEventHandlers(IServiceConfigRepository serviceConfigRepository, InMemoryContainerInitializer containerInitializer)
     {
         _serviceConfigRepository = serviceConfigRepository;
         _containerInitializer = containerInitializer;

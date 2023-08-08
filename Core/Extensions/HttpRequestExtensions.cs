@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Core.Pipeline;
 using Microsoft.AspNetCore.Http;
 using static System.Net.Http.HttpMethod;
 
@@ -49,7 +50,7 @@ public static class HttpRequestExtensions
     public static string? ContentType(this HttpRequest request)
     {
         if (!request.HasBody()) return null;
-        if (request.ContentType == RequestInfo.ApplicationJsonContentType)
+        if (request.ContentType is not null && request.ContentType.StartsWith(RequestInfo.ApplicationJsonContentType))
         {
             return RequestInfo.ApplicationJsonContentType;
         }

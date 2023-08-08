@@ -1,4 +1,4 @@
-using Core.Entities.EndpointDefinitions;
+using Core.EndpointDefinitions;
 using FastEndpoints;
 using FluentValidation;
 

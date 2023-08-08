@@ -15,12 +15,13 @@
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.4" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\Core\Core.csproj" />
       <ProjectReference Include="..\Data.InMemory\Data.InMemory.csproj" />
-      <ProjectReference Include="..\Data.Sql\Data.Sql.csproj" />
+      <ProjectReference Include="..\Data.EFCore\Data.EFCore.csproj" />
       <ProjectReference Include="..\EndpointGraph.InMemory\EndpointGraph.InMemory.csproj" />
       <ProjectReference Include="..\Libraries\Arch.Clerk\Arch.Clerk.csproj" />
       <ProjectReference Include="..\Libraries\Arch.Kundera\Arch.Kundera.csproj" />

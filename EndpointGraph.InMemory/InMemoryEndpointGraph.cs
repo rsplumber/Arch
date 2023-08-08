@@ -1,4 +1,4 @@
-﻿using Core;
+﻿using Core.EndpointDefinitions;
 
 namespace EndpointGraph.InMemory;
 
@@ -22,7 +22,7 @@ internal sealed class InMemoryEndpointGraph : IEndpointGraph
         return ValueTask.FromResult(_patternTree.Find(url));
     }
 
-    public ValueTask ClearAsync()
+    public ValueTask ClearAsync(CancellationToken cancellationToken = default)
     {
         _patternTree = EndpointNode.CreateRoot();
         return ValueTask.CompletedTask;

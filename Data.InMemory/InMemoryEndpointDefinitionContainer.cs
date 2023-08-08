@@ -1,6 +1,5 @@
 ﻿using System.Collections.Concurrent;
-using Core.Containers;
-using Core.Entities.EndpointDefinitions;
+using Core.EndpointDefinitions;
 
 namespace Data.InMemory;
 
@@ -31,15 +30,10 @@ internal sealed class InMemoryEndpointDefinitionContainer : IEndpointDefinitionC
         return ValueTask.FromResult(value);
     }
 
-    public ContainerEndpointDefinition? Get(DefinitionKey key)
-    {
-        EndpointDefinitions.TryGetValue(key, out var definition);
-        return definition;
-    }
-
-    public void Clear()
+    public ValueTask ClearAsync(CancellationToken cancellationToken = default)
     {
         EndpointDefinitions.Clear();
+        return ValueTask.CompletedTask;
     }
 
     public ValueTask RemoveAsync(DefinitionKey key, CancellationToken cancellationToken = default)

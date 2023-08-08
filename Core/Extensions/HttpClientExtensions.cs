@@ -1,12 +1,13 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using Core.Pipeline;
 using Microsoft.AspNetCore.Http;
 
 namespace Core.Extensions;
 
 public static class HttpClientExtensions
 {
-    public static async ValueTask<HttpResponseMessage> SendAsync(this HttpClient client, HttpMethod method, string url, HttpRequest request)
+    public static async ValueTask<HttpResponseMessage?> SendAsync(this HttpClient client, HttpMethod method, string url, HttpRequest request)
     {
         var disposableObjects = new List<IDisposable>();
         var httpRequest = new HttpRequestMessage(method, url);
@@ -15,7 +16,7 @@ public static class HttpClientExtensions
         switch (request.ContentType())
         {
             case RequestInfo.ApplicationJsonContentType:
-                httpRequest.Content = JsonContent.Create(await request.ReadAsFormAsync());
+                httpRequest.Content = JsonContent.Create(await request.ReadAsJsonAsync());
                 break;
             case RequestInfo.MultiPartFormData:
             {
@@ -53,9 +54,18 @@ public static class HttpClientExtensions
             }
         }
 
-        var response = await client.SendAsync(httpRequest).ConfigureAwait(false);
+        HttpResponseMessage? httpResponseMessage = null;
+        try
+        {
+            httpResponseMessage = await client.SendAsync(httpRequest).ConfigureAwait(false);
+        }
+        catch (Exception)
+        {
+            return httpResponseMessage;
+        }
+
         disposableObjects.ForEach(disposable => disposable.Dispose());
         disposableObjects.Clear();
-        return response;
+        return httpResponseMessage;
     }
 }

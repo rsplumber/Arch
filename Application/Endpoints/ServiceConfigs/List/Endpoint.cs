@@ -1,3 +1,4 @@
+using Data.EFCore;
 using Data.Sql;
 using FastEndpoints;
 using Microsoft.EntityFrameworkCore;

@@ -1,10 +1,10 @@
 ﻿using Core;
-using Core.Containers;
-using Core.Entities.ServiceConfigs;
+using Core.EndpointDefinitions;
+using Core.ServiceConfigs;
 
 namespace Data.InMemory;
 
-internal sealed class InMemoryContainerInitializer : IContainerInitializer
+internal sealed class InMemoryContainerInitializer
 {
     private readonly IEndpointGraph _endpointPatternTree;
     private readonly IEndpointDefinitionContainer _endpointDefinitionContainer;
@@ -17,8 +17,8 @@ internal sealed class InMemoryContainerInitializer : IContainerInitializer
 
     public async Task InitializeAsync(List<ServiceConfig> serviceConfigs, CancellationToken cancellationToken = default)
     {
-        _endpointPatternTree.ClearAsync();
-        _endpointDefinitionContainer.Clear();
+        await _endpointPatternTree.ClearAsync(cancellationToken);
+        await _endpointDefinitionContainer.ClearAsync(cancellationToken);
         foreach (var config in serviceConfigs)
         {
             foreach (var definition in config.EndpointDefinitions.Where(definition => !definition.IsDisabled()))

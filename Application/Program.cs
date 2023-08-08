@@ -1,18 +1,18 @@
 using System.Text.Json;
 using Arch.Clerk;
 using Arch.Kundera;
-using Core;
-using Core.Containers;
-using Core.Containers.Resolvers;
-using Core.Entities.EndpointDefinitions;
-using Core.Entities.EndpointDefinitions.Services;
-using Core.Entities.ServiceConfigs.Services;
+using Core.EndpointDefinitions;
+using Core.EndpointDefinitions.Resolvers;
+using Core.EndpointDefinitions.Services;
+using Core.Extensions;
+using Core.ServiceConfigs.Services;
+using Data.EFCore;
 using Data.InMemory;
-using Data.Sql;
 using Elastic.Apm.NetCoreAll;
 using EndpointGraph.InMemory;
 using FastEndpoints;
 using Logging.Logstash;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseKestrel(options => { options.Limits.MaxRequestBodySize = 50_000_000; });
@@ -58,7 +58,7 @@ builder.Services.AddCap(options =>
     });
 });
 
-builder.Services.AddData(builder.Configuration);
+builder.Services.AddData(optionsBuilder => { optionsBuilder.UseNpgsql(builder.Configuration.GetConnectionString("Default")); });
 builder.Services.AddInMemoryDataContainers();
 builder.Services.AddInMemoryEndpointGraph();
 
@@ -77,8 +77,11 @@ app.UseCore(applicationBuilder =>
 {
     applicationBuilder.UseKundera(builder.Configuration);
     applicationBuilder.UseClerkAccounting(builder.Configuration);
-}, applicationBuilder => { applicationBuilder.UseAllElasticApm(builder.Configuration); });
-app.UseInMemoryData(builder.Configuration);
+}, applicationBuilder =>
+{
+    applicationBuilder.UseAllElasticApm(builder.Configuration);
+});
+app.UseInMemoryData();
 
 app.Use(async (context, next) =>
 {
@@ -92,6 +95,5 @@ app.UseFastEndpoints(config =>
     config.Versioning.Prefix = "v";
     config.Versioning.PrependToRoute = true;
 });
-
 
 await app.RunAsync();

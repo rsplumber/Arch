@@ -1,4 +1,4 @@
-﻿using Core;
+﻿using Core.EndpointDefinitions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 

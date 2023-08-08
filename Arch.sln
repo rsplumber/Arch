@@ -4,7 +4,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "Application\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "Core\Core.csproj", "{C440D5B8-D39C-450E-875B-A0D6C0B819F0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Data.Sql", "Data.Sql\Data.Sql.csproj", "{510C580C-2435-42F4-951F-914965479C17}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Data.EFCore", "Data.EFCore\Data.EFCore.csproj", "{510C580C-2435-42F4-951F-914965479C17}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libraries", "Libraries", "{09022F85-BC06-499D-BA5E-24735BD5F9BB}"
 EndProject
@@ -27,7 +27,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logging.Logstash", "Librari
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logging.Abstractions", "Libraries\Logging\Logging.Abstractions\Logging.Abstractions.csproj", "{B346637F-2355-4140-BCD4-F69EDA83B0FE}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "EndpointGraphs", "EndpointGraphs", "{798D188F-7B32-4816-8BDE-89DDF62D593A}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Endpoints.Graphs", "Endpoints.Graphs", "{798D188F-7B32-4816-8BDE-89DDF62D593A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EndpointGraph.InMemory", "EndpointGraph.InMemory\EndpointGraph.InMemory.csproj", "{1ADDC986-3F24-486A-9D97-EDC0B8EA095F}"
 EndProject

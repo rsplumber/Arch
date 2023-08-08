@@ -1,7 +1,7 @@
-﻿using Core.Entities.EndpointDefinitions;
-using Core.Entities.Metas;
-using Core.Entities.ServiceConfigs;
-using Data.Sql;
+﻿using Core.EndpointDefinitions;
+using Core.Metas;
+using Core.ServiceConfigs;
+using Data.EFCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;

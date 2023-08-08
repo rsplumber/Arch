@@ -1,15 +1,13 @@
-﻿using Core.Containers;
-using Data.Sql;
+﻿using Data.EFCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Data.InMemory;
 
 public static class ApplicationBuilderExtension
 {
-    public static void UseInMemoryData(this IApplicationBuilder app, IConfiguration configuration)
+    public static void UseInMemoryData(this IApplicationBuilder app)
     {
         using var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>()?.CreateScope();
         var dbContext = serviceScope!.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -19,7 +17,7 @@ public static class ApplicationBuilderExtension
             .ThenInclude(definition => definition.Meta)
             .ToList();
 
-        var containerInitializer = serviceScope.ServiceProvider.GetRequiredService<IContainerInitializer>();
+        var containerInitializer = serviceScope.ServiceProvider.GetRequiredService<InMemoryContainerInitializer>();
         containerInitializer.InitializeAsync(configs).Wait();
     }
 }

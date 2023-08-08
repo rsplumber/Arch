@@ -1,4 +1,5 @@
-using Core.Entities.ServiceConfigs.Exceptions;
+using Core.ServiceConfigs.Exceptions;
+using Data.EFCore;
 using Data.Sql;
 using FastEndpoints;
 using FluentValidation;

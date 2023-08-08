@@ -1,4 +1,4 @@
-using Core.Entities.ServiceConfigs.Services;
+using Core.ServiceConfigs.Services;
 using FastEndpoints;
 using FluentValidation;
 
