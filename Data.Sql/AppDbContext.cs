@@ -20,6 +20,8 @@ public class AppDbContext : DbContext
 
     public DbSet<EndpointDefinition> EndpointDefinitions { get; set; }
 
+    public DbSet<Meta> Metas { get; set; }
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.ApplyConfiguration(new ServiceConfigEntityTypeConfiguration());
@@ -102,6 +104,7 @@ public class AppDbContext : DbContext
 
             builder.Property(definition => definition.Method)
                 .UsePropertyAccessMode(PropertyAccessMode.Property)
+                .HasConversion(method => method.ToString(), s => new HttpMethod(s))
                 .HasColumnName("method");
 
             builder.HasIndex(definition => definition.Pattern);

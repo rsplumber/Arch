@@ -8,11 +8,11 @@ namespace Core.Entities.EndpointDefinitions.Services;
 
 public sealed class EndpointDefinitionService : IEndpointDefinitionService
 {
-    private readonly IEndpointPatternTree _endpointPatternTree;
+    private readonly IEndpointGraph _endpointPatternTree;
     private readonly IServiceConfigRepository _serviceConfigRepository;
     private readonly IEndpointDefinitionRepository _endpointDefinitionRepository;
 
-    public EndpointDefinitionService(IEndpointPatternTree endpointPatternTree, IServiceConfigRepository serviceConfigRepository, IEndpointDefinitionRepository endpointDefinitionRepository)
+    public EndpointDefinitionService(IEndpointGraph endpointPatternTree, IServiceConfigRepository serviceConfigRepository, IEndpointDefinitionRepository endpointDefinitionRepository)
     {
         _endpointPatternTree = endpointPatternTree;
         _serviceConfigRepository = serviceConfigRepository;
@@ -34,13 +34,13 @@ public sealed class EndpointDefinitionService : IEndpointDefinitionService
 
         var sanitizedEndpoint = SanitizedEndpoint();
         await _endpointPatternTree.AddAsync(sanitizedEndpoint, cancellationToken);
-        var (endpointPattern, endpointParams) = await _endpointPatternTree.FindAsync(request.Endpoint, cancellationToken);
+        var (endpointPattern, _) = await _endpointPatternTree.FindAsync(request.Endpoint, cancellationToken);
 
         var endpointDefinition = new EndpointDefinition
         {
             Pattern = endpointPattern,
             Endpoint = sanitizedEndpoint,
-            Method = request.Method.ToLower(),
+            Method = request.Method,
             MapTo = request.MapTo
         };
 

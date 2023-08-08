@@ -8,17 +8,11 @@ public class RequestInfo
 
     public Guid RequestId { get; } = Guid.NewGuid();
 
-    public required string Method { get; init; }
+    public required HttpMethod Method { get; init; }
 
     public required string Path { get; init; }
 
-    public Dictionary<string, string> Headers { get; init; } = new();
-
-    public Dictionary<string, string> AttachedHeaders { get; init; } = new();
-
-    public dynamic? Body { get; init; }
-
-    public required string? ContentType { get; init; }
+    public Dictionary<string, string> AttachedHeaders { get; } = new();
 
     public string? QueryString { get; init; }
 

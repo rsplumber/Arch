@@ -1,14 +1,15 @@
-﻿using Core.Containers;
+﻿using Core;
+using Core.Containers;
 using Core.Entities.ServiceConfigs;
 
 namespace Data.InMemory;
 
 internal sealed class InMemoryContainerInitializer : IContainerInitializer
 {
-    private readonly IEndpointPatternTree _endpointPatternTree;
+    private readonly IEndpointGraph _endpointPatternTree;
     private readonly IEndpointDefinitionContainer _endpointDefinitionContainer;
 
-    public InMemoryContainerInitializer(IEndpointPatternTree endpointPatternTree, IEndpointDefinitionContainer endpointDefinitionContainer)
+    public InMemoryContainerInitializer(IEndpointGraph endpointPatternTree, IEndpointDefinitionContainer endpointDefinitionContainer)
     {
         _endpointPatternTree = endpointPatternTree;
         _endpointDefinitionContainer = endpointDefinitionContainer;
@@ -16,11 +17,11 @@ internal sealed class InMemoryContainerInitializer : IContainerInitializer
 
     public async Task InitializeAsync(List<ServiceConfig> serviceConfigs, CancellationToken cancellationToken = default)
     {
-        _endpointPatternTree.Clear();
+        _endpointPatternTree.ClearAsync();
         _endpointDefinitionContainer.Clear();
         foreach (var config in serviceConfigs)
         {
-            foreach (var definition in config.EndpointDefinitions)
+            foreach (var definition in config.EndpointDefinitions.Where(definition => !definition.IsDisabled()))
             {
                 definition.Meta.AddRange(config.Meta);
                 await _endpointPatternTree.AddAsync(definition.Endpoint, cancellationToken);

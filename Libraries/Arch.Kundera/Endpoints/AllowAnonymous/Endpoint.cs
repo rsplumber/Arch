@@ -1,3 +1,4 @@
+using Core.Entities.EndpointDefinitions;
 using Core.Entities.EndpointDefinitions.Exceptions;
 using Core.Entities.EndpointDefinitions.Services;
 using Data.Sql;

@@ -1,6 +1,7 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Core.Extensions;
 using Core.Middlewares;
 using FastEndpoints;
 using KunderaNet.Services.Authorization.Abstractions;
@@ -35,7 +36,7 @@ internal sealed class KunderaAuthorizationMiddleware : IMiddleware
         string? tokenValue;
         try
         {
-            tokenValue = requestState.RequestInfo.Headers[AuthorizationHeaderKey];
+            tokenValue = context.Request.Headers()[AuthorizationHeaderKey];
         }
         catch (Exception)
         {

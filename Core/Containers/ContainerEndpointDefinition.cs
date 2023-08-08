@@ -1,4 +1,6 @@
-﻿namespace Core.Containers;
+﻿using System.Globalization;
+
+namespace Core.Containers;
 
 public sealed record ContainerEndpointDefinition : IComparable<ContainerEndpointDefinition>
 {
@@ -12,7 +14,7 @@ public sealed record ContainerEndpointDefinition : IComparable<ContainerEndpoint
 
     public required string MapTo { get; init; } = default!;
 
-    public required string Method { get; init; } = default!;
+    public required HttpMethod Method { get; init; } = default!;
 
     public required Dictionary<string, string> Meta { get; init; } = new();
 
@@ -42,4 +44,6 @@ public sealed record ContainerEndpointDefinition : IComparable<ContainerEndpoint
     {
         return $"Pattern: {Pattern}, Method: {Method}";
     }
+
+    public string GenerateRequestPath(object[] pathParameters) => string.Format(CultureInfo.CurrentCulture, MapTo, pathParameters);
 }

@@ -1,8 +1,6 @@
-using Core.Entities.EndpointDefinitions.Exceptions;
+namespace EndpointGraph.InMemory;
 
-namespace Core.Entities.EndpointDefinitions;
-
-public sealed class EndpointNode
+internal sealed class EndpointNode
 {
     private readonly string _item;
     private readonly Dictionary<string, EndpointNode> _children = new();
@@ -21,12 +19,6 @@ public sealed class EndpointNode
     private EndpointNode(string item)
     {
         _item = item;
-    }
-
-    public async ValueTask AppendAsync(string url, CancellationToken cancellationToken = new())
-    {
-        var currentNode = this;
-        await Task.Run(() => currentNode.Append(url), cancellationToken);
     }
 
     public void Append(string url)
@@ -56,30 +48,13 @@ public sealed class EndpointNode
         node._end = true;
     }
 
-    public (string, object[]) Find(string url)
+    public (string?, object[]) Find(string url)
     {
         var (pattern, urlParams) = FindEnumerable(url);
-        return (string.Join("/", pattern), urlParams.ToArray());
+        return pattern is null ? (null, urlParams.ToArray()) : (string.Join("/", pattern), urlParams.ToArray());
     }
 
-    public async ValueTask<(string, object[])> FindAsync(string url, CancellationToken cancellationToken = new())
-    {
-        var (pattern, urlParams) = await FindEnumerableAsync(url, cancellationToken);
-
-        return (string.Join("/", pattern), urlParams.ToArray());
-    }
-
-    private async ValueTask<(List<string>, List<object>)> FindEnumerableAsync(string url, CancellationToken cancellationToken)
-    {
-        var currentNode = this;
-        return await Task.Run(() =>
-        {
-            var (pattern, urlParams) = currentNode.FindEnumerable(url);
-            return (pattern, urlParams);
-        }, cancellationToken);
-    }
-
-    private (List<string>, List<object>) FindEnumerable(string url)
+    private (List<string>?, List<object>) FindEnumerable(string url)
     {
         using var urlArray = url.Split(UrlSplitter)
             .Where(s => !string.IsNullOrEmpty(s))
@@ -99,14 +74,19 @@ public sealed class EndpointNode
             {
                 if (!node._children.TryGetValue(PathParameterKey, out var pathValue) && !node._end)
                 {
-                    throw new NodePathNotFoundException();
+                    return (null, urlParams);
                 }
 
                 urlParams.Add(urlArray.Current);
                 value = pathValue;
             }
 
-            node = value ?? throw new NodePathNotFoundException();
+            if (value is null)
+            {
+                return (null, urlParams);
+            }
+
+            node = value;
             urlPattern.Add(node._item);
         }
 

@@ -1,17 +1,14 @@
-﻿using System.Text.Json;
-using FastEndpoints;
+﻿using FastEndpoints;
 using Microsoft.AspNetCore.Http;
 
 namespace Core.Middlewares;
 
 internal sealed class ResponseHandlerMiddleware : IMiddleware
 {
-    private const string IgnoreDispatchKey = "ignore_dispatch";
-
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
         var requestState = context.ProcessorState<RequestState>();
-        if (IgnoreDispatch())
+        if (requestState.IgnoreDispatch())
         {
             await next(context);
             return;
@@ -19,20 +16,19 @@ internal sealed class ResponseHandlerMiddleware : IMiddleware
 
         if (requestState.ResponseInfo is null)
         {
-            await context.Response.SendOkAsync();
+            await context.Response.SendStringAsync(string.Empty, 400);
+            await next(context);
             return;
         }
 
         context.Response.ContentType = requestState.ResponseInfo.ContentType;
         context.Response.StatusCode = requestState.ResponseInfo.Code;
-
-        await context.Response.WriteAsync(JsonSerializer.Serialize(new
+        await context.Response.SendAsync(new
         {
             requestId = requestState.RequestInfo.RequestId,
             requestDateUtc = requestState.RequestInfo.RequestDateUtc,
             data = requestState.ResponseInfo.Value
-        }));
-
-        bool IgnoreDispatch() => requestState.EndpointDefinition.Meta.TryGetValue(IgnoreDispatchKey, out _);
+        });
+        await next(context);
     }
 }

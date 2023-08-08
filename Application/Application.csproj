@@ -21,6 +21,7 @@
       <ProjectReference Include="..\Core\Core.csproj" />
       <ProjectReference Include="..\Data.InMemory\Data.InMemory.csproj" />
       <ProjectReference Include="..\Data.Sql\Data.Sql.csproj" />
+      <ProjectReference Include="..\EndpointGraph.InMemory\EndpointGraph.InMemory.csproj" />
       <ProjectReference Include="..\Libraries\Arch.Clerk\Arch.Clerk.csproj" />
       <ProjectReference Include="..\Libraries\Arch.Kundera\Arch.Kundera.csproj" />
       <ProjectReference Include="..\Libraries\Logging\Logging.Logstash\Logging.Logstash.csproj" />

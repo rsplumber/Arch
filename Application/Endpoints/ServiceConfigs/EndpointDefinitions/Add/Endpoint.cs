@@ -1,4 +1,4 @@
-using Core.Entities.EndpointDefinitions.Services;
+using Core.Entities.EndpointDefinitions;
 using FastEndpoints;
 using FluentValidation;
 
@@ -25,7 +25,7 @@ internal sealed class Endpoint : Endpoint<Request>
         await _endpointDefinitionService.AddAsync(new AddEndpointDefinitionRequest
         {
             Endpoint = req.Endpoint,
-            Method = req.Method,
+            Method = new HttpMethod(req.Method),
             Meta = req.Meta,
             ServiceConfigId = req.Id,
             MapTo = req.MapTo

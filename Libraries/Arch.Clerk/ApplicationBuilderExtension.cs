@@ -1,5 +1,4 @@
-﻿using Core;
-using Core.Entities.EndpointDefinitions;
+﻿using Core.Entities.EndpointDefinitions;
 using Core.Entities.Metas;
 using Core.Entities.ServiceConfigs;
 using Data.Sql;
@@ -26,6 +25,7 @@ public static class ApplicationBuilderExtension
             .FirstOrDefault(config => config.Name == "clerk");
         if (currentConfig is not null)
         {
+            dbContext.Metas.RemoveRange(currentConfig.Meta);
             dbContext.ServiceConfigs.Remove(currentConfig);
             dbContext.SaveChanges();
         }
@@ -54,7 +54,7 @@ public static class ApplicationBuilderExtension
                 Endpoint = "gateway/api/v1/endpoint-definitions/{id}/accounting/enable",
                 Pattern = "gateway/api/v1/endpoint-definitions/##/accounting/enable",
                 MapTo = "gateway/api/v1/endpoint-definitions/{0}/accounting/enable",
-                Method = HttpRequestMethods.Post,
+                Method = HttpMethod.Post,
                 Meta = new List<Meta>
                 {
                     new()
@@ -74,7 +74,7 @@ public static class ApplicationBuilderExtension
                 Endpoint = "gateway/api/v1/endpoint-definitions/{id}/accounting/disable",
                 Pattern = "gateway/api/v1/endpoint-definitions/##/accounting/disable",
                 MapTo = "gateway/api/v1/endpoint-definitions/{0}/accounting/disable",
-                Method = HttpRequestMethods.Post,
+                Method = HttpMethod.Post,
                 Meta = new List<Meta>
                 {
                     new()

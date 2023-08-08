@@ -1,5 +1,4 @@
-﻿using Core;
-using Core.Entities.EndpointDefinitions;
+﻿using Core.Entities.EndpointDefinitions;
 using Core.Entities.Metas;
 using Core.Entities.ServiceConfigs;
 using Data.Sql;
@@ -18,7 +17,6 @@ public static class ApplicationBuilderExtension
 
         using var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>()?.CreateScope();
         var dbContext = serviceScope!.ServiceProvider.GetRequiredService<AppDbContext>();
-
         var currentConfig = dbContext.ServiceConfigs
             .Include(config => config.EndpointDefinitions)
             .ThenInclude(definition => definition.Meta)
@@ -26,6 +24,7 @@ public static class ApplicationBuilderExtension
             .FirstOrDefault(config => config.Name == "kundera");
         if (currentConfig is not null)
         {
+            dbContext.Metas.RemoveRange(currentConfig.Meta);
             dbContext.ServiceConfigs.Remove(currentConfig);
             dbContext.SaveChanges();
         }
@@ -58,7 +57,7 @@ public static class ApplicationBuilderExtension
             Endpoint = "api/v1/authenticate",
             Pattern = "api/v1/authenticate",
             MapTo = "api/v1/authenticate",
-            Method = HttpRequestMethods.Post,
+            Method = HttpMethod.Post,
             Meta = new List<Meta>
             {
                 new()
@@ -73,7 +72,7 @@ public static class ApplicationBuilderExtension
             Endpoint = "api/v1/authenticate/refresh",
             Pattern = "api/v1/authenticate/refresh",
             MapTo = "api/v1/authenticate/refresh",
-            Method = HttpRequestMethods.Post,
+            Method = HttpMethod.Post,
             Meta = new List<Meta>
             {
                 new()
@@ -111,7 +110,7 @@ public static class ApplicationBuilderExtension
                 Endpoint = "gateway/api/v1/endpoint-definitions/{id}/security/permissions",
                 Pattern = "gateway/api/v1/endpoint-definitions/##/security/permissions",
                 MapTo = "gateway/api/v1/endpoint-definitions/{0}/security/permissions",
-                Method = HttpRequestMethods.Post,
+                Method = HttpMethod.Post,
                 Meta = new List<Meta>
                 {
                     new()
@@ -130,7 +129,7 @@ public static class ApplicationBuilderExtension
                 Endpoint = "gateway/api/v1/endpoint-definitions/{id}/security/allow-anonymous",
                 Pattern = "gateway/api/v1/endpoint-definitions/##/security/allow-anonymous",
                 MapTo = "gateway/api/v1/endpoint-definitions/{0}/security/allow-anonymous",
-                Method = HttpRequestMethods.Post,
+                Method = HttpMethod.Post,
                 Meta = new List<Meta>
                 {
                     new()

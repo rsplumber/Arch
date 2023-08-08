@@ -5,19 +5,19 @@ public sealed record DefinitionKey
     private const string Separator = "$__$";
 
 
-    private DefinitionKey(string pattern, string method)
+    private DefinitionKey(string pattern, HttpMethod method)
     {
         Pattern = pattern;
-        Method = method;
+        Method = method.ToString();
         Value = $"{Pattern}{Separator}{method}";
     }
 
-    public static DefinitionKey From(string pattern, string method) => new(pattern, method);
+    public static DefinitionKey From(string pattern, HttpMethod method) => new(pattern, method);
 
     public static DefinitionKey? Parse(string key)
     {
         var split = key.Split(Separator);
-        return split.Length != 2 ? null : From(split[0], split[1]);
+        return split.Length != 2 ? null : From(split[0], new HttpMethod(split[1]));
     }
 
     public string Value { get; }

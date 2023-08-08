@@ -2,12 +2,15 @@ using System.Text.Json;
 using Arch.Clerk;
 using Arch.Kundera;
 using Core;
+using Core.Containers;
 using Core.Containers.Resolvers;
+using Core.Entities.EndpointDefinitions;
 using Core.Entities.EndpointDefinitions.Services;
 using Core.Entities.ServiceConfigs.Services;
 using Data.InMemory;
 using Data.Sql;
 using Elastic.Apm.NetCoreAll;
+using EndpointGraph.InMemory;
 using FastEndpoints;
 using Logging.Logstash;
 
@@ -57,6 +60,7 @@ builder.Services.AddCap(options =>
 
 builder.Services.AddData(builder.Configuration);
 builder.Services.AddInMemoryDataContainers();
+builder.Services.AddInMemoryEndpointGraph();
 
 builder.Services.AddFastEndpoints();
 var app = builder.Build();
@@ -76,10 +80,13 @@ app.UseCore(applicationBuilder =>
 }, applicationBuilder => { applicationBuilder.UseAllElasticApm(builder.Configuration); });
 app.UseInMemoryData(builder.Configuration);
 
-
+app.Use(async (context, next) =>
+{
+    context.Request.EnableBuffering();
+    await next();
+});
 app.UseFastEndpoints(config =>
 {
-    config.Endpoints.Configurator = ep => { ep.DontAutoTag(); };
     config.Serializer.Options.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
     config.Endpoints.RoutePrefix = "gateway/api";
     config.Versioning.Prefix = "v";

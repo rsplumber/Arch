@@ -1,5 +1,4 @@
-﻿using Core;
-using Core.Entities.EndpointDefinitions;
+﻿using Core.Entities.EndpointDefinitions;
 using Core.Entities.Metas;
 using Core.Entities.ServiceConfigs;
 using Microsoft.AspNetCore.Builder;
@@ -17,6 +16,7 @@ public static class ApplicationBuilderExtension
         var dbContext = serviceScope!.ServiceProvider.GetRequiredService<AppDbContext>();
         dbContext.Database.Migrate();
         SeedData();
+        return;
 
         void SeedData()
         {
@@ -44,14 +44,14 @@ public static class ApplicationBuilderExtension
                 .ThenInclude(definition => definition.Meta)
                 .First(config => config.Id == serviceConfig.Id);
 
-            if (!createdConfig.EndpointDefinitions.Any(definition => definition is { Pattern: "gateway/api/v1/endpoint-definitions/##", Method: HttpRequestMethods.Get }))
+            if (!createdConfig.EndpointDefinitions.Any(definition => definition.Pattern == "gateway/api/v1/endpoint-definitions/##" && definition.Method == HttpMethod.Get))
             {
                 createdConfig.EndpointDefinitions.Add(new EndpointDefinition
                 {
                     Endpoint = "gateway/api/v1/endpoint-definitions/{id}",
                     Pattern = "gateway/api/v1/endpoint-definitions/##",
                     MapTo = "gateway/api/v1/endpoint-definitions/{0}",
-                    Method = HttpRequestMethods.Get,
+                    Method = HttpMethod.Get,
                     Meta = new List<Meta>
                     {
                         new()
@@ -63,14 +63,14 @@ public static class ApplicationBuilderExtension
                 });
             }
 
-            if (!createdConfig.EndpointDefinitions.Any(definition => definition is { Pattern: "gateway/api/v1/endpoint-definitions/##/enable", Method: HttpRequestMethods.Post }))
+            if (!createdConfig.EndpointDefinitions.Any(definition => definition.Pattern == "gateway/api/v1/endpoint-definitions/##/enable"&& definition.Method == HttpMethod.Post ))
             {
                 createdConfig.EndpointDefinitions.Add(new EndpointDefinition
                 {
                     Endpoint = "gateway/api/v1/endpoint-definitions/{id}/enable",
                     Pattern = "gateway/api/v1/endpoint-definitions/##/enable",
                     MapTo = "gateway/api/v1/endpoint-definitions/{0}/enable",
-                    Method = HttpRequestMethods.Post,
+                    Method = HttpMethod.Post,
                     Meta = new List<Meta>
                     {
                         new()
@@ -82,14 +82,14 @@ public static class ApplicationBuilderExtension
                 });
             }
 
-            if (!createdConfig.EndpointDefinitions.Any(definition => definition is { Pattern: "gateway/api/v1/endpoint-definitions/##/disable", Method: HttpRequestMethods.Post }))
+            if (!createdConfig.EndpointDefinitions.Any(definition => definition.Pattern == "gateway/api/v1/endpoint-definitions/##/disable"&& definition.Method == HttpMethod.Post))
             {
                 createdConfig.EndpointDefinitions.Add(new EndpointDefinition
                 {
                     Endpoint = "gateway/api/v1/endpoint-definitions/{id}/disable",
                     Pattern = "gateway/api/v1/endpoint-definitions/##/disable",
                     MapTo = "gateway/api/v1/endpoint-definitions/{0}/disable",
-                    Method = HttpRequestMethods.Post,
+                    Method = HttpMethod.Post,
                     Meta = new List<Meta>
                     {
                         new()
@@ -101,14 +101,14 @@ public static class ApplicationBuilderExtension
                 });
             }
 
-            if (!createdConfig.EndpointDefinitions.Any(definition => definition is { Pattern: "gateway/api/v1/endpoint-definitions/##", Method: HttpRequestMethods.Delete }))
+            if (!createdConfig.EndpointDefinitions.Any(definition => definition.Pattern == "gateway/api/v1/endpoint-definitions/##"&& definition.Method == HttpMethod.Delete ))
             {
                 createdConfig.EndpointDefinitions.Add(new EndpointDefinition
                 {
                     Endpoint = "gateway/api/v1/endpoint-definitions/{id}",
                     Pattern = "gateway/api/v1/endpoint-definitions/##",
                     MapTo = "gateway/api/v1/endpoint-definitions/{0}",
-                    Method = HttpRequestMethods.Delete,
+                    Method = HttpMethod.Delete,
                     Meta = new List<Meta>
                     {
                         new()
@@ -120,14 +120,14 @@ public static class ApplicationBuilderExtension
                 });
             }
 
-            if (!createdConfig.EndpointDefinitions.Any(definition => definition is { Pattern: "gateway/api/v1/endpoint-definitions/##", Method: HttpRequestMethods.Put }))
+            if (!createdConfig.EndpointDefinitions.Any(definition => definition.Pattern == "gateway/api/v1/endpoint-definitions/##"&& definition.Method == HttpMethod.Put))
             {
                 createdConfig.EndpointDefinitions.Add(new EndpointDefinition
                 {
                     Endpoint = "gateway/api/v1/endpoint-definitions/{id}",
                     Pattern = "gateway/api/v1/endpoint-definitions/##",
                     MapTo = "gateway/api/v1/endpoint-definitions/{0}",
-                    Method = HttpRequestMethods.Put,
+                    Method = HttpMethod.Put,
                     Meta = new List<Meta>
                     {
                         new()
@@ -139,14 +139,14 @@ public static class ApplicationBuilderExtension
                 });
             }
 
-            if (!createdConfig.EndpointDefinitions.Any(definition => definition is { Pattern: "gateway/api/v1/endpoint-definitions/required-meta", Method: HttpRequestMethods.Get }))
+            if (!createdConfig.EndpointDefinitions.Any(definition => definition.Pattern == "gateway/api/v1/endpoint-definitions/required-meta"&& definition.Method == HttpMethod.Get))
             {
                 createdConfig.EndpointDefinitions.Add(new EndpointDefinition
                 {
                     Endpoint = "gateway/api/v1/endpoint-definitions/required-meta",
                     Pattern = "gateway/api/v1/endpoint-definitions/required-meta",
                     MapTo = "gateway/api/v1/endpoint-definitions/required-meta",
-                    Method = HttpRequestMethods.Get,
+                    Method = HttpMethod.Get,
                     Meta = new List<Meta>
                     {
                         new()
@@ -158,14 +158,14 @@ public static class ApplicationBuilderExtension
                 });
             }
 
-            if (!createdConfig.EndpointDefinitions.Any(definition => definition is { Pattern: "gateway/api/v1/service-configs", Method: HttpRequestMethods.Post }))
+            if (!createdConfig.EndpointDefinitions.Any(definition => definition.Pattern == "gateway/api/v1/service-configs"&& definition.Method == HttpMethod.Post))
             {
                 createdConfig.EndpointDefinitions.Add(new EndpointDefinition
                 {
                     Endpoint = "gateway/api/v1/service-configs",
                     Pattern = "gateway/api/v1/service-configs",
                     MapTo = "gateway/service-configs",
-                    Method = HttpRequestMethods.Post,
+                    Method = HttpMethod.Post,
                     Meta = new List<Meta>
                     {
                         new()
@@ -177,14 +177,14 @@ public static class ApplicationBuilderExtension
                 });
             }
 
-            if (!createdConfig.EndpointDefinitions.Any(definition => definition is { Pattern: "gateway/api/v1/service-configs/required-meta", Method: HttpRequestMethods.Get }))
+            if (!createdConfig.EndpointDefinitions.Any(definition => definition.Pattern == "gateway/api/v1/service-configs/required-meta"&& definition.Method == HttpMethod.Get))
             {
                 createdConfig.EndpointDefinitions.Add(new EndpointDefinition
                 {
                     Endpoint = "gateway/api/v1/service-configs/required-meta",
                     Pattern = "gateway/api/v1/service-configs/required-meta",
                     MapTo = "gateway/service-configs/required-meta",
-                    Method = HttpRequestMethods.Get,
+                    Method = HttpMethod.Get,
                     Meta = new List<Meta>
                     {
                         new()
@@ -196,14 +196,14 @@ public static class ApplicationBuilderExtension
                 });
             }
 
-            if (!createdConfig.EndpointDefinitions.Any(definition => definition is { Pattern: "gateway/api/v1/service-configs", Method: HttpRequestMethods.Get }))
+            if (!createdConfig.EndpointDefinitions.Any(definition => definition.Pattern == "gateway/api/v1/service-configs"&& definition.Method == HttpMethod.Get))
             {
                 createdConfig.EndpointDefinitions.Add(new EndpointDefinition
                 {
                     Endpoint = "gateway/api/v1/service-configs",
                     Pattern = "gateway/api/v1/service-configs",
                     MapTo = "gateway/service-configs",
-                    Method = HttpRequestMethods.Get,
+                    Method = HttpMethod.Get,
                     Meta = new List<Meta>
                     {
                         new()
@@ -215,14 +215,14 @@ public static class ApplicationBuilderExtension
                 });
             }
 
-            if (!createdConfig.EndpointDefinitions.Any(definition => definition is { Pattern: "gateway/api/v1/service-configs/##", Method: HttpRequestMethods.Delete }))
+            if (!createdConfig.EndpointDefinitions.Any(definition => definition.Pattern == "gateway/api/v1/service-configs/##"&& definition.Method == HttpMethod.Delete))
             {
                 createdConfig.EndpointDefinitions.Add(new EndpointDefinition
                 {
                     Endpoint = "gateway/api/v1/service-configs/{id}",
                     Pattern = "gateway/api/v1/service-configs/##",
                     MapTo = "gateway/service-configs/{0}",
-                    Method = HttpRequestMethods.Delete,
+                    Method = HttpMethod.Delete,
                     Meta = new List<Meta>
                     {
                         new()
@@ -234,14 +234,14 @@ public static class ApplicationBuilderExtension
                 });
             }
 
-            if (!createdConfig.EndpointDefinitions.Any(definition => definition is { Pattern: "gateway/api/v1/service-configs/##", Method: HttpRequestMethods.Get }))
+            if (!createdConfig.EndpointDefinitions.Any(definition => definition.Pattern == "gateway/api/v1/service-configs/##"&& definition.Method == HttpMethod.Get))
             {
                 createdConfig.EndpointDefinitions.Add(new EndpointDefinition
                 {
                     Endpoint = "gateway/api/v1/service-configs/{id}",
                     Pattern = "gateway/api/v1/service-configs/##",
                     MapTo = "gateway/service-configs/{0}",
-                    Method = HttpRequestMethods.Get,
+                    Method = HttpMethod.Get,
                     Meta = new List<Meta>
                     {
                         new()
@@ -253,14 +253,14 @@ public static class ApplicationBuilderExtension
                 });
             }
 
-            if (!createdConfig.EndpointDefinitions.Any(definition => definition is { Pattern: "gateway/api/v1/service-configs/##", Method: HttpRequestMethods.Put }))
+            if (!createdConfig.EndpointDefinitions.Any(definition => definition.Pattern == "gateway/api/v1/service-configs/##"&& definition.Method == HttpMethod.Put))
             {
                 createdConfig.EndpointDefinitions.Add(new EndpointDefinition
                 {
                     Endpoint = "gateway/api/v1/service-configs/{id}",
                     Pattern = "gateway/api/v1/service-configs/##",
                     MapTo = "gateway/service-configs/{0}",
-                    Method = HttpRequestMethods.Put,
+                    Method = HttpMethod.Put,
                     Meta = new List<Meta>
                     {
                         new()
@@ -272,14 +272,14 @@ public static class ApplicationBuilderExtension
                 });
             }
 
-            if (!createdConfig.EndpointDefinitions.Any(definition => definition is { Pattern: "gateway/api/v1/service-configs/##/endpoint-definitions", Method: HttpRequestMethods.Post }))
+            if (!createdConfig.EndpointDefinitions.Any(definition => definition.Pattern == "gateway/api/v1/service-configs/##/endpoint-definitions"&& definition.Method == HttpMethod.Post))
             {
                 createdConfig.EndpointDefinitions.Add(new EndpointDefinition
                 {
                     Endpoint = "gateway/api/v1/service-configs/{id}/endpoint-definitions",
                     Pattern = "gateway/api/v1/service-configs/##/endpoint-definitions",
                     MapTo = "gateway/service-configs/{0}/endpoint-definitions",
-                    Method = HttpRequestMethods.Post,
+                    Method = HttpMethod.Post,
                     Meta = new List<Meta>
                     {
                         new()
@@ -291,14 +291,14 @@ public static class ApplicationBuilderExtension
                 });
             }
 
-            if (!createdConfig.EndpointDefinitions.Any(definition => definition is { Pattern: "gateway/api/v1/service-configs/##/endpoint-definitions", Method: HttpRequestMethods.Get }))
+            if (!createdConfig.EndpointDefinitions.Any(definition => definition.Pattern == "gateway/api/v1/service-configs/##/endpoint-definitions"&& definition.Method == HttpMethod.Get))
             {
                 createdConfig.EndpointDefinitions.Add(new EndpointDefinition
                 {
                     Endpoint = "gateway/api/v1/service-configs/{id}/endpoint-definitions",
                     Pattern = "gateway/api/v1/service-configs/##/endpoint-definitions",
                     MapTo = "gateway/service-configs/{0}/endpoint-definitions",
-                    Method = HttpRequestMethods.Get,
+                    Method = HttpMethod.Get,
                     Meta = new List<Meta>
                     {
                         new()
