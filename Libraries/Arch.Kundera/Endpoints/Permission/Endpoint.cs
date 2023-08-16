@@ -1,22 +1,21 @@
 using Core.EndpointDefinitions;
 using Core.EndpointDefinitions.Exceptions;
-using Data.EFCore;
 using FastEndpoints;
 using FluentValidation;
-using Microsoft.EntityFrameworkCore;
 
 namespace Arch.Kundera.Endpoints.Permission;
 
 internal sealed class Endpoint : Endpoint<Request>
 {
     private readonly IEndpointDefinitionService _endpointDefinitionService;
-    private readonly AppDbContext _dbContext;
+    private readonly IEndpointDefinitionRepository _endpointDefinitionRepository;
 
-    public Endpoint(IEndpointDefinitionService endpointDefinitionService, AppDbContext dbContext)
+    public Endpoint(IEndpointDefinitionService endpointDefinitionService, IEndpointDefinitionRepository endpointDefinitionRepository)
     {
         _endpointDefinitionService = endpointDefinitionService;
-        _dbContext = dbContext;
+        _endpointDefinitionRepository = endpointDefinitionRepository;
     }
+
 
     public override void Configure()
     {
@@ -27,7 +26,7 @@ internal sealed class Endpoint : Endpoint<Request>
 
     public override async Task HandleAsync(Request req, CancellationToken ct)
     {
-        var endpointDefinition = await _dbContext.EndpointDefinitions.FirstOrDefaultAsync(definition => definition.Id == req.Id, ct);
+        var endpointDefinition = await _endpointDefinitionRepository.FindAsync(req.Id, ct);
         if (endpointDefinition is null)
         {
             throw new EndpointDefinitionNotFoundException();

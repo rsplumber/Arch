@@ -1,4 +1,4 @@
-﻿namespace Core.EndpointDefinitions;
+﻿namespace EndpointGraph.Abstractions;
 
 public interface IEndpointGraph
 {

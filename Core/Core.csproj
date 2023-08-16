@@ -12,6 +12,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\EndpointGraph.Abstractions\EndpointGraph.Abstractions.csproj" />
       <ProjectReference Include="..\Libraries\Logging\Logging.Abstractions\Logging.Abstractions.csproj" />
 
 

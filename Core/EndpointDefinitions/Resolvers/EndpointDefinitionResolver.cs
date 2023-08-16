@@ -1,21 +1,24 @@
+using EndpointGraph.Abstractions;
+
 namespace Core.EndpointDefinitions.Resolvers;
 
 public sealed class EndpointDefinitionResolver : IEndpointDefinitionResolver
 {
     private readonly IEndpointGraph _endpointPatternTree;
-    private readonly IEndpointDefinitionContainer _endpointDefinitionContainer;
+    private readonly IEndpointDefinitionRepository _endpointDefinitionRepository;
 
-    public EndpointDefinitionResolver(IEndpointGraph endpointPatternTree, IEndpointDefinitionContainer endpointDefinitionContainer)
+    public EndpointDefinitionResolver(IEndpointGraph endpointPatternTree, IEndpointDefinitionRepository endpointDefinitionRepository)
     {
         _endpointPatternTree = endpointPatternTree;
-        _endpointDefinitionContainer = endpointDefinitionContainer;
+        _endpointDefinitionRepository = endpointDefinitionRepository;
     }
 
-    public async ValueTask<(ContainerEndpointDefinition?, object[])> ResolveAsync(string url, HttpMethod method, CancellationToken cancellationToken = default)
+
+    public async ValueTask<(EndpointDefinition?, object[])> ResolveAsync(string url, HttpMethod method, CancellationToken cancellationToken = default)
     {
         var (pattern, pathParameters) = await _endpointPatternTree.FindAsync(url, cancellationToken);
         if (pattern is null) return (null, pathParameters);
-        var containerEndpointDefinition = await _endpointDefinitionContainer.GetAsync(DefinitionKey.From(pattern, method), cancellationToken);
-        return (containerEndpointDefinition, pathParameters);
+        var endpointDefinition = await _endpointDefinitionRepository.FindAsync(DefinitionKey.From(pattern, method), cancellationToken);
+        return (endpointDefinition, pathParameters);
     }
 }

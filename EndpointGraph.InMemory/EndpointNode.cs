@@ -50,11 +50,11 @@ internal sealed class EndpointNode
 
     public (string?, object[]) Find(string url)
     {
-        var (pattern, urlParams) = FindEnumerable(url);
-        return pattern is null ? (null, urlParams.ToArray()) : (string.Join("/", pattern), urlParams.ToArray());
+        var (pattern, urlParams) = ExtractUrlData(url);
+        return pattern.Length == 0 ? (null, Array.Empty<object>()) : (string.Join(UrlSplitter, pattern), urlParams);
     }
 
-    private (List<string>?, List<object>) FindEnumerable(string url)
+    private (string[], object[]) ExtractUrlData(string url)
     {
         using var urlArray = url.Split(UrlSplitter)
             .Where(s => !string.IsNullOrEmpty(s))
@@ -74,23 +74,21 @@ internal sealed class EndpointNode
             {
                 if (!node._children.TryGetValue(PathParameterKey, out var pathValue) && !node._end)
                 {
-                    return (null, urlParams);
+                    return NotFound();
                 }
 
                 urlParams.Add(urlArray.Current);
                 value = pathValue;
             }
 
-            if (value is null)
-            {
-                return (null, urlParams);
-            }
-
+            if (value is null) return NotFound();
             node = value;
             urlPattern.Add(node._item);
         }
 
-        return (urlPattern, urlParams);
+        return (urlPattern.ToArray(), urlParams.ToArray());
+
+        (string[], object[]) NotFound() => (Array.Empty<string>(), Array.Empty<object>());
     }
 
     private static bool IsPathParameter(string key) => key.StartsWith(StartPathParameterKey) && key.EndsWith(EndPathParameterKey);
@@ -110,15 +108,5 @@ internal sealed class EndpointNode
     public override int GetHashCode()
     {
         return _item.GetHashCode();
-    }
-
-    public static bool operator ==(EndpointNode left, EndpointNode right)
-    {
-        return left.Equals(right);
-    }
-
-    public static bool operator !=(EndpointNode left, EndpointNode right)
-    {
-        return !(left == right);
     }
 }

@@ -36,4 +36,16 @@ public sealed class EndpointDefinitionRepository : IEndpointDefinitionRepository
             .Include(definition => definition.ServiceConfig)
             .FirstOrDefaultAsync(model => model.Id == id, cancellationToken);
     }
+
+    public Task<EndpointDefinition?> FindAsync(DefinitionKey definitionKey, CancellationToken cancellationToken = default)
+    {
+        return _dbContext.EndpointDefinitions
+            .AsNoTracking()
+            .Include(definition => definition.Meta)
+            .Include(definition => definition.ServiceConfig)
+            .ThenInclude(serviceConfig => serviceConfig.Meta)
+            .FirstOrDefaultAsync(definition =>
+                definition.Pattern == definitionKey.Pattern &&
+                definition.Method == definitionKey.Method, cancellationToken);
+    }
 }

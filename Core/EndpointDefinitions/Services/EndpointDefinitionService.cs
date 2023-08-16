@@ -2,6 +2,7 @@ using Core.EndpointDefinitions.Exceptions;
 using Core.Metas;
 using Core.ServiceConfigs;
 using Core.ServiceConfigs.Exceptions;
+using EndpointGraph.Abstractions;
 
 namespace Core.EndpointDefinitions.Services;
 

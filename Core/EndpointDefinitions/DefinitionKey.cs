@@ -8,7 +8,7 @@ public sealed record DefinitionKey
     private DefinitionKey(string pattern, HttpMethod method)
     {
         Pattern = pattern;
-        Method = method.ToString();
+        Method = method;
         Value = $"{Pattern}{Separator}{method}";
     }
 
@@ -24,7 +24,7 @@ public sealed record DefinitionKey
 
     public string Pattern { get; }
 
-    public string Method { get; }
+    public HttpMethod Method { get; }
 
     public bool Equals(DefinitionKey? other)
     {

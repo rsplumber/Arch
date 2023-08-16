@@ -1,18 +1,17 @@
 ﻿using Core.EndpointDefinitions;
 using Core.Metas;
 using Core.ServiceConfigs;
-using Microsoft.AspNetCore.Builder;
+using Data.Abstractions;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Data.EFCore;
 
-public static class ApplicationBuilderExtension
+public static class DataExecutionOptionsExtension
 {
-    public static void UseData(this IApplicationBuilder app, IConfiguration configuration)
+    public static void UseEntityFramework(this DataExecutionOptions dataExecutionOptions)
     {
-        using var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>()?.CreateScope();
+        using var serviceScope = dataExecutionOptions.ServiceProvider.GetRequiredService<IServiceScopeFactory>()?.CreateScope();
         var dbContext = serviceScope!.ServiceProvider.GetRequiredService<AppDbContext>();
         dbContext.Database.Migrate();
         SeedData();
@@ -20,33 +19,23 @@ public static class ApplicationBuilderExtension
 
         void SeedData()
         {
+            var archServiceConfig = dbContext.ServiceConfigs
+                .Include(serviceConfig => serviceConfig.Meta)
+                .Include(serviceConfig => serviceConfig.EndpointDefinitions)
+                .ThenInclude(endpoint => endpoint.Meta)
+                .FirstOrDefault(config => config.Name == "arch");
             //Seed internal APIs 
-            if (dbContext.ServiceConfigs.Any(config => config.Name == "arch")) return;
-            var serviceConfig = new ServiceConfig
+            if (archServiceConfig is null)
             {
-                Name = "arch",
-                Primary = true,
-                BaseUrl = "http://localhost:5228"
-            };
+                archServiceConfig = ServiceConfig.CreatePrimary("arch", "http://localhost:5228");
+                archServiceConfig.SetIgnoreDispatch();
+                dbContext.ServiceConfigs.Add(archServiceConfig);
+                dbContext.SaveChanges();
+            }
 
-            //Ignore dispatching for internal APIs to prevent dispatching loop 
-            serviceConfig.Meta.Add(new()
+            if (!archServiceConfig.HasEndpoint("gateway/api/v1/endpoint-definitions/##", HttpMethod.Get))
             {
-                Key = "ignore_dispatch",
-                Value = "true"
-            });
-
-            dbContext.ServiceConfigs.Add(serviceConfig);
-            dbContext.SaveChanges();
-
-            var createdConfig = dbContext.ServiceConfigs
-                .Include(config => config.EndpointDefinitions)
-                .ThenInclude(definition => definition.Meta)
-                .First(config => config.Id == serviceConfig.Id);
-
-            if (!createdConfig.EndpointDefinitions.Any(definition => definition.Pattern == "gateway/api/v1/endpoint-definitions/##" && definition.Method == HttpMethod.Get))
-            {
-                createdConfig.EndpointDefinitions.Add(new EndpointDefinition
+                archServiceConfig.Add(new EndpointDefinition
                 {
                     Endpoint = "gateway/api/v1/endpoint-definitions/{id}",
                     Pattern = "gateway/api/v1/endpoint-definitions/##",
@@ -63,9 +52,9 @@ public static class ApplicationBuilderExtension
                 });
             }
 
-            if (!createdConfig.EndpointDefinitions.Any(definition => definition.Pattern == "gateway/api/v1/endpoint-definitions/##/enable" && definition.Method == HttpMethod.Post))
+            if (!archServiceConfig.HasEndpoint("gateway/api/v1/endpoint-definitions/##/enable", HttpMethod.Post))
             {
-                createdConfig.EndpointDefinitions.Add(new EndpointDefinition
+                archServiceConfig.Add(new EndpointDefinition
                 {
                     Endpoint = "gateway/api/v1/endpoint-definitions/{id}/enable",
                     Pattern = "gateway/api/v1/endpoint-definitions/##/enable",
@@ -82,9 +71,9 @@ public static class ApplicationBuilderExtension
                 });
             }
 
-            if (!createdConfig.EndpointDefinitions.Any(definition => definition.Pattern == "gateway/api/v1/endpoint-definitions/##/disable" && definition.Method == HttpMethod.Post))
+            if (!archServiceConfig.HasEndpoint("gateway/api/v1/endpoint-definitions/##/disable", HttpMethod.Post))
             {
-                createdConfig.EndpointDefinitions.Add(new EndpointDefinition
+                archServiceConfig.Add(new EndpointDefinition
                 {
                     Endpoint = "gateway/api/v1/endpoint-definitions/{id}/disable",
                     Pattern = "gateway/api/v1/endpoint-definitions/##/disable",
@@ -101,9 +90,9 @@ public static class ApplicationBuilderExtension
                 });
             }
 
-            if (!createdConfig.EndpointDefinitions.Any(definition => definition.Pattern == "gateway/api/v1/endpoint-definitions/##" && definition.Method == HttpMethod.Delete))
+            if (!archServiceConfig.HasEndpoint("gateway/api/v1/endpoint-definitions/##", HttpMethod.Delete))
             {
-                createdConfig.EndpointDefinitions.Add(new EndpointDefinition
+                archServiceConfig.Add(new EndpointDefinition
                 {
                     Endpoint = "gateway/api/v1/endpoint-definitions/{id}",
                     Pattern = "gateway/api/v1/endpoint-definitions/##",
@@ -120,9 +109,9 @@ public static class ApplicationBuilderExtension
                 });
             }
 
-            if (!createdConfig.EndpointDefinitions.Any(definition => definition.Pattern == "gateway/api/v1/endpoint-definitions/##" && definition.Method == HttpMethod.Put))
+            if (!archServiceConfig.HasEndpoint("gateway/api/v1/endpoint-definitions/##", HttpMethod.Put))
             {
-                createdConfig.EndpointDefinitions.Add(new EndpointDefinition
+                archServiceConfig.Add(new EndpointDefinition
                 {
                     Endpoint = "gateway/api/v1/endpoint-definitions/{id}",
                     Pattern = "gateway/api/v1/endpoint-definitions/##",
@@ -139,9 +128,9 @@ public static class ApplicationBuilderExtension
                 });
             }
 
-            if (!createdConfig.EndpointDefinitions.Any(definition => definition.Pattern == "gateway/api/v1/endpoint-definitions/required-meta" && definition.Method == HttpMethod.Get))
+            if (!archServiceConfig.HasEndpoint("gateway/api/v1/endpoint-definitions/required-meta", HttpMethod.Get))
             {
-                createdConfig.EndpointDefinitions.Add(new EndpointDefinition
+                archServiceConfig.Add(new EndpointDefinition
                 {
                     Endpoint = "gateway/api/v1/endpoint-definitions/required-meta",
                     Pattern = "gateway/api/v1/endpoint-definitions/required-meta",
@@ -158,9 +147,9 @@ public static class ApplicationBuilderExtension
                 });
             }
 
-            if (!createdConfig.EndpointDefinitions.Any(definition => definition.Pattern == "gateway/api/v1/service-configs" && definition.Method == HttpMethod.Post))
+            if (!archServiceConfig.HasEndpoint("gateway/api/v1/service-configs", HttpMethod.Post))
             {
-                createdConfig.EndpointDefinitions.Add(new EndpointDefinition
+                archServiceConfig.Add(new EndpointDefinition
                 {
                     Endpoint = "gateway/api/v1/service-configs",
                     Pattern = "gateway/api/v1/service-configs",
@@ -177,9 +166,9 @@ public static class ApplicationBuilderExtension
                 });
             }
 
-            if (!createdConfig.EndpointDefinitions.Any(definition => definition.Pattern == "gateway/api/v1/service-configs/required-meta" && definition.Method == HttpMethod.Get))
+            if (!archServiceConfig.HasEndpoint("gateway/api/v1/service-configs/required-meta", HttpMethod.Get))
             {
-                createdConfig.EndpointDefinitions.Add(new EndpointDefinition
+                archServiceConfig.Add(new EndpointDefinition
                 {
                     Endpoint = "gateway/api/v1/service-configs/required-meta",
                     Pattern = "gateway/api/v1/service-configs/required-meta",
@@ -196,9 +185,9 @@ public static class ApplicationBuilderExtension
                 });
             }
 
-            if (!createdConfig.EndpointDefinitions.Any(definition => definition.Pattern == "gateway/api/v1/service-configs" && definition.Method == HttpMethod.Get))
+            if (!archServiceConfig.HasEndpoint("gateway/api/v1/service-configs", HttpMethod.Get))
             {
-                createdConfig.EndpointDefinitions.Add(new EndpointDefinition
+                archServiceConfig.Add(new EndpointDefinition
                 {
                     Endpoint = "gateway/api/v1/service-configs",
                     Pattern = "gateway/api/v1/service-configs",
@@ -215,9 +204,9 @@ public static class ApplicationBuilderExtension
                 });
             }
 
-            if (!createdConfig.EndpointDefinitions.Any(definition => definition.Pattern == "gateway/api/v1/service-configs/##" && definition.Method == HttpMethod.Delete))
+            if (!archServiceConfig.HasEndpoint("gateway/api/v1/service-configs/##", HttpMethod.Delete))
             {
-                createdConfig.EndpointDefinitions.Add(new EndpointDefinition
+                archServiceConfig.Add(new EndpointDefinition
                 {
                     Endpoint = "gateway/api/v1/service-configs/{id}",
                     Pattern = "gateway/api/v1/service-configs/##",
@@ -234,9 +223,9 @@ public static class ApplicationBuilderExtension
                 });
             }
 
-            if (!createdConfig.EndpointDefinitions.Any(definition => definition.Pattern == "gateway/api/v1/service-configs/##" && definition.Method == HttpMethod.Get))
+            if (!archServiceConfig.HasEndpoint("gateway/api/v1/service-configs/##", HttpMethod.Get))
             {
-                createdConfig.EndpointDefinitions.Add(new EndpointDefinition
+                archServiceConfig.Add(new EndpointDefinition
                 {
                     Endpoint = "gateway/api/v1/service-configs/{id}",
                     Pattern = "gateway/api/v1/service-configs/##",
@@ -253,9 +242,9 @@ public static class ApplicationBuilderExtension
                 });
             }
 
-            if (!createdConfig.EndpointDefinitions.Any(definition => definition.Pattern == "gateway/api/v1/service-configs/##" && definition.Method == HttpMethod.Put))
+            if (!archServiceConfig.HasEndpoint("gateway/api/v1/service-configs/##", HttpMethod.Put))
             {
-                createdConfig.EndpointDefinitions.Add(new EndpointDefinition
+                archServiceConfig.Add(new EndpointDefinition
                 {
                     Endpoint = "gateway/api/v1/service-configs/{id}",
                     Pattern = "gateway/api/v1/service-configs/##",
@@ -272,9 +261,9 @@ public static class ApplicationBuilderExtension
                 });
             }
 
-            if (!createdConfig.EndpointDefinitions.Any(definition => definition.Pattern == "gateway/api/v1/service-configs/##/endpoint-definitions" && definition.Method == HttpMethod.Post))
+            if (!archServiceConfig.HasEndpoint("gateway/api/v1/service-configs/##/endpoint-definitions", HttpMethod.Post))
             {
-                createdConfig.EndpointDefinitions.Add(new EndpointDefinition
+                archServiceConfig.Add(new EndpointDefinition
                 {
                     Endpoint = "gateway/api/v1/service-configs/{id}/endpoint-definitions",
                     Pattern = "gateway/api/v1/service-configs/##/endpoint-definitions",
@@ -291,9 +280,9 @@ public static class ApplicationBuilderExtension
                 });
             }
 
-            if (!createdConfig.EndpointDefinitions.Any(definition => definition.Pattern == "gateway/api/v1/service-configs/##/endpoint-definitions" && definition.Method == HttpMethod.Get))
+            if (!archServiceConfig.HasEndpoint("gateway/api/v1/service-configs/##/endpoint-definitions", HttpMethod.Get))
             {
-                createdConfig.EndpointDefinitions.Add(new EndpointDefinition
+                archServiceConfig.Add(new EndpointDefinition
                 {
                     Endpoint = "gateway/api/v1/service-configs/{id}/endpoint-definitions",
                     Pattern = "gateway/api/v1/service-configs/##/endpoint-definitions",
@@ -310,7 +299,7 @@ public static class ApplicationBuilderExtension
                 });
             }
 
-            dbContext.ServiceConfigs.Update(createdConfig);
+            dbContext.ServiceConfigs.Update(archServiceConfig);
             dbContext.SaveChanges();
         }
     }

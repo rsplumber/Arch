@@ -1,14 +1,12 @@
 using System.Text.Json;
-using Arch.Clerk;
 using Arch.Kundera;
-using Core.EndpointDefinitions;
-using Core.EndpointDefinitions.Resolvers;
-using Core.EndpointDefinitions.Services;
+using Caching.Abstractions;
+using Caching.InMemory;
 using Core.Extensions;
-using Core.ServiceConfigs.Services;
+using Data.Abstractions;
 using Data.EFCore;
-using Data.InMemory;
 using Elastic.Apm.NetCoreAll;
+using EndpointGraph.Abstractions;
 using EndpointGraph.InMemory;
 using FastEndpoints;
 using Logging.Logstash;
@@ -28,15 +26,9 @@ builder.WebHost.ConfigureKestrel((_, options) =>
 builder.Services.AddCors();
 builder.Services.AddHttpClient("arch", _ => { });
 builder.Services.AddHealthChecks();
-builder.Services.AddCore(collection =>
-{
-    collection.AddKundera(builder.Configuration);
-    collection.AddClerkAccounting(builder.Configuration);
-});
+builder.Services.AddCore(options => { options.AddKundera(builder.Configuration); });
 
-builder.Services.AddSingleton<IEndpointDefinitionResolver, EndpointDefinitionResolver>();
-builder.Services.AddScoped<IEndpointDefinitionService, EndpointDefinitionService>();
-builder.Services.AddScoped<IServiceConfigService, ServiceConfigService>();
+
 builder.Services.AddLoggingLogstash();
 builder.Services.AddCap(options =>
 {
@@ -58,9 +50,12 @@ builder.Services.AddCap(options =>
     });
 });
 
-builder.Services.AddData(optionsBuilder => { optionsBuilder.UseNpgsql(builder.Configuration.GetConnectionString("Default")); });
-builder.Services.AddInMemoryDataContainers();
-builder.Services.AddInMemoryEndpointGraph();
+builder.Services.AddData(options =>
+{
+    options.UseEntityFramework(optionsBuilder => optionsBuilder.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
+    options.AddCaching(cachingOptions => cachingOptions.UseInMemory());
+});
+builder.Services.AddEndpointGraph(options => { options.UseInMemoryEndpointGraph(); });
 
 builder.Services.AddFastEndpoints();
 var app = builder.Build();
@@ -72,16 +67,10 @@ app.UseCors(b => b.AllowAnyHeader()
 
 
 app.UseHealthChecks("/health");
-app.UseData(builder.Configuration);
-app.UseCore(applicationBuilder =>
-{
-    applicationBuilder.UseKundera(builder.Configuration);
-    applicationBuilder.UseClerkAccounting(builder.Configuration);
-}, applicationBuilder =>
-{
-    applicationBuilder.UseAllElasticApm(builder.Configuration);
-});
-app.UseInMemoryData();
+app.Services.UseData(options => { options.UseEntityFramework(); });
+app.UseCore(applicationBuilder => { applicationBuilder.UseKundera(builder.Configuration); }, applicationBuilder => { applicationBuilder.UseAllElasticApm(builder.Configuration); });
+
+app.Services.UseEndpointGraph(options => { options.UseInMemory(); });
 
 app.Use(async (context, next) =>
 {
@@ -95,5 +84,6 @@ app.UseFastEndpoints(config =>
     config.Versioning.Prefix = "v";
     config.Versioning.PrependToRoute = true;
 });
+
 
 await app.RunAsync();

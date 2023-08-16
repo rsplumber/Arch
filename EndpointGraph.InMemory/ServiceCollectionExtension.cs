@@ -1,13 +1,12 @@
-﻿using Core.EndpointDefinitions;
-using Microsoft.Extensions.DependencyInjection;
+﻿using EndpointGraph.Abstractions;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace EndpointGraph.InMemory;
 
-public static class ServiceCollectionExtension
+public static class EndpointGraphOptionsExtension
 {
-    public static void AddInMemoryEndpointGraph(this IServiceCollection services)
+    public static void UseInMemoryEndpointGraph(this EndpointGraphOptions options)
     {
-        services.TryAddSingleton<IEndpointGraph, InMemoryEndpointGraph>();
+        options.Services.TryAddSingleton<IEndpointGraph, InMemoryEndpointGraph>();
     }
 }

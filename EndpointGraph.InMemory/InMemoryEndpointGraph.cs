@@ -1,4 +1,4 @@
-﻿using Core.EndpointDefinitions;
+﻿using EndpointGraph.Abstractions;
 
 namespace EndpointGraph.InMemory;
 

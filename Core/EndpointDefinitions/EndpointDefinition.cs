@@ -1,4 +1,5 @@
-﻿using Core.EndpointDefinitions.Events;
+﻿using System.Globalization;
+using Core.EndpointDefinitions.Events;
 using Core.Metas;
 using Core.ServiceConfigs;
 using Core.ServiceConfigs.Exceptions;
@@ -44,4 +45,6 @@ public sealed class EndpointDefinition : BaseEntity
     }
 
     public bool IsDisabled() => Meta.Any(meta => meta.Key == DisableKey);
+
+    public string GenerateRequestPath(object[] pathParameters) => string.Format(CultureInfo.CurrentCulture, MapTo, pathParameters);
 }

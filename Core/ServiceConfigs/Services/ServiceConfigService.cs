@@ -1,27 +1,23 @@
-using Core.Metas;
+using Core.ServiceConfigs.Events;
 using Core.ServiceConfigs.Exceptions;
+using DotNetCore.CAP;
 
 namespace Core.ServiceConfigs.Services;
 
 public sealed class ServiceConfigService : IServiceConfigService
 {
     private readonly IServiceConfigRepository _serviceConfigRepository;
-    private const string BaseUrlKey = "base_url";
+    private readonly ICapPublisher _capPublisher;
 
-    public ServiceConfigService(IServiceConfigRepository serviceConfigRepository)
+    public ServiceConfigService(IServiceConfigRepository serviceConfigRepository, ICapPublisher capPublisher)
     {
         _serviceConfigRepository = serviceConfigRepository;
+        _capPublisher = capPublisher;
     }
 
     public async Task CreateAsync(CreateServiceConfigRequest request, CancellationToken cancellationToken = default)
     {
-        var serviceConfig = new ServiceConfig
-        {
-            Name = request.Name,
-            BaseUrl = request.BaseUrl
-        };
-
-        serviceConfig.Meta = CalculateMeta(serviceConfig, request.Meta);
+        var serviceConfig = ServiceConfig.Create(request.Name, request.BaseUrl, request.Meta);
         await _serviceConfigRepository.AddAsync(serviceConfig, cancellationToken);
     }
 
@@ -38,10 +34,7 @@ public sealed class ServiceConfigService : IServiceConfigService
             throw new PrimaryServiceModificationException();
         }
 
-        serviceConfig.Name = request.Name;
-        serviceConfig.BaseUrl = request.BaseUrl;
-        serviceConfig.Meta = CalculateMeta(serviceConfig, request.Meta);
-
+        serviceConfig.Update(request.Name, request.BaseUrl, request.Meta);
         await _serviceConfigRepository.UpdateAsync(serviceConfig, cancellationToken);
     }
 
@@ -59,31 +52,7 @@ public sealed class ServiceConfigService : IServiceConfigService
         }
 
         await _serviceConfigRepository.DeleteAsync(serviceConfig, cancellationToken);
-    }
-
-    private static List<Meta> CalculateMeta(ServiceConfig serviceConfig, Dictionary<string, string> meta)
-    {
-        var finalMeta = new List<Meta>();
-        AddAndSanitizeBaseUrlForMeta();
-        foreach (var (key, value) in meta)
-        {
-            finalMeta.Add(new Meta
-            {
-                Key = key,
-                Value = value
-            });
-        }
-
-        return finalMeta;
-
-        void AddAndSanitizeBaseUrlForMeta()
-        {
-            finalMeta.Add(new Meta
-            {
-                Key = BaseUrlKey,
-                Value = serviceConfig.BaseUrl
-            });
-            meta.Remove(BaseUrlKey);
-        }
+        var serviceConfigRemovedEvent = new ServiceConfigRemovedEvent(serviceConfig.Id);
+        await _capPublisher.PublishAsync(serviceConfigRemovedEvent.Name, serviceConfigRemovedEvent, cancellationToken: cancellationToken);
     }
 }

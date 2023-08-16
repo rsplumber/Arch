@@ -1,9 +1,8 @@
 ﻿using Core.EndpointDefinitions;
 using Core.Metas;
 using Core.ServiceConfigs;
-using Data.EFCore;
+using Core.ServiceConfigs.Exceptions;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -16,43 +15,21 @@ public static class ApplicationBuilderExtension
         app.UseMiddleware<KunderaAuthorizationMiddleware>();
 
         using var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>()?.CreateScope();
-        var dbContext = serviceScope!.ServiceProvider.GetRequiredService<AppDbContext>();
-        var currentConfig = dbContext.ServiceConfigs
-            .Include(config => config.EndpointDefinitions)
-            .ThenInclude(definition => definition.Meta)
-            .Include(config => config.Meta)
-            .FirstOrDefault(config => config.Name == "kundera");
-        if (currentConfig is not null)
-        {
-            dbContext.Metas.RemoveRange(currentConfig.Meta);
-            dbContext.ServiceConfigs.Remove(currentConfig);
-            dbContext.SaveChanges();
-        }
+        var serviceConfigRepository = serviceScope!.ServiceProvider.GetRequiredService<IServiceConfigRepository>();
 
-        var kunderaServiceConfig = new ServiceConfig
-        {
-            Name = "kundera",
-            Primary = true,
-            BaseUrl = configuration.GetSection("Kundera:BaseUrl").Value ??
-                      throw new Exception("Enter Kundera:BaseUrl in appsettings.json")
-        };
+        if (serviceConfigRepository.FindByNameAsync("kundera").Result is not null) return;
 
-        kunderaServiceConfig.Meta.Add(new()
+        var kunderaServiceConfig = ServiceConfig.CreatePrimary("kundera", configuration.GetSection("Kundera:BaseUrl").Value ??
+                                                                          throw new Exception("Enter Kundera:BaseUrl in appsettings.json"));
+
+        kunderaServiceConfig.Add(new Meta
         {
             Key = "service_secret",
             Value = configuration.GetSection("Kundera:Kundera_Service_Secret").Value ??
                     throw new Exception("Enter Kundera:Kundera_Service_Secret in appsettings.json")
         });
 
-        dbContext.ServiceConfigs.Add(kunderaServiceConfig);
-        dbContext.SaveChanges();
-
-        var createdConfig = dbContext.ServiceConfigs
-            .Include(config => config.EndpointDefinitions)
-            .ThenInclude(definition => definition.Meta)
-            .First(config => config.Id == kunderaServiceConfig.Id);
-
-        createdConfig.EndpointDefinitions.Add(new EndpointDefinition
+        kunderaServiceConfig.EndpointDefinitions.Add(new EndpointDefinition
         {
             Endpoint = "api/v1/authenticate",
             Pattern = "api/v1/authenticate",
@@ -67,7 +44,7 @@ public static class ApplicationBuilderExtension
                 }
             }
         });
-        createdConfig.EndpointDefinitions.Add(new EndpointDefinition
+        kunderaServiceConfig.EndpointDefinitions.Add(new EndpointDefinition
         {
             Endpoint = "api/v1/authenticate/refresh",
             Pattern = "api/v1/authenticate/refresh",
@@ -82,27 +59,20 @@ public static class ApplicationBuilderExtension
                 }
             }
         });
-        dbContext.ServiceConfigs.Update(createdConfig);
-        dbContext.SaveChanges();
 
-        var archServiceConfig = dbContext.ServiceConfigs
-            .Include(config => config.Meta)
-            .Include(config => config.EndpointDefinitions)
-            .ThenInclude(definition => definition.Meta)
-            .First(config => config.Name == "arch");
-
+        var archServiceConfig = serviceConfigRepository.FindByNameAsync("arch").Result;
+        if (archServiceConfig is null) throw new ServiceConfigNotFoundException();
         var secretMeta = archServiceConfig.Meta.Find(meta => meta.Key == "service_secret");
-        if (secretMeta is not null)
+        if (secretMeta is null)
         {
-            archServiceConfig.Meta.Remove(secretMeta);
+            archServiceConfig.Add(new Meta
+            {
+                Key = "service_secret",
+                Value = configuration.GetSection("Kundera:Arch_Service_Secret").Value ??
+                        throw new Exception("Enter Kundera:Arch_Service_Secret in appsettings.json")
+            });
         }
 
-        archServiceConfig.Meta.Add(new()
-        {
-            Key = "service_secret",
-            Value = configuration.GetSection("Kundera:Arch_Service_Secret").Value ??
-                    throw new Exception("Enter Kundera:Arch_Service_Secret in appsettings.json")
-        });
         if (archServiceConfig.EndpointDefinitions.All(definition => definition.Pattern != "gateway/api/v1/endpoint-definitions/##/security/permissions"))
         {
             archServiceConfig.EndpointDefinitions.Add(new EndpointDefinition
@@ -141,8 +111,7 @@ public static class ApplicationBuilderExtension
             });
         }
 
-
-        dbContext.ServiceConfigs.Update(archServiceConfig);
-        dbContext.SaveChanges();
+        serviceConfigRepository.AddAsync(kunderaServiceConfig).Wait();
+        serviceConfigRepository.UpdateAsync(archServiceConfig).Wait();
     }
 }

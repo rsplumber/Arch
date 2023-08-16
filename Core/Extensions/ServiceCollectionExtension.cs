@@ -1,4 +1,8 @@
-﻿using Core.Pipeline;
+﻿using Core.EndpointDefinitions;
+using Core.EndpointDefinitions.Resolvers;
+using Core.EndpointDefinitions.Services;
+using Core.Pipeline;
+using Core.ServiceConfigs.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -21,5 +25,8 @@ public static class ServiceCollectionExtension
             client.Timeout = TimeSpan.FromSeconds(500.0);
             client.MaxResponseContentBufferSize = int.MaxValue;
         });
+        services.AddScoped<IEndpointDefinitionResolver, EndpointDefinitionResolver>();
+        services.AddScoped<IEndpointDefinitionService, EndpointDefinitionService>();
+        services.AddScoped<IServiceConfigService, ServiceConfigService>();
     }
 }
