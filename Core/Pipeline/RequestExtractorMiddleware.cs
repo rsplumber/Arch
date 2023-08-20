@@ -30,7 +30,9 @@ internal sealed class RequestExtractorMiddleware : IMiddleware
         state.EndpointDefinition = new RequestEndpointDefinition
         {
             Method = definition.Method,
-            Meta = definition.Meta.ToDictionary(a => a.Key, a => a.Value),
+            Meta = definition.Meta
+                .Concat(definition.ServiceConfig.Meta)
+                .ToDictionary(a => a.Key, a => a.Value),
             Endpoint = definition.Endpoint,
             Pattern = definition.Pattern,
             BaseUrl = definition.ServiceConfig.BaseUrl,
