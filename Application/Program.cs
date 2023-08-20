@@ -67,9 +67,9 @@ app.UseCors(b => b.AllowAnyHeader()
 
 
 app.UseHealthChecks("/health");
-app.Services.UseData(options => { options.UseEntityFramework(); });
 app.UseCore(applicationBuilder => { applicationBuilder.UseKundera(builder.Configuration); }, applicationBuilder => { applicationBuilder.UseAllElasticApm(builder.Configuration); });
 
+app.Services.UseData(options => { options.UseEntityFramework(); });
 app.Services.UseEndpointGraph(options => { options.UseInMemory(); });
 
 app.Use(async (context, next) =>
