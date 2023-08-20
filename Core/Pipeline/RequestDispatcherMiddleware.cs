@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using Core.Extensions;
+using Core.Pipeline.Models;
 using FastEndpoints;
 using Microsoft.AspNetCore.Http;
 
@@ -11,26 +12,30 @@ internal sealed class RequestDispatcherMiddleware : IMiddleware
 
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
-        var requestState = context.ProcessorState<RequestState>();
-        if (requestState.IgnoreDispatch())
+        var state = context.ProcessorState<RequestState>();
+        if (state.IgnoreDispatch())
         {
-            await next(context);
+            await next(context).ConfigureAwait(false);
             return;
         }
 
         var httpClient = CreateHttpClient();
         var watch = Stopwatch.StartNew();
-        var httpResponseMessage = await httpClient.SendAsync(context.Request.Method(), requestState.ExtractApiUrl(), context.Request);
+        var httpResponseMessage = await httpClient.SendAsync(
+                context.Request.Method(),
+                state.ExtractApiUrl(),
+                context.Request)
+            .ConfigureAwait(false);
         watch.Stop();
         if (httpResponseMessage is null)
         {
-            requestState.ResponseInfo = ResponseInfo.ServiceUnavailable;
+            state.ResponseInfo = ResponseInfo.ServiceUnavailable;
             await next(context).ConfigureAwait(false);
             return;
         }
 
-        var response = await httpResponseMessage.ReadBodyAsync();
-        requestState.ResponseInfo = new ResponseInfo
+        var response = await httpResponseMessage.ReadBodyAsync().ConfigureAwait(false);
+        state.ResponseInfo = new ResponseInfo
         {
             Code = (int)httpResponseMessage.StatusCode,
             Value = response,
@@ -48,7 +53,7 @@ internal sealed class RequestDispatcherMiddleware : IMiddleware
                 client.DefaultRequestHeaders.TryAddWithoutValidation(key, value);
             }
 
-            foreach (var (key, value) in requestState.RequestInfo.AttachedHeaders)
+            foreach (var (key, value) in state.RequestInfo.AttachedHeaders)
             {
                 client.DefaultRequestHeaders.TryAddWithoutValidation(key, value);
             }

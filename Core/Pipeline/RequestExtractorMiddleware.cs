@@ -1,5 +1,6 @@
 ﻿using Core.EndpointDefinitions;
 using Core.Extensions;
+using Core.Pipeline.Models;
 using FastEndpoints;
 using Microsoft.AspNetCore.Http;
 
@@ -13,15 +14,15 @@ internal sealed class RequestExtractorMiddleware : IMiddleware
         var method = context.Request.Method();
         if (string.IsNullOrEmpty(path))
         {
-            await context.Response.SendNotFoundAsync();
+            await context.Response.SendNotFoundAsync().ConfigureAwait(false);
             return;
         }
 
         var endpointDefinitionResolver = context.Resolve<IEndpointDefinitionResolver>();
-        var (definition, pathParameters) = await endpointDefinitionResolver.ResolveAsync(path, method);
-        if (definition is null)
+        var (definition, pathParameters) = await endpointDefinitionResolver.ResolveAsync(path, method).ConfigureAwait(false);
+        if (definition is null || definition.IsDisabled())
         {
-            await context.Response.SendNotFoundAsync();
+            await context.Response.SendNotFoundAsync().ConfigureAwait(false);
             return;
         }
 
@@ -29,7 +30,7 @@ internal sealed class RequestExtractorMiddleware : IMiddleware
         state.EndpointDefinition = new RequestEndpointDefinition
         {
             Method = definition.Method,
-            Meta = definition.Meta.ToDictionary(a => a.Key, a => string.Join(";", a.Value)),
+            Meta = definition.Meta.ToDictionary(a => a.Key, a => a.Value),
             Endpoint = definition.Endpoint,
             Pattern = definition.Pattern,
             BaseUrl = definition.ServiceConfig.BaseUrl,
@@ -42,6 +43,6 @@ internal sealed class RequestExtractorMiddleware : IMiddleware
             Path = definition.GenerateRequestPath(pathParameters),
             QueryString = context.Request.ReadQueryString()
         };
-        await next(context);
+        await next(context).ConfigureAwait(false);
     }
 }

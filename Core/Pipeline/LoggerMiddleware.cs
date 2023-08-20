@@ -1,4 +1,5 @@
-﻿using DotNetCore.CAP;
+﻿using Core.Pipeline.Models;
+using DotNetCore.CAP;
 using FastEndpoints;
 using Logging.Abstractions;
 using Microsoft.AspNetCore.Http;

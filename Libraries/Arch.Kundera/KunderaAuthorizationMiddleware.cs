@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using Core.Extensions;
 using Core.Pipeline;
+using Core.Pipeline.Models;
 using FastEndpoints;
 using KunderaNet.Services.Authorization.Abstractions;
 using Microsoft.AspNetCore.Http;

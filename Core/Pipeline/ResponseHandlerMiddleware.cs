@@ -1,4 +1,5 @@
-﻿using FastEndpoints;
+﻿using Core.Pipeline.Models;
+using FastEndpoints;
 using Microsoft.AspNetCore.Http;
 
 namespace Core.Pipeline;

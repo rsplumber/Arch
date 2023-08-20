@@ -1,4 +1,4 @@
-﻿namespace Core.Pipeline;
+﻿namespace Core.Pipeline.Models;
 
 public class ResponseInfo
 {

@@ -16,6 +16,7 @@
       <ProjectReference Include="..\Libraries\Logging\Logging.Abstractions\Logging.Abstractions.csproj" />
 
 
+
     </ItemGroup>
 
 

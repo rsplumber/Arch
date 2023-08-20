@@ -1,36 +1,29 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using FastEndpoints;
+using Microsoft.AspNetCore.Http;
 
 namespace Core.Pipeline;
 
 internal sealed class ExceptionHandlerMiddleware : IMiddleware
 {
+    private const int InternalServerErrorCode = 500;
     private const string InternalServerErrorMessage = "Whoops :( , somthing impossibly went wrong!";
     private const string ContentType = "application/json; charset=utf-8";
 
-    public async Task InvokeAsync(HttpContext context, RequestDelegate next)
+    public Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
         try
         {
-            await next(context);
+            return next(context);
         }
         catch (Exception exception)
         {
-            var response = context.Response;
-            response.ContentType = ContentType;
-            string message;
-            switch (exception)
+            context.Response.ContentType = ContentType;
+            if (exception is ArchException archException)
             {
-                case ArchException arch:
-                    response.StatusCode = arch.Code;
-                    message = arch.Message;
-                    break;
-                default:
-                    response.StatusCode = 500;
-                    message = InternalServerErrorMessage;
-                    break;
+                return context.Response.SendAsync(archException.Message, archException.Code);
             }
 
-            await response.WriteAsync(message);
+            return context.Response.SendAsync(InternalServerErrorMessage, InternalServerErrorCode);
         }
     }
 }
