@@ -27,24 +27,12 @@ internal sealed class RequestExtractorMiddleware : IMiddleware
         }
 
         var state = context.ProcessorState<RequestState>();
-        state.EndpointDefinition = new RequestEndpointDefinition
+        state.Set(definition);
+        state.Set(new RequestInfo(method, definition.MapTo, pathParameters, context.Request.ReadQueryString())
         {
-            Method = definition.Method,
-            Meta = definition.Meta
-                .Concat(definition.ServiceConfig.Meta)
-                .ToDictionary(a => a.Key, a => a.Value),
-            Endpoint = definition.Endpoint,
-            Pattern = definition.Pattern,
-            BaseUrl = definition.ServiceConfig.BaseUrl,
-            MapTo = definition.MapTo
-        };
+            Headers = context.Request.Headers()
+        });
 
-        state.RequestInfo = new RequestInfo
-        {
-            Method = method,
-            Path = definition.GenerateRequestPath(pathParameters),
-            QueryString = context.Request.ReadQueryString()
-        };
         await next(context).ConfigureAwait(false);
     }
 }

@@ -9,6 +9,8 @@ using Elastic.Apm.NetCoreAll;
 using EndpointGraph.Abstractions;
 using EndpointGraph.InMemory;
 using FastEndpoints;
+using Logging.Abstractions;
+using Logging.Console;
 using Logging.Logstash;
 using Microsoft.EntityFrameworkCore;
 
@@ -27,9 +29,8 @@ builder.Services.AddCors();
 builder.Services.AddHttpClient("arch", _ => { });
 builder.Services.AddHealthChecks();
 builder.Services.AddCore(options => { options.AddKundera(builder.Configuration); });
+builder.Services.AddLogging(options => options.UseConsole());
 
-
-builder.Services.AddLoggingLogstash();
 builder.Services.AddCap(options =>
 {
     options.FailedRetryCount = 2;

@@ -1,4 +1,6 @@
-﻿namespace Core.Pipeline.Models;
+﻿using System.Globalization;
+
+namespace Core.Pipeline.Models;
 
 public class RequestInfo
 {
@@ -6,15 +8,21 @@ public class RequestInfo
     public const string UrlEncodedFormDataContentType = "application/x-www-form-urlencoded";
     public const string MultiPartFormData = "multipart/form-data";
 
+    public RequestInfo(HttpMethod method, string mapTo, object[] pathParameters, string? queryString)
+    {
+        Method = method;
+        Path = $"{string.Format(CultureInfo.CurrentCulture, mapTo, pathParameters)}{queryString}";
+    }
+
     public Guid RequestId { get; } = Guid.NewGuid();
 
-    public required HttpMethod Method { get; init; }
+    public HttpMethod Method { get; private set; }
 
-    public required string Path { get; init; }
+    public string Path { get; private set; }
 
-    public Dictionary<string, string> AttachedHeaders { get; } = new();
-
-    public string? QueryString { get; init; }
+    public Dictionary<string, string> Headers { get; init; } = new();
 
     public DateTime RequestDateUtc { get; } = DateTime.UtcNow;
+    
+    
 }

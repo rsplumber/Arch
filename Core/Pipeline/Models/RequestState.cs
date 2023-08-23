@@ -1,17 +1,26 @@
+using Core.EndpointDefinitions;
+
 namespace Core.Pipeline.Models;
 
 public record RequestState
 {
-    private const string IgnoreDispatchKey = "ignore_dispatch";
+    public EndpointDefinition EndpointDefinition { get; private set; } = default!;
 
-    public RequestEndpointDefinition EndpointDefinition { get; set; } = default!;
-    public RequestInfo RequestInfo { get; set; } = default!;
+    public RequestInfo RequestInfo { get; private set; } = default!;
 
-    public ResponseInfo? ResponseInfo { get; set; }
+    public ResponseInfo? ResponseInfo { get; private set; }
 
-    public Dictionary<string, string> Meta { get; set; } = new();
+    public void Set(EndpointDefinition endpointDefinition) => EndpointDefinition = endpointDefinition;
 
-    public bool IgnoreDispatch() => EndpointDefinition.Meta.TryGetValue(IgnoreDispatchKey, out _);
+    public void Set(RequestInfo requestInfo) => RequestInfo = requestInfo;
 
-    public string ExtractApiUrl() => $"{EndpointDefinition.BaseUrl}/{RequestInfo.Path}{RequestInfo.QueryString}";
+    public void Set(ResponseInfo responseInfo) => ResponseInfo = responseInfo;
+
+    public void SetServiceUnavailableResponse() => ResponseInfo = ResponseInfo.ServiceUnavailable;
+
+    public bool IgnoreDispatch() => EndpointDefinition.ServiceConfig.IgnoreDispatch();
+
+    public bool HasEmptyResponse() => ResponseInfo is null;
+
+    public string ResolveDispatchApiUrl() => $"{EndpointDefinition.ServiceConfig.BaseUrl}/{RequestInfo.Path}";
 }

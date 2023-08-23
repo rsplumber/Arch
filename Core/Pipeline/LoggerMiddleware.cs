@@ -9,35 +9,32 @@ namespace Core.Pipeline;
 internal sealed class LoggerMiddleware : IMiddleware
 {
     private const string EventName = "arch.internal.logs";
-    private const string LoggingMetaKey = "logging";
-    private const string LoggingJustErrorsMetaValue = "error";
-
 
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
         var requestState = context.ProcessorState<RequestState>();
-        if (LoggingDisabled() || IsJustErrorLogging())
+        if (!requestState.EndpointDefinition.Logging.Enabled && IsJustErrorLogging())
         {
             await next(context);
             return;
         }
 
-        var publisher = context.Resolve<ICapPublisher>();
-        await publisher.PublishAsync(EventName, new
-        {
-            Meta = requestState.Meta,
-            endpoint = requestState.EndpointDefinition,
-            request = requestState.RequestInfo,
-            response = requestState.ResponseInfo
-        });
-        await next(context);
+        _ = SendLogsAsync().ConfigureAwait(false);
 
-        bool LoggingDisabled() => requestState.EndpointDefinition.Meta.TryGetValue(LoggingMetaKey, out _);
+        await next(context).ConfigureAwait(false);
+        return;
 
-        bool IsJustErrorLogging()
+        bool IsJustErrorLogging() => requestState.EndpointDefinition.Logging.JustError && requestState.ResponseInfo!.Code < 250;
+
+        Task SendLogsAsync()
         {
-            requestState.EndpointDefinition.Meta.TryGetValue(LoggingMetaKey, out var loggingValue);
-            return loggingValue == LoggingJustErrorsMetaValue && requestState.ResponseInfo!.Code < 250;
+            var publisher = context.Resolve<ICapPublisher>();
+            return publisher.PublishAsync(EventName, new
+            {
+                endpoint = requestState.EndpointDefinition,
+                request = requestState.RequestInfo,
+                response = requestState.ResponseInfo
+            });
         }
     }
 }

@@ -1,6 +1,5 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using Core.Pipeline;
 using Core.Pipeline.Models;
 using Microsoft.AspNetCore.Http;
 
@@ -57,24 +56,19 @@ public static class HttpClientExtensions
                 }
             }
 
-            HttpResponseMessage? httpResponseMessage = null;
             try
             {
-                httpResponseMessage = await client.SendAsync(httpRequest).ConfigureAwait(false);
+                return await client.SendAsync(httpRequest).ConfigureAwait(false);
             }
             catch (Exception)
             {
-                return httpResponseMessage;
+                return null;
             }
-
-
-            return httpResponseMessage;
         }
         finally
         {
             disposableObjects.ForEach(disposable => disposable.Dispose());
             disposableObjects.Clear();
-            disposableObjects = null;
         }
     }
 }

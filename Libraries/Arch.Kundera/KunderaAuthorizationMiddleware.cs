@@ -1,144 +1,88 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using Core.Extensions;
-using Core.Pipeline;
-using Core.Pipeline.Models;
+﻿using Core.Pipeline.Models;
 using FastEndpoints;
 using KunderaNet.Services.Authorization.Abstractions;
 using Microsoft.AspNetCore.Http;
-using Microsoft.IdentityModel.Tokens;
 
 namespace Arch.Kundera;
 
 internal sealed class KunderaAuthorizationMiddleware : IMiddleware
 {
-    private const string ServiceSecretMetaKey = "service_secret";
-    private const string AllowAnonymousMetaKey = "allow_anonymous";
-    private const string PermissionsMetaKey = "permissions";
-    private const string AuthorizationHeaderKey = "Authorization";
-    private const string RolesMetaKey = "roles";
-    private const int UnAuthorizedCode = 401;
-    private const int ForbiddenCode = 403;
-    private const int SessionExpiredCode = 440;
-    private static readonly JwtSecurityTokenHandler JwtSecurityTokenHandler = new();
-    private const string UserTokenKey = "user_token";
-    private const string UserIdKey = "user_id";
-
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
-        var requestState = context.ProcessorState<RequestState>();
-        if (AllowAnonymous())
+        var state = context.ProcessorState<RequestState>();
+        if (state.EndpointDefinition.AllowAnonymous())
         {
-            await next(context);
+            await next(context).ConfigureAwait(false);
             return;
         }
 
-        string? tokenValue;
-        try
+        if (!state.RequestInfo.HasAuthorizationHeader())
         {
-            tokenValue = context.Request.Headers()[AuthorizationHeaderKey];
-        }
-        catch (Exception)
-        {
-            await context.Response.SendUnauthorizedAsync();
+            await context.Response.SendUnauthorizedAsync().ConfigureAwait(false);
             return;
         }
 
-        var (allowedPermissions, allowedRoles) = AllowedPermissionsAndRoles();
-        if (allowedPermissions is null && allowedRoles is null)
+        var allowedPermissions = state.EndpointDefinition.ExtractPermissions();
+        var allowedRoles = state.EndpointDefinition.ExtractRoles();
+        if (RolesOrPermissionsNotConfigured())
         {
-            await context.Response.SendUnauthorizedAsync();
+            await context.Response.SendUnauthorizedAsync().ConfigureAwait(false);
             return;
         }
 
-        var serviceSecret = ExtractServiceSecret();
-        if (serviceSecret is null)
+        var serviceSecret = state.EndpointDefinition.ExtractServiceSecret();
+        if (string.IsNullOrEmpty(serviceSecret))
         {
-            await context.Response.SendUnauthorizedAsync();
+            await context.Response.SendUnauthorizedAsync().ConfigureAwait(false);
             return;
         }
+
+        state.RequestInfo.AttachServiceSecretToHeader(serviceSecret);
 
         var authorizeService = context.Resolve<IAuthorizeService>();
-        AuthorizedResponse? authorized;
+        AuthorizedResponse? authorizedResponse;
         int code;
-        var headers = GenerateHeaders();
-        if (allowedPermissions is not null && allowedRoles is null)
+        var token = state.RequestInfo.GetAuthorizationHeader();
+        if (HasOnlyAllowedPermissions())
         {
-            (code, authorized) = await authorizeService.AuthorizePermissionAsync(tokenValue, allowedPermissions, headers);
+            (code, authorizedResponse) = await authorizeService.AuthorizePermissionAsync(token,
+                    allowedPermissions,
+                    state.RequestInfo.Headers)
+                .ConfigureAwait(false);
         }
-        else if (allowedRoles is not null && allowedPermissions is null)
+        else if (HasOnlyAllowedRoles())
         {
-            (code, authorized) = await authorizeService.AuthorizeRoleAsync(tokenValue, allowedRoles, headers);
+            (code, authorizedResponse) = await authorizeService.AuthorizeRoleAsync(token,
+                    allowedRoles,
+                    state.RequestInfo.Headers)
+                .ConfigureAwait(false);
         }
         else
         {
-            await context.Response.SendStringAsync("Authorization: Multiple authorization types not supported, only use permissions or roles", 400);
+            await context.Response.SendMultipleAuthorizationNotSupportedAsync();
             return;
         }
 
-        switch (code)
+        if (AuthorizationCheckFailed())
         {
-            case ForbiddenCode:
-                await context.Response.SendStringAsync("Forbidden", ForbiddenCode);
-                return;
-            case UnAuthorizedCode:
-                await context.Response.SendUnauthorizedAsync();
-                return;
-            case SessionExpiredCode:
-                await context.Response.SendStringAsync("Session expired", SessionExpiredCode);
-                return;
-        }
-
-        if (authorized is null)
-        {
-            await context.Response.SendUnauthorizedAsync();
+            await context.Response.SendAuthorizationFailedAsync(code);
             return;
         }
 
-        requestState.Meta.Add(UserIdKey, authorized.UserId);
-        requestState.RequestInfo.AttachedHeaders.Add(UserTokenKey, GenerateUserToken(serviceSecret));
+        state.RequestInfo.AttachTempUserTokenToHeader(serviceSecret,
+            authorizedResponse!.UserId,
+            authorizedResponse.ServiceId,
+            authorizedResponse.ScopeId);
 
-        await next(context);
+        await next(context).ConfigureAwait(false);
         return;
 
-        bool AllowAnonymous() => requestState.EndpointDefinition.Meta.TryGetValue(AllowAnonymousMetaKey, out _);
+        bool RolesOrPermissionsNotConfigured() => allowedPermissions.Length == 0 && allowedRoles.Length == 0;
 
-        (string[]?, string[]?) AllowedPermissionsAndRoles()
-        {
-            requestState.EndpointDefinition.Meta.TryGetValue(PermissionsMetaKey, out var permission);
-            requestState.EndpointDefinition.Meta.TryGetValue(RolesMetaKey, out var role);
-            return (permission?.Split(","), role?.Split(","));
-        }
+        bool HasOnlyAllowedPermissions() => allowedPermissions.Length > 0 && allowedRoles.Length == 0;
 
-        string? ExtractServiceSecret()
-        {
-            requestState.EndpointDefinition.Meta.TryGetValue(ServiceSecretMetaKey, out var secret);
-            return secret;
-        }
+        bool HasOnlyAllowedRoles() => allowedRoles.Length > 0 && allowedPermissions.Length == 0;
 
-        string GenerateUserToken(string secret) => JwtSecurityTokenHandler.WriteToken(JwtSecurityTokenHandler
-            .CreateToken(new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new[]
-                {
-                    new Claim("id", authorized.UserId),
-                    new Claim("service_id", authorized.ServiceId ?? string.Empty),
-                    new Claim("scope_id", authorized.ScopeId ?? string.Empty),
-                }),
-                Expires = DateTime.UtcNow.AddSeconds(10),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secret)), SecurityAlgorithms.HmacSha256Signature)
-            }));
-
-        Dictionary<string, string> GenerateHeaders()
-        {
-            var requestHeaders = context.Request
-                .Headers
-                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value[0]!);
-
-            requestHeaders.Remove("service_secret");
-            requestHeaders.Add("service_secret", serviceSecret);
-            return requestHeaders;
-        }
+        bool AuthorizationCheckFailed() => code != 200 || authorizedResponse is null;
     }
 }

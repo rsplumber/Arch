@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using Core.EndpointDefinitions.Events;
+﻿using Core.EndpointDefinitions.Events;
 using Core.Metas;
 using Core.ServiceConfigs;
 using Core.ServiceConfigs.Exceptions;
@@ -9,6 +8,7 @@ namespace Core.EndpointDefinitions;
 public sealed class EndpointDefinition : BaseEntity
 {
     private const string DisableKey = "disable";
+    private const string LoggingMetaKey = "logging";
 
     public Guid Id { get; set; }
 
@@ -46,5 +46,26 @@ public sealed class EndpointDefinition : BaseEntity
 
     public bool IsDisabled() => Meta.Any(meta => meta.Key == DisableKey);
 
-    public string GenerateRequestPath(object[] pathParameters) => string.Format(CultureInfo.CurrentCulture, MapTo, pathParameters);
+    public LoggingOptions Logging => new(Meta.FirstOrDefault(meta => meta.Key == LoggingMetaKey));
+
+    public sealed record LoggingOptions
+    {
+        private const string LoggingJustErrorsMetaValue = "error";
+
+        public LoggingOptions(Meta? loggingMeta)
+        {
+            if (loggingMeta is null)
+            {
+                Enabled = false;
+                return;
+            }
+
+            Enabled = true;
+            JustError = loggingMeta.Value == LoggingJustErrorsMetaValue;
+        }
+
+        public bool Enabled { get; private set; }
+
+        public bool JustError { get; private set; }
+    }
 }

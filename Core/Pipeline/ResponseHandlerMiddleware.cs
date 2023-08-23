@@ -15,7 +15,7 @@ internal sealed class ResponseHandlerMiddleware : IMiddleware
             return;
         }
 
-        if (requestState.ResponseInfo is null)
+        if (requestState.HasEmptyResponse())
         {
             await context.Response.SendStringAsync(string.Empty, 400);
             return;
@@ -25,7 +25,7 @@ internal sealed class ResponseHandlerMiddleware : IMiddleware
         {
             requestId = requestState.RequestInfo.RequestId,
             requestDateUtc = requestState.RequestInfo.RequestDateUtc,
-            data = requestState.ResponseInfo.Value
+            data = requestState.ResponseInfo!.Value
         }, requestState.ResponseInfo.Code);
     }
 }
