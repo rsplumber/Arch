@@ -13,7 +13,7 @@ internal sealed class LoggerMiddleware : IMiddleware
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
         var requestState = context.ProcessorState<RequestState>();
-        if (!requestState.EndpointDefinition.Logging.Enabled && IsJustErrorLogging())
+        if (!requestState.EndpointDefinition.Logging.Enabled || IsJustErrorLogging())
         {
             await next(context);
             return;

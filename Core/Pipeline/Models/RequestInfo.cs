@@ -16,13 +16,11 @@ public class RequestInfo
 
     public Guid RequestId { get; } = Guid.NewGuid();
 
-    public HttpMethod Method { get; private set; }
+    public HttpMethod Method { get; }
 
-    public string Path { get; private set; }
-
-    public Dictionary<string, string> Headers { get; init; } = new();
+    public string Path { get; }
 
     public DateTime RequestDateUtc { get; } = DateTime.UtcNow;
-    
-    
+
+    public required Dictionary<string, string> Headers { get; init; }
 }

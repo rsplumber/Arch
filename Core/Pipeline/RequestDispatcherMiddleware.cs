@@ -19,17 +19,19 @@ internal sealed class RequestDispatcherMiddleware : IMiddleware
             return;
         }
 
+        var serviceEndpointResolver = context.Resolve<IServiceEndpointResolver>();
+        var apiPath = await serviceEndpointResolver.ResolveAsync(state.EndpointDefinition, state.RequestInfo.Path);
         var httpClient = CreateHttpClient();
         var watch = Stopwatch.StartNew();
         var httpResponseMessage = await httpClient.SendAsync(
                 state.RequestInfo.Method,
-                state.ResolveDispatchApiUrl(),
+                apiPath,
                 context.Request)
             .ConfigureAwait(false);
         watch.Stop();
         if (httpResponseMessage is null)
         {
-            state.SetServiceUnavailableResponse();
+            state.SetServiceUnavailable();
             await next(context).ConfigureAwait(false);
             return;
         }

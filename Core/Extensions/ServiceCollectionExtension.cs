@@ -12,6 +12,7 @@ public static class ServiceCollectionExtension
 {
     public static void AddCore(this IServiceCollection services, Action<IServiceCollection> libraries)
     {
+        services.AddSingleton<IServiceEndpointResolver, BasicServiceEndpointResolver>();
         services.TryAddSingleton<ExceptionHandlerMiddleware>();
         services.TryAddSingleton<RequestExtractorMiddleware>();
         libraries(services);

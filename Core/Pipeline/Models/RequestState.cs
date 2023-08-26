@@ -16,11 +16,9 @@ public record RequestState
 
     public void Set(ResponseInfo responseInfo) => ResponseInfo = responseInfo;
 
-    public void SetServiceUnavailableResponse() => ResponseInfo = ResponseInfo.ServiceUnavailable;
+    public void SetServiceUnavailable() => ResponseInfo = ResponseInfo.ServiceUnavailable;
 
     public bool IgnoreDispatch() => EndpointDefinition.ServiceConfig.IgnoreDispatch();
 
     public bool HasEmptyResponse() => ResponseInfo is null;
-
-    public string ResolveDispatchApiUrl() => $"{EndpointDefinition.ServiceConfig.BaseUrl}/{RequestInfo.Path}";
 }

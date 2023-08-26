@@ -13,7 +13,7 @@ public class ResponseInfo
 
     public dynamic? Value { get; init; }
 
-    public long ResponseTimeMilliseconds { get; init; } = -1;
+    public required long ResponseTimeMilliseconds { get; init; }
 
     public string? ContentType { get; init; } = string.Empty;
 }
