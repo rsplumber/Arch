@@ -18,7 +18,7 @@ internal static class RequestInfoExtensions
         return requestInfo.Headers.TryGetValue(AuthorizationHeaderKey, out var authorizationValue) ? authorizationValue : string.Empty;
     }
 
-    public static bool HasAuthorizationHeader(this RequestInfo requestInfo) => string.IsNullOrEmpty(requestInfo.GetAuthorizationHeader());
+    public static bool HasAuthorizationHeader(this RequestInfo requestInfo) => !string.IsNullOrEmpty(requestInfo.GetAuthorizationHeader());
 
     public static void AttachServiceSecretToHeader(this RequestInfo requestInfo, string serviceSecret)
     {

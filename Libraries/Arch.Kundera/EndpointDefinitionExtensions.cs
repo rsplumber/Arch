@@ -23,7 +23,7 @@ internal static class EndpointDefinitionExtensions
 
     public static string ExtractServiceSecret(this EndpointDefinition endpointDefinition)
     {
-        var serviceSecretMeta = endpointDefinition.Meta.FirstOrDefault(meta1 => meta1.Key == ServiceSecretMetaKey);
+        var serviceSecretMeta = endpointDefinition.ServiceConfig.Meta.FirstOrDefault(meta1 => meta1.Key == ServiceSecretMetaKey);
         return serviceSecretMeta is null ? string.Empty : serviceSecretMeta.Value;
     }
 
