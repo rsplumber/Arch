@@ -11,7 +11,6 @@ using EndpointGraph.InMemory;
 using FastEndpoints;
 using Logging.Abstractions;
 using Logging.Console;
-using Logging.Logstash;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -30,6 +29,7 @@ builder.Services.AddHttpClient("arch", _ => { });
 builder.Services.AddHealthChecks();
 builder.Services.AddCore(options => { options.AddKundera(builder.Configuration); });
 builder.Services.AddLogging(options => options.UseConsole());
+builder.Services.AddResponseCompression();
 
 builder.Services.AddCap(options =>
 {
@@ -78,6 +78,7 @@ app.Use(async (context, next) =>
     context.Request.EnableBuffering();
     await next();
 });
+app.UseResponseCompression();
 app.UseFastEndpoints(config =>
 {
     config.Serializer.Options.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
