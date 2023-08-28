@@ -60,7 +60,7 @@ public static class HttpClientExtensions
             {
                 return await client.SendAsync(httpRequest).ConfigureAwait(false);
             }
-            catch (Exception)
+            catch
             {
                 return null;
             }
