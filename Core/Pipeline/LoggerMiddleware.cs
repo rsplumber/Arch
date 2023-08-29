@@ -15,7 +15,7 @@ internal sealed class LoggerMiddleware : IMiddleware
         var requestState = context.ProcessorState<RequestState>();
         if (!requestState.EndpointDefinition.Logging.Enabled || IsJustErrorLogging())
         {
-            await next(context);
+            await next(context).ConfigureAwait(false);
             return;
         }
 

@@ -2,13 +2,6 @@
 
 public class ResponseInfo
 {
-    public static readonly ResponseInfo ServiceUnavailable = new()
-    {
-        Code = 400,
-        Value = string.Empty,
-        ResponseTimeMilliseconds = -1
-    };
-
     public required int Code { get; init; }
 
     public dynamic? Value { get; init; }
@@ -16,4 +9,6 @@ public class ResponseInfo
     public required long ResponseTimeMilliseconds { get; init; }
 
     public string? ContentType { get; init; } = string.Empty;
+
+    public required Dictionary<string, string> Headers { get; init; }
 }

@@ -8,24 +8,39 @@ internal sealed class ResponseHandlerMiddleware : IMiddleware
 {
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
-        var requestState = context.ProcessorState<RequestState>();
-        if (requestState.IgnoreDispatch())
+        var state = context.ProcessorState<RequestState>();
+        if (state.IgnoreDispatch())
         {
-            await next(context);
+            await next(context).ConfigureAwait(false);
             return;
         }
 
-        if (requestState.HasEmptyResponse())
+        if (state.HasEmptyResponse())
         {
-            await context.Response.SendStringAsync(string.Empty, 400);
+            await context.Response.SendStringAsync(string.Empty, 400)
+                .ConfigureAwait(false);
             return;
         }
 
-        await context.Response.SendAsync(new
+        foreach (var (key, value) in state.ResponseInfo!.Headers)
         {
-            requestId = requestState.RequestInfo.RequestId,
-            requestDateUtc = requestState.RequestInfo.RequestDateUtc,
-            data = requestState.ResponseInfo!.Value
-        }, requestState.ResponseInfo.Code);
+            context.Response.Headers.TryAdd(key, value);
+        }
+
+        await context.Response.SendAsync(new Response
+        {
+            RequestId = state.RequestInfo.RequestId,
+            RequestDateUtc = state.RequestInfo.RequestDateUtc,
+            Data = state.ResponseInfo.Value
+        }, state.ResponseInfo.Code).ConfigureAwait(false);
     }
+}
+
+internal sealed record Response
+{
+    public required Guid RequestId { get; init; }
+
+    public required DateTime RequestDateUtc { get; init; }
+
+    public dynamic? Data { get; init; }
 }

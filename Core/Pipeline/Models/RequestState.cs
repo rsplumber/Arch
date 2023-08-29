@@ -16,7 +16,21 @@ public record RequestState
 
     public void Set(ResponseInfo responseInfo) => ResponseInfo = responseInfo;
 
-    public void SetServiceUnavailable() => ResponseInfo = ResponseInfo.ServiceUnavailable;
+    public void SetServiceUnavailable(long responseTime) => ResponseInfo = new ResponseInfo
+    {
+        Code = 503,
+        Value = "Service Unavailable",
+        ResponseTimeMilliseconds = responseTime,
+        Headers = new Dictionary<string, string>()
+    };
+
+    public void SetServiceTimeOut(long responseTime) => ResponseInfo = new ResponseInfo
+    {
+        Code = 503,
+        Value = "Gateway timeout",
+        ResponseTimeMilliseconds = responseTime,
+        Headers = new Dictionary<string, string>()
+    };
 
     public bool IgnoreDispatch() => EndpointDefinition.ServiceConfig.IgnoreDispatch();
 

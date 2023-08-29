@@ -19,9 +19,15 @@ internal sealed class RequestDispatcherMiddleware : IMiddleware
             return;
         }
 
+        var httpClient = context.Resolve<IHttpClientFactory>().CreateClient(HttpFactoryName);
+        foreach (var (key, value) in state.RequestInfo.Headers)
+        {
+            httpClient.DefaultRequestHeaders.TryAddWithoutValidation(key, value);
+        }
+
         var serviceEndpointResolver = context.Resolve<IServiceEndpointResolver>();
         var apiPath = await serviceEndpointResolver.ResolveAsync(state.EndpointDefinition, state.RequestInfo.Path);
-        var httpClient = CreateHttpClient();
+
         var watch = Stopwatch.StartNew();
         var httpResponseMessage = await httpClient.SendAsync(
                 state.RequestInfo.Method,
@@ -29,33 +35,31 @@ internal sealed class RequestDispatcherMiddleware : IMiddleware
                 context.Request)
             .ConfigureAwait(false);
         watch.Stop();
+        var requestElapsedTime = watch.ElapsedMilliseconds;
+
         if (httpResponseMessage is null)
         {
-            state.SetServiceUnavailable();
+            state.SetServiceTimeOut(requestElapsedTime);
             await next(context).ConfigureAwait(false);
             return;
         }
 
-        var response = await httpResponseMessage.ReadBodyAsync().ConfigureAwait(false);
+        if ((int)httpResponseMessage.StatusCode >= 500)
+        {
+            state.SetServiceUnavailable(requestElapsedTime);
+            await next(context).ConfigureAwait(false);
+            return;
+        }
+
         state.Set(new ResponseInfo
         {
             Code = (int)httpResponseMessage.StatusCode,
-            Value = response,
-            ResponseTimeMilliseconds = watch.ElapsedMilliseconds,
-            ContentType = httpResponseMessage.ContentType()
+            Value = await httpResponseMessage.ReadBodyAsync().ConfigureAwait(false),
+            ResponseTimeMilliseconds = requestElapsedTime,
+            ContentType = httpResponseMessage.ContentType(),
+            Headers = httpResponseMessage.Headers()
         });
+
         await next(context).ConfigureAwait(false);
-        return;
-
-        HttpClient CreateHttpClient()
-        {
-            var client = context.Resolve<IHttpClientFactory>().CreateClient(HttpFactoryName);
-            foreach (var (key, value) in state.RequestInfo.Headers)
-            {
-                client.DefaultRequestHeaders.TryAddWithoutValidation(key, value);
-            }
-
-            return client;
-        }
     }
 }
