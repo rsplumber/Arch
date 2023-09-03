@@ -1,7 +1,7 @@
-﻿using Logging.Abstractions;
+﻿using Arch.Logging.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Logging.Console;
+namespace Arch.Logging.Console;
 
 public static class LoggingOptionsExtension
 {

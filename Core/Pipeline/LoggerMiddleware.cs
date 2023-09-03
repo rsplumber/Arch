@@ -1,10 +1,9 @@
-﻿using Core.Pipeline.Models;
+﻿using Arch.Core.Extensions;
+using Arch.Logging.Abstractions;
 using DotNetCore.CAP;
-using FastEndpoints;
-using Logging.Abstractions;
 using Microsoft.AspNetCore.Http;
 
-namespace Core.Pipeline;
+namespace Arch.Core.Pipeline;
 
 internal sealed class LoggerMiddleware : IMiddleware
 {
@@ -12,7 +11,7 @@ internal sealed class LoggerMiddleware : IMiddleware
 
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
-        var requestState = context.ProcessorState<RequestState>();
+        var requestState = context.RequestState();
         if (!requestState.EndpointDefinition.Logging.Enabled || IsJustErrorLogging())
         {
             await next(context).ConfigureAwait(false);
@@ -28,8 +27,8 @@ internal sealed class LoggerMiddleware : IMiddleware
 
         Task SendLogsAsync()
         {
-            var publisher = context.Resolve<ICapPublisher>();
-            return publisher.PublishAsync(EventName, new
+            var eventBus = context.EventBus();
+            return eventBus.PublishAsync(EventName, new
             {
                 endpoint = requestState.EndpointDefinition,
                 request = requestState.RequestInfo,

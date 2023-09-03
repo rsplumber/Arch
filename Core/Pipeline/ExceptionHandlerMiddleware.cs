@@ -1,7 +1,7 @@
 ﻿using FastEndpoints;
 using Microsoft.AspNetCore.Http;
 
-namespace Core.Pipeline;
+namespace Arch.Core.Pipeline;
 
 internal sealed class ExceptionHandlerMiddleware : IMiddleware
 {

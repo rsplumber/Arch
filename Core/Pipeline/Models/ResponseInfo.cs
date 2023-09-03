@@ -1,4 +1,4 @@
-﻿namespace Core.Pipeline.Models;
+﻿namespace Arch.Core.Pipeline.Models;
 
 public class ResponseInfo
 {

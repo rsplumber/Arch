@@ -1,8 +1,8 @@
-using Core.ServiceConfigs.Events;
-using Core.ServiceConfigs.Exceptions;
+using Arch.Core.ServiceConfigs.Events;
+using Arch.Core.ServiceConfigs.Exceptions;
 using DotNetCore.CAP;
 
-namespace Core.ServiceConfigs.Services;
+namespace Arch.Core.ServiceConfigs.Services;
 
 public sealed class ServiceConfigService : IServiceConfigService
 {

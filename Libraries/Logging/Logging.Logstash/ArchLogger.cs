@@ -1,7 +1,7 @@
+using Arch.Logging.Abstractions;
 using DotNetCore.CAP;
-using Logging.Abstractions;
 
-namespace Logging.Logstash;
+namespace Arch.Logging.Logstash;
 
 internal sealed class ArchLogger : IArchLogger
 {

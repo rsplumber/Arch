@@ -1,4 +1,4 @@
-﻿namespace Core.EndpointDefinitions;
+﻿namespace Arch.Core.EndpointDefinitions;
 
 public interface IEndpointDefinitionRepository
 {
@@ -9,6 +9,6 @@ public interface IEndpointDefinitionRepository
     Task DeleteAsync(EndpointDefinition entity, CancellationToken cancellationToken = default);
 
     Task<EndpointDefinition?> FindAsync(Guid id, CancellationToken cancellationToken = default);
-    
+
     Task<EndpointDefinition?> FindAsync(DefinitionKey definitionKey, CancellationToken cancellationToken = default);
 }

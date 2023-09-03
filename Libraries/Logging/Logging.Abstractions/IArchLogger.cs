@@ -1,4 +1,4 @@
-namespace Logging.Abstractions;
+namespace Arch.Logging.Abstractions;
 
 public interface IArchLogger
 {

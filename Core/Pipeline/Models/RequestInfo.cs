@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 
-namespace Core.Pipeline.Models;
+namespace Arch.Core.Pipeline.Models;
 
 public class RequestInfo
 {

@@ -1,11 +1,11 @@
-﻿using Core.EndpointDefinitions;
-using Core.EndpointDefinitions.Events;
-using Core.Metas;
-using Core.ServiceConfigs.Events;
+﻿using Arch.Core.EndpointDefinitions;
+using Arch.Core.EndpointDefinitions.Events;
+using Arch.Core.Metas;
+using Arch.Core.ServiceConfigs.Events;
 
-namespace Core.ServiceConfigs;
+namespace Arch.Core.ServiceConfigs;
 
-public sealed class ServiceConfig : BaseEntity
+public class ServiceConfig : BaseEntity
 {
     private const string BaseUrlKey = "base_url";
     private const string IgnoreDispatchKey = "ignore_dispatch";

@@ -1,9 +1,9 @@
-﻿using Core.EndpointDefinitions.Events;
-using Core.Metas;
-using Core.ServiceConfigs;
-using Core.ServiceConfigs.Exceptions;
+﻿using Arch.Core.EndpointDefinitions.Events;
+using Arch.Core.Metas;
+using Arch.Core.ServiceConfigs;
+using Arch.Core.ServiceConfigs.Exceptions;
 
-namespace Core.EndpointDefinitions;
+namespace Arch.Core.EndpointDefinitions;
 
 public sealed class EndpointDefinition : BaseEntity
 {
@@ -41,6 +41,44 @@ public sealed class EndpointDefinition : BaseEntity
             });
         }
 
+        AddDomainEvent(new EndpointDefinitionChangedEvent(Id));
+    }
+
+    public void Add(Meta meta)
+    {
+        if (Has(meta)) return;
+        Meta.Add(meta);
+        AddDomainEvent(new EndpointDefinitionChangedEvent(Id));
+    }
+
+    public void RemoveMeta(string key)
+    {
+        var selectedMeta = Meta.FirstOrDefault(meta => meta.Key == key);
+        if (selectedMeta is null) return;
+        Meta.Remove(selectedMeta);
+        AddDomainEvent(new EndpointDefinitionChangedEvent(Id));
+    }
+
+    public bool Has(Meta meta) => Meta.Any(m => m.Key == meta.Key);
+
+    public void Enable()
+    {
+        var selectedMeta = Meta.FirstOrDefault(meta => meta.Key == "disabled");
+        if (selectedMeta is null) return;
+        Meta.Remove(selectedMeta);
+        AddDomainEvent(new EndpointDefinitionChangedEvent(Id));
+    }
+
+
+    public void Disable()
+    {
+        var meta = new Meta
+        {
+            Key = "disabled",
+            Value = "true"
+        };
+        if (Has(meta)) return;
+        Meta.Add(meta);
         AddDomainEvent(new EndpointDefinitionChangedEvent(Id));
     }
 

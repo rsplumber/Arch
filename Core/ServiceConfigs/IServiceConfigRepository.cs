@@ -1,4 +1,4 @@
-﻿namespace Core.ServiceConfigs;
+﻿namespace Arch.Core.ServiceConfigs;
 
 public interface IServiceConfigRepository
 {
@@ -9,7 +9,7 @@ public interface IServiceConfigRepository
     Task DeleteAsync(ServiceConfig entity, CancellationToken cancellationToken = default);
 
     Task<ServiceConfig?> FindAsync(Guid id, CancellationToken cancellationToken = default);
-    
+
     Task<ServiceConfig?> FindByNameAsync(string name, CancellationToken cancellationToken = default);
 
     Task<List<ServiceConfig>> FindAsync(CancellationToken cancellationToken = default);

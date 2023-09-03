@@ -1,6 +1,6 @@
-using EndpointGraph.Abstractions;
+using Arch.EndpointGraph.Abstractions;
 
-namespace Core.EndpointDefinitions.Resolvers;
+namespace Arch.Core.EndpointDefinitions.Resolvers;
 
 public sealed class EndpointDefinitionResolver : IEndpointDefinitionResolver
 {

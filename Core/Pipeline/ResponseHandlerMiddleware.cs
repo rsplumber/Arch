@@ -1,14 +1,14 @@
-﻿using Core.Pipeline.Models;
+﻿using Arch.Core.Extensions;
 using FastEndpoints;
 using Microsoft.AspNetCore.Http;
 
-namespace Core.Pipeline;
+namespace Arch.Core.Pipeline;
 
 internal sealed class ResponseHandlerMiddleware : IMiddleware
 {
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
-        var state = context.ProcessorState<RequestState>();
+        var state = context.RequestState();
         if (state.IgnoreDispatch())
         {
             await next(context).ConfigureAwait(false);
@@ -22,16 +22,11 @@ internal sealed class ResponseHandlerMiddleware : IMiddleware
             return;
         }
 
-        foreach (var (key, value) in state.ResponseInfo!.Headers)
-        {
-            context.Response.Headers.TryAdd(key, value);
-        }
-
         await context.Response.SendAsync(new Response
         {
             RequestId = state.RequestInfo.RequestId,
             RequestDateUtc = state.RequestInfo.RequestDateUtc,
-            Data = state.ResponseInfo.Value
+            Data = state.ResponseInfo!.Value
         }, state.ResponseInfo.Code).ConfigureAwait(false);
     }
 }

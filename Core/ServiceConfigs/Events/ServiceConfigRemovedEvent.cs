@@ -1,4 +1,4 @@
-namespace Core.ServiceConfigs.Events;
+namespace Arch.Core.ServiceConfigs.Events;
 
 public sealed record ServiceConfigRemovedEvent(Guid Id) : DomainEvent
 {

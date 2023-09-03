@@ -1,10 +1,9 @@
-﻿using Core.EndpointDefinitions;
-using Core.Extensions;
-using Core.Pipeline.Models;
+﻿using Arch.Core.Extensions;
+using Arch.Core.Pipeline.Models;
 using FastEndpoints;
 using Microsoft.AspNetCore.Http;
 
-namespace Core.Pipeline;
+namespace Arch.Core.Pipeline;
 
 internal sealed class RequestExtractorMiddleware : IMiddleware
 {
@@ -18,7 +17,7 @@ internal sealed class RequestExtractorMiddleware : IMiddleware
             return;
         }
 
-        var endpointDefinitionResolver = context.Resolve<IEndpointDefinitionResolver>();
+        var endpointDefinitionResolver = context.EndpointDefinitionResolver();
         var (definition, pathParameters) = await endpointDefinitionResolver.ResolveAsync(path, method).ConfigureAwait(false);
         if (definition is null || definition.IsDisabled())
         {
@@ -26,7 +25,7 @@ internal sealed class RequestExtractorMiddleware : IMiddleware
             return;
         }
 
-        var state = context.ProcessorState<RequestState>();
+        var state = context.RequestState();
         state.Set(definition);
         state.Set(new RequestInfo(method, definition.MapTo, pathParameters, context.Request.ReadQueryString())
         {

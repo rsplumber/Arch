@@ -1,9 +1,9 @@
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Logging.Abstractions;
+using Arch.Logging.Abstractions;
 
-namespace Logging.Console;
+namespace Arch.Logging.Console;
 
 internal sealed class ArchLogger : IArchLogger
 {

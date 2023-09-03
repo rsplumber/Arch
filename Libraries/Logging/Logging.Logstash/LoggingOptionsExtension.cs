@@ -1,7 +1,7 @@
-﻿using Logging.Abstractions;
+﻿using Arch.Logging.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Logging.Logstash;
+namespace Arch.Logging.Logstash;
 
 public static class LoggingOptionsExtension
 {

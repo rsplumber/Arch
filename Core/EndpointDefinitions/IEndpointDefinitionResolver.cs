@@ -1,4 +1,4 @@
-﻿namespace Core.EndpointDefinitions;
+﻿namespace Arch.Core.EndpointDefinitions;
 
 public interface IEndpointDefinitionResolver
 {

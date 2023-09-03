@@ -1,10 +1,10 @@
-using Core.EndpointDefinitions.Exceptions;
-using Core.Metas;
-using Core.ServiceConfigs;
-using Core.ServiceConfigs.Exceptions;
-using EndpointGraph.Abstractions;
+using Arch.Core.EndpointDefinitions.Exceptions;
+using Arch.Core.Metas;
+using Arch.Core.ServiceConfigs;
+using Arch.Core.ServiceConfigs.Exceptions;
+using Arch.EndpointGraph.Abstractions;
 
-namespace Core.EndpointDefinitions.Services;
+namespace Arch.Core.EndpointDefinitions.Services;
 
 public sealed class EndpointDefinitionService : IEndpointDefinitionService
 {
@@ -35,6 +35,7 @@ public sealed class EndpointDefinitionService : IEndpointDefinitionService
         var sanitizedEndpoint = SanitizedEndpoint();
         await _endpointPatternTree.AddAsync(sanitizedEndpoint, cancellationToken);
         var (endpointPattern, _) = await _endpointPatternTree.FindAsync(request.Endpoint, cancellationToken);
+        if (endpointPattern is null) throw new EndpointDefinitionNotFoundException();
 
         var endpointDefinition = new EndpointDefinition
         {
@@ -67,19 +68,6 @@ public sealed class EndpointDefinitionService : IEndpointDefinitionService
         }
 
         void AddServiceConfigMetaToEndpoint() => endpointDefinition.Meta.AddRange(serviceConfig.Meta);
-    }
-
-    public async ValueTask UpdateAsync(UpdateEndpointDefinitionRequest request, CancellationToken cancellationToken = default)
-    {
-        var endpointDefinition = await _endpointDefinitionRepository.FindAsync(request.Id, cancellationToken);
-
-        if (endpointDefinition is null)
-        {
-            throw new EndpointDefinitionNotFoundException();
-        }
-
-        endpointDefinition.UpdateMeta(request.Meta);
-        await _endpointDefinitionRepository.UpdateAsync(endpointDefinition, cancellationToken);
     }
 
     public async ValueTask RemoveAsync(Guid endpointId, CancellationToken cancellationToken = default)

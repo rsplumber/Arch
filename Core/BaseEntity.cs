@@ -1,4 +1,4 @@
-﻿namespace Core;
+﻿namespace Arch.Core;
 
 public abstract class BaseEntity
 {
@@ -6,17 +6,17 @@ public abstract class BaseEntity
     {
     }
 
-    private HashSet<IDomainEvent>? _domainEvents;
+    private HashSet<IEvent>? _domainEvents;
 
-    public IReadOnlyCollection<IDomainEvent>? DomainEvents => _domainEvents;
+    public IReadOnlyCollection<IEvent>? DomainEvents => _domainEvents;
 
-    protected void AddDomainEvent(IDomainEvent domainEvent)
+    protected void AddDomainEvent(IEvent domainEvent)
     {
-        _domainEvents ??= new HashSet<IDomainEvent>();
+        _domainEvents ??= new HashSet<IEvent>();
         _domainEvents.Add(domainEvent);
     }
 
-    protected void RemoveDomainEvent(IDomainEvent domainEvent)
+    protected void RemoveDomainEvent(IEvent domainEvent)
     {
         _domainEvents?.Remove(domainEvent);
     }

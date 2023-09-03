@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Logging.Abstractions;
+namespace Arch.Logging.Abstractions;
 
 public sealed class LoggingOptions
 {

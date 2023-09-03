@@ -1,4 +1,4 @@
-﻿namespace Core.ServiceConfigs.Exceptions;
+﻿namespace Arch.Core.ServiceConfigs.Exceptions;
 
 public sealed class PrimaryServiceModificationException : ArchException
 {

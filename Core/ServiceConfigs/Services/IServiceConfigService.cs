@@ -1,4 +1,4 @@
-﻿namespace Core.ServiceConfigs.Services;
+﻿namespace Arch.Core.ServiceConfigs.Services;
 
 public interface IServiceConfigService
 {

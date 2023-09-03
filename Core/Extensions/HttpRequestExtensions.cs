@@ -1,10 +1,9 @@
 using System.Text.Json;
-using Core.Pipeline;
-using Core.Pipeline.Models;
+using Arch.Core.Pipeline.Models;
 using Microsoft.AspNetCore.Http;
 using static System.Net.Http.HttpMethod;
 
-namespace Core.Extensions;
+namespace Arch.Core.Extensions;
 
 public static class HttpRequestExtensions
 {

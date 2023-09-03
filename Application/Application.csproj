@@ -19,11 +19,12 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Caching.Abstractions\Caching.Abstractions.csproj" />
-      <ProjectReference Include="..\Caching.InMemory\Caching.InMemory.csproj" />
-      <ProjectReference Include="..\Data.EFCore\Data.EFCore.csproj" />
-      <ProjectReference Include="..\EndpointGraph.InMemory\EndpointGraph.InMemory.csproj" />
-      <ProjectReference Include="..\Libraries\Arch.Kundera\Arch.Kundera.csproj" />
+      <ProjectReference Include="..\Arch\Arch.csproj" />
+      <ProjectReference Include="..\Data\Caching\Data.Caching.InMemory\Data.Caching.InMemory.csproj" />
+      <ProjectReference Include="..\Data\Data.EF\Data.EF.csproj" />
+      <ProjectReference Include="..\Libraries\Auh\Kundera\Kundera.csproj" />
+      <ProjectReference Include="..\Libraries\EndpointGraphs\EndpointGraph.InMemory\EndpointGraph.InMemory.csproj" />
+      <ProjectReference Include="..\Libraries\LoadBalancer\LoadBalancer.Basic\LoadBalancer.Basic.csproj" />
       <ProjectReference Include="..\Libraries\Logging\Logging.Console\Logging.Console.csproj" />
       <ProjectReference Include="..\Libraries\Logging\Logging.Logstash\Logging.Logstash.csproj" />
     </ItemGroup>

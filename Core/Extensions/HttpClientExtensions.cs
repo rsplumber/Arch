@@ -1,9 +1,9 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using Core.Pipeline.Models;
+using Arch.Core.Pipeline.Models;
 using Microsoft.AspNetCore.Http;
 
-namespace Core.Extensions;
+namespace Arch.Core.Extensions;
 
 public static class HttpClientExtensions
 {
@@ -56,14 +56,11 @@ public static class HttpClientExtensions
                 }
             }
 
-            try
-            {
-                return await client.SendAsync(httpRequest).ConfigureAwait(false);
-            }
-            catch
-            {
-                return null;
-            }
+            return await client.SendAsync(httpRequest).ConfigureAwait(false);
+        }
+        catch
+        {
+            return null;
         }
         finally
         {

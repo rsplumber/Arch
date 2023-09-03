@@ -1,6 +1,6 @@
-using Core.EndpointDefinitions;
+using Arch.Core.EndpointDefinitions;
 
-namespace Core.Pipeline.Models;
+namespace Arch.Core.Pipeline.Models;
 
 public record RequestState
 {
@@ -24,9 +24,17 @@ public record RequestState
         Headers = new Dictionary<string, string>()
     };
 
+    public void SetUnAuthorized(int code, long responseTime) => ResponseInfo = new ResponseInfo
+    {
+        Code = code,
+        Value = code == 401 ? "UnAuthorized" : "Forbidden",
+        ResponseTimeMilliseconds = responseTime,
+        Headers = new Dictionary<string, string>()
+    };
+
     public void SetServiceTimeOut(long responseTime) => ResponseInfo = new ResponseInfo
     {
-        Code = 503,
+        Code = 504,
         Value = "Gateway timeout",
         ResponseTimeMilliseconds = responseTime,
         Headers = new Dictionary<string, string>()
