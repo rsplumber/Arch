@@ -66,9 +66,9 @@ app.UseArch(options =>
         var serviceConfigs = serviceConfigRepository.FindAsync().Result;
         var endpoints = (from config in serviceConfigs from definition in config.EndpointDefinitions select definition.Endpoint).ToList();
         graphOptions.InitializeWith(endpoints);
-        options.BeforeDispatching(dispatchingOptions => dispatchingOptions.UseAuthorization(executionOptions => executionOptions.UseKundera(builder.Configuration)));
-        options.AfterDispatching(dispatchingOptions => dispatchingOptions.UseLogging());
     });
+    options.BeforeDispatching(dispatchingOptions => dispatchingOptions.UseAuthorization(executionOptions => executionOptions.UseKundera(builder.Configuration)));
+    options.AfterDispatching(dispatchingOptions => dispatchingOptions.UseLogging());
 });
 
 await app.RunAsync();
