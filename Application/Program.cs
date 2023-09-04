@@ -1,27 +1,25 @@
 using System.Text.Json;
 using Arch;
 using Arch.Authorization.Abstractions;
-using Arch.Data.Abstractions;
+using Arch.Authorization.Kundera;
 using Arch.Data.Caching.Abstractions;
 using Arch.Data.Caching.InMemory;
 using Arch.Data.EF;
-using Arch.EndpointGraph.Abstractions;
 using Arch.EndpointGraph.InMemory;
-using Arch.Kundera;
 using Arch.LoadBalancer.Basic;
-using Arch.LoadBalancer.Configurations;
 using Arch.Logging.Abstractions;
 using Arch.Logging.Console;
-using FastEndpoints;
+using EventBus.Cap;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
-
 builder.WebHost.UseKestrel(options => { options.Limits.MaxRequestBodySize = 50_000_000; });
 builder.WebHost.ConfigureKestrel((_, options) => { options.ListenAnyIP(5228, _ => { }); });
 
 builder.Services.AddArch(options =>
 {
+    options.EnableHealthCheck();
+    options.EnableCors();
     options.ConfigureEventBus(busOptions => busOptions.UseCap(capOptions =>
     {
         capOptions.FailedRetryCount = 2;
@@ -42,7 +40,7 @@ builder.Services.AddArch(options =>
         });
     }));
 
-    options.ConfigureEndpointGraph(graphOptions => { graphOptions.UseInMemory(); });
+    options.ConfigureEndpointGraph(graphOptions => graphOptions.UseInMemory());
     options.ConfigureLoadBalancer(balancerOptions => balancerOptions.UseBasic());
     options.ConfigureData(dataOptions =>
     {
@@ -54,35 +52,13 @@ builder.Services.AddArch(options =>
     options.AddAuthorization(authorizationOptions => authorizationOptions.UseKundera(builder.Configuration));
 });
 
-builder.Services.AddCors();
-builder.Services.AddHealthChecks();
-builder.Services.AddResponseCompression();
-builder.Services.AddFastEndpoints();
-
 var app = builder.Build();
-
-app.UseCors(b => b.AllowAnyHeader()
-    .AllowAnyMethod()
-    .SetIsOriginAllowed(_ => true)
-    .AllowCredentials());
 
 app.UseArch(options =>
 {
-    options.UseData(dataOptions => { dataOptions.UseEntityFramework(); });
-    options.UseEndpointGraph(graphOptions => { graphOptions.UseInMemory(); });
-}, beforeDispatchOptions =>
-{
-    beforeDispatchOptions.UseAuthorization(options => options.UseKundera(builder.Configuration));
-}, afterDispatchOptions => { });
-
-app.UseHealthChecks("/health");
-app.UseResponseCompression();
-app.UseFastEndpoints(config =>
-{
-    config.Serializer.Options.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-    config.Endpoints.RoutePrefix = "api";
-    config.Versioning.Prefix = "v";
-    config.Versioning.PrependToRoute = true;
+    options.UseData(dataOptions => dataOptions.UseEntityFramework());
+    options.UseEndpointGraph(graphOptions => graphOptions.UseInMemory());
+    options.BeforeDispatching(dispatchingOptions => dispatchingOptions.UseAuthorization(executionOptions => executionOptions.UseKundera(builder.Configuration)));
+    options.AfterDispatching(dispatchingOptions => dispatchingOptions.UseLogging());
 });
-
 await app.RunAsync();

@@ -1,4 +1,5 @@
 ﻿using Arch.Core.Extensions;
+using Arch.Core.Extensions.Http;
 using Arch.Core.Pipeline.Models;
 using FastEndpoints;
 using Microsoft.AspNetCore.Http;

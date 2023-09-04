@@ -8,14 +8,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="FastEndpoints" Version="5.16.0" />
         <PackageReference Include="DotNetCore.CAP" Version="7.2.0" />
+        <PackageReference Include="FastEndpoints" Version="5.16.0"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Arch.Configurations\Arch.Configurations.csproj" />
       <ProjectReference Include="..\Libraries\EndpointGraphs\EndpointGraph.Abstractions\EndpointGraph.Abstractions.csproj" />
-      <ProjectReference Include="..\Libraries\Logging\Logging.Abstractions\Logging.Abstractions.csproj" />
     </ItemGroup>
 
     <ItemGroup>

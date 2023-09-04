@@ -4,15 +4,13 @@
         <TargetFramework>net7.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <RootNamespace>Arch.Logging.Logstash</RootNamespace>
+        <RootNamespace>Arch.Authorization.Abstractions</RootNamespace>
     </PropertyGroup>
 
-    <ItemGroup>
-        <PackageReference Include="DotNetCore.CAP" Version="7.2.0" />
-    </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\..\..\Arch.Configurations\Arch.Configurations.csproj" />
-      <ProjectReference Include="..\Logging.Abstractions\Logging.Abstractions.csproj" />
+      <ProjectReference Include="..\..\..\Core\Core.csproj" />
     </ItemGroup>
+
 </Project>

@@ -4,6 +4,10 @@
         <TargetFramework>net7.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Title>Arch.Configurations</Title>
+        <Authors>Plumber</Authors>
+        <Version>0.9.0</Version>
     </PropertyGroup>
 
     <ItemGroup>
@@ -11,4 +15,14 @@
         <PackageReference Include="FastEndpoints" Version="5.16.0"/>
     </ItemGroup>
 
+    <ItemGroup>
+        <InternalsVisibleTo Include="Arch" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Data\Data.Abstractions\Data.Abstractions.csproj" />
+      <ProjectReference Include="..\Libraries\EndpointGraphs\EndpointGraph.Abstractions\EndpointGraph.Abstractions.csproj" />
+      <ProjectReference Include="..\Libraries\EventBus\EventBus.Configurations\EventBus.Configurations.csproj" />
+      <ProjectReference Include="..\Libraries\LoadBalancer\LoadBalancer.Configurations\LoadBalancer.Configurations.csproj" />
+    </ItemGroup>
 </Project>

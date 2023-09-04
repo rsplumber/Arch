@@ -22,8 +22,9 @@
       <ProjectReference Include="..\Arch\Arch.csproj" />
       <ProjectReference Include="..\Data\Caching\Data.Caching.InMemory\Data.Caching.InMemory.csproj" />
       <ProjectReference Include="..\Data\Data.EF\Data.EF.csproj" />
-      <ProjectReference Include="..\Libraries\Auh\Kundera\Kundera.csproj" />
+      <ProjectReference Include="..\Libraries\Auth\Authorization.Kundera\Authorization.Kundera.csproj" />
       <ProjectReference Include="..\Libraries\EndpointGraphs\EndpointGraph.InMemory\EndpointGraph.InMemory.csproj" />
+      <ProjectReference Include="..\Libraries\EventBus\EventBus.Cap\EventBus.Cap.csproj" />
       <ProjectReference Include="..\Libraries\LoadBalancer\LoadBalancer.Basic\LoadBalancer.Basic.csproj" />
       <ProjectReference Include="..\Libraries\Logging\Logging.Console\Logging.Console.csproj" />
       <ProjectReference Include="..\Libraries\Logging\Logging.Logstash\Logging.Logstash.csproj" />

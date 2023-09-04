@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using Arch.Core.Extensions;
+using Arch.Core.Extensions.Http;
 using Arch.Core.Pipeline.Models;
 using Microsoft.AspNetCore.Http;
 

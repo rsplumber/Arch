@@ -1,28 +1,20 @@
-﻿using Arch.Configurations;
-using Arch.Core.Pipeline;
+﻿using Arch.Core.Pipeline;
 using Microsoft.AspNetCore.Builder;
 
 namespace Arch.Core.Extensions;
 
 public static class ApplicationBuilderExtension
 {
-    public static void UseCore(this ArchExecutionOptions archExecution,
-        Action<BeforeDispatchingOptions>? beforeDispatchingOptions,
-        Action<AfterDispatchingOptions>? afterDispatchingOptions
+    internal static void UseCore(this IApplicationBuilder app,
+        Action<IApplicationBuilder>? beforeDispatchingOptions = null,
+        Action<IApplicationBuilder>? afterDispatchingOptions = null
     )
     {
-        archExecution.ApplicationBuilder.UseMiddleware<ExceptionHandlerMiddleware>();
-        archExecution.ApplicationBuilder.UseMiddleware<RequestExtractorMiddleware>();
-        beforeDispatchingOptions?.Invoke(new BeforeDispatchingOptions
-        {
-            ApplicationBuilder = archExecution.ApplicationBuilder
-        });
-        archExecution.ApplicationBuilder.UseMiddleware<RequestDispatcherMiddleware>();
-        afterDispatchingOptions?.Invoke(new AfterDispatchingOptions
-        {
-            ApplicationBuilder = archExecution.ApplicationBuilder
-        });
-        archExecution.ApplicationBuilder.UseMiddleware<LoggerMiddleware>();
-        archExecution.ApplicationBuilder.UseMiddleware<ResponseHandlerMiddleware>();
+        app.UseMiddleware<ExceptionHandlerMiddleware>();
+        app.UseMiddleware<RequestExtractorMiddleware>();
+        beforeDispatchingOptions?.Invoke(app);
+        app.UseMiddleware<RequestDispatcherMiddleware>();
+        afterDispatchingOptions?.Invoke(app);
+        app.UseMiddleware<ResponseHandlerMiddleware>();
     }
 }

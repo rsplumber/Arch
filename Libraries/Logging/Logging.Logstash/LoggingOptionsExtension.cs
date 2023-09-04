@@ -7,6 +7,6 @@ public static class LoggingOptionsExtension
 {
     public static void UseLogstash(this LoggingOptions options)
     {
-        options.Services.AddScoped<IArchLogger, ArchLogger>();
+        options.Services.AddSingleton<IArchLogger, ArchLogger>();
     }
 }
