@@ -5,6 +5,11 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <RootNamespace>Arch.LoadBalancer.Basic</RootNamespace>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageId>Arch.Gateway.LoadBalancer.Basic</PackageId>
+        <Version>0.9.0</Version>
+        <Title>Arch.Gateway.LoadBalancer.Basic</Title>
+        <Authors>Plumber</Authors>
     </PropertyGroup>
 
     <ItemGroup>

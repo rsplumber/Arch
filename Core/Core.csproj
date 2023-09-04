@@ -5,15 +5,16 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <RootNamespace>Arch.Core</RootNamespace>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageId>Arch.Gateway.Core</PackageId>
+        <Version>0.9.0</Version>
+        <Authors>Plumber</Authors>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="DotNetCore.CAP" Version="7.2.0" />
         <PackageReference Include="FastEndpoints" Version="5.16.0"/>
-    </ItemGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\Libraries\EndpointGraphs\EndpointGraph.Abstractions\EndpointGraph.Abstractions.csproj" />
+        <PackageReference Include="Arch.EndpointGraph.Abstractions" Version="0.9.0" />
     </ItemGroup>
 
     <ItemGroup>

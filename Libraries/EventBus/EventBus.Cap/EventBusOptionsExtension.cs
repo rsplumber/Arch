@@ -1,8 +1,8 @@
+using Arch.EventBus.Configurations;
 using DotNetCore.CAP;
-using EventBus.Configurations;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EventBus.Cap;
+namespace Arch.EventBus.Cap;
 
 public static class EventBusOptionsExtension
 {

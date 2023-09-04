@@ -5,17 +5,18 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <RootNamespace>Arch.Data.EF</RootNamespace>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageId>Arch.Gateway.Data.EF</PackageId>
+        <Version>0.9.0</Version>
+        <Title>Arch.Gateway.Data.EF</Title>
+        <Authors>Plumber</Authors>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.10" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="7.0.10" />
         <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="7.0.0" />
+        <PackageReference Include="Arch.Gateway.Data.Abstractions" Version="0.9.0" />
     </ItemGroup>
-
-    <ItemGroup>
-        <ProjectReference Include="..\Data.Abstractions\Data.Abstractions.csproj" />
-    </ItemGroup>
-
 
 </Project>

@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EventBus.Configurations;
+namespace Arch.EventBus.Configurations;
 
 public sealed class EventBusOptions
 {

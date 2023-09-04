@@ -5,6 +5,10 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <RootNamespace>Arch.EndpointGraph.Abstractions</RootNamespace>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageId>Arch.EndpointGraph.Abstractions</PackageId>
+        <Version>0.9.0</Version>
+        <Authors>Plumber</Authors>
     </PropertyGroup>
 
     <ItemGroup>

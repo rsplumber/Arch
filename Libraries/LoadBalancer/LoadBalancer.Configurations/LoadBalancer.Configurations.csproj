@@ -6,6 +6,10 @@
         <Nullable>enable</Nullable>
         <RootNamespace>Arch.LoadBalancer.Configurations</RootNamespace>
         <AssemblyName>LoadBalancer.Configurations</AssemblyName>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageId>Arch.LoadBalancer.Configurations</PackageId>
+        <Version>0.9.0</Version>
+        <Authors>Plumber</Authors>
     </PropertyGroup>
 
     <ItemGroup>

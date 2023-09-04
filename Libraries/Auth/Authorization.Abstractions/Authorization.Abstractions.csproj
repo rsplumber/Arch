@@ -5,12 +5,17 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <RootNamespace>Arch.Authorization.Abstractions</RootNamespace>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageId>Arch.Gateway.Authorization.Abstractions</PackageId>
+        <Version>0.9.0</Version>
+        <Title>Arch.Gateway.Authorization.Abstractions</Title>
+        <Authors>Plumber</Authors>
     </PropertyGroup>
 
 
     <ItemGroup>
-      <ProjectReference Include="..\..\..\Arch.Configurations\Arch.Configurations.csproj" />
-      <ProjectReference Include="..\..\..\Core\Core.csproj" />
+        <PackageReference Include="Arch.Gateway.Configurations" Version="0.9.0" />
+        <PackageReference Include="Arch.Gateway.Core" Version="0.9.0" />
     </ItemGroup>
 
 </Project>

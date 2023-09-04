@@ -5,12 +5,14 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <RootNamespace>Arch.Data.Abstractions</RootNamespace>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageId>Arch.Gateway.Data.Abstractions</PackageId>
+        <Version>0.9.0</Version>
+        <Authors>Plumber</Authors>
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="Scrutor" Version="4.2.2" />
-    </ItemGroup>
-    <ItemGroup>
-      <ProjectReference Include="..\..\Core\Core.csproj" />
+        <PackageReference Include="Arch.Gateway.Core" Version="0.9.0" />
     </ItemGroup>
 
 </Project>

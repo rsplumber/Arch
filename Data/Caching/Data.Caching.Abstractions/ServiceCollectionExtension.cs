@@ -2,7 +2,7 @@
 
 namespace Arch.Data.Caching.Abstractions;
 
-public static class ServiceCollectionExtension
+public static class DataOptionsExtension
 {
     public static void AddCaching(this DataOptions dataOptions, Action<CachingOptions>? options = null)
     {

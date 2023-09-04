@@ -5,12 +5,15 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <RootNamespace>Arch.Logging.Console</RootNamespace>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageId>Arch.Gateway.Logging.Console</PackageId>
+        <Version>0.9.0</Version>
+        <Title>Arch.Gateway.Logging.Console</Title>
+        <Authors>Plumber</Authors>
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\..\Arch.Configurations\Arch.Configurations.csproj" />
-      <ProjectReference Include="..\Logging.Abstractions\Logging.Abstractions.csproj" />
+        <PackageReference Include="Arch.Gateway.Logging.Abstractions" Version="0.9.0" />
     </ItemGroup>
-
 
 </Project>

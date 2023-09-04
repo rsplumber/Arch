@@ -1,7 +1,7 @@
 using Arch.Data.Abstractions;
 using Arch.EndpointGraph.Abstractions;
+using Arch.EventBus.Configurations;
 using Arch.LoadBalancer.Configurations;
-using EventBus.Configurations;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Arch.Configurations;

@@ -2,14 +2,15 @@ using System.Text.Json;
 using Arch;
 using Arch.Authorization.Abstractions;
 using Arch.Authorization.Kundera;
+using Arch.Core.ServiceConfigs;
 using Arch.Data.Caching.Abstractions;
 using Arch.Data.Caching.InMemory;
 using Arch.Data.EF;
 using Arch.EndpointGraph.InMemory;
+using Arch.EventBus.Cap;
 using Arch.LoadBalancer.Basic;
 using Arch.Logging.Abstractions;
 using Arch.Logging.Console;
-using EventBus.Cap;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -57,8 +58,17 @@ var app = builder.Build();
 app.UseArch(options =>
 {
     options.UseData(dataOptions => dataOptions.UseEntityFramework());
-    options.UseEndpointGraph(graphOptions => graphOptions.UseInMemory());
-    options.BeforeDispatching(dispatchingOptions => dispatchingOptions.UseAuthorization(executionOptions => executionOptions.UseKundera(builder.Configuration)));
-    options.AfterDispatching(dispatchingOptions => dispatchingOptions.UseLogging());
+    options.UseEndpointGraph(graphOptions =>
+    {
+        graphOptions.UseInMemory();
+        using var serviceScope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope();
+        var serviceConfigRepository = serviceScope.ServiceProvider.GetRequiredService<IServiceConfigRepository>();
+        var serviceConfigs = serviceConfigRepository.FindAsync().Result;
+        var endpoints = (from config in serviceConfigs from definition in config.EndpointDefinitions select definition.Endpoint).ToList();
+        graphOptions.InitializeWith(endpoints);
+        options.BeforeDispatching(dispatchingOptions => dispatchingOptions.UseAuthorization(executionOptions => executionOptions.UseKundera(builder.Configuration)));
+        options.AfterDispatching(dispatchingOptions => dispatchingOptions.UseLogging());
+    });
 });
+
 await app.RunAsync();

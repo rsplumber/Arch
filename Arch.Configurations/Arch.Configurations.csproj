@@ -5,24 +5,22 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <Title>Arch.Configurations</Title>
+        <Title>Arch.Gateway.Configurations</Title>
         <Authors>Plumber</Authors>
         <Version>0.9.0</Version>
+        <PackageId>Arch.Gateway.Configurations</PackageId>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0"/>
         <PackageReference Include="FastEndpoints" Version="5.16.0"/>
+        <PackageReference Include="Arch.EndpointGraph.Abstractions" Version="0.9.0" />
+        <PackageReference Include="Arch.EventBus.Configurations" Version="0.9.0" />
+        <PackageReference Include="Arch.LoadBalancer.Configurations" Version="0.9.0" />
+        <PackageReference Include="Arch.Gateway.Data.Abstractions" Version="0.9.0" />
     </ItemGroup>
 
     <ItemGroup>
         <InternalsVisibleTo Include="Arch" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\Data\Data.Abstractions\Data.Abstractions.csproj" />
-      <ProjectReference Include="..\Libraries\EndpointGraphs\EndpointGraph.Abstractions\EndpointGraph.Abstractions.csproj" />
-      <ProjectReference Include="..\Libraries\EventBus\EventBus.Configurations\EventBus.Configurations.csproj" />
-      <ProjectReference Include="..\Libraries\LoadBalancer\LoadBalancer.Configurations\LoadBalancer.Configurations.csproj" />
     </ItemGroup>
 </Project>

@@ -2,8 +2,8 @@
 using Arch.Core.Extensions;
 using Arch.Data.Abstractions;
 using Arch.EndpointGraph.Abstractions;
+using Arch.EventBus.Configurations;
 using Arch.LoadBalancer.Configurations;
-using EventBus.Configurations;
 using FastEndpoints;
 using Microsoft.Extensions.DependencyInjection;
 

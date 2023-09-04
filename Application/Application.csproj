@@ -16,18 +16,15 @@
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.4" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\Arch\Arch.csproj" />
-      <ProjectReference Include="..\Data\Caching\Data.Caching.InMemory\Data.Caching.InMemory.csproj" />
-      <ProjectReference Include="..\Data\Data.EF\Data.EF.csproj" />
-      <ProjectReference Include="..\Libraries\Auth\Authorization.Kundera\Authorization.Kundera.csproj" />
-      <ProjectReference Include="..\Libraries\EndpointGraphs\EndpointGraph.InMemory\EndpointGraph.InMemory.csproj" />
-      <ProjectReference Include="..\Libraries\EventBus\EventBus.Cap\EventBus.Cap.csproj" />
-      <ProjectReference Include="..\Libraries\LoadBalancer\LoadBalancer.Basic\LoadBalancer.Basic.csproj" />
-      <ProjectReference Include="..\Libraries\Logging\Logging.Console\Logging.Console.csproj" />
-      <ProjectReference Include="..\Libraries\Logging\Logging.Logstash\Logging.Logstash.csproj" />
+        <PackageReference Include="Arch.Gateway" Version="0.9.0" />
+        <PackageReference Include="Arch.Gateway.Data.Caching.InMemory" Version="0.9.0" />
+        <PackageReference Include="Arch.Gateway.Data.EF" Version="0.9.0" />
+        <PackageReference Include="Arch.Gateway.Authorization.Kundera" Version="0.9.0" />
+        <PackageReference Include="Arch.Gateway.EndpointGraph.InMemory" Version="0.9.1" />
+        <PackageReference Include="Arch.EventBus.Cap" Version="0.9.0" />
+        <PackageReference Include="Arch.Gateway.LoadBalancer.Basic" Version="0.9.0" />
+        <PackageReference Include="Arch.Gateway.Logging.Console" Version="0.9.0" />
+        <PackageReference Include="Arch.Gateway.Logging.Logstash" Version="0.9.0" />
     </ItemGroup>
 
 </Project>

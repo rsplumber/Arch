@@ -5,14 +5,16 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <RootNamespace>Arch.Logging.Logstash</RootNamespace>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageId>Arch.Gateway.Logging.Logstash</PackageId>
+        <Version>0.9.0</Version>
+        <Title>Arch.Gateway.Logging.Logstash</Title>
+        <Authors>Plumber</Authors>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="DotNetCore.CAP" Version="7.2.0" />
+        <PackageReference Include="DotNetCore.CAP" Version="7.2.0"/>
+        <PackageReference Include="Arch.Gateway.Logging.Abstractions" Version="0.9.0"/>
     </ItemGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\..\..\Arch.Configurations\Arch.Configurations.csproj" />
-      <ProjectReference Include="..\Logging.Abstractions\Logging.Abstractions.csproj" />
-    </ItemGroup>
 </Project>
