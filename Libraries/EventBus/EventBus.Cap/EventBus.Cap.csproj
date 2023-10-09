@@ -13,7 +13,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="DotNetCore.CAP" Version="7.2.0"/>
+        <PackageReference Include="DotNetCore.CAP" Version="7.2.1" />
         <PackageReference Include="Arch.EventBus.Configurations" Version="0.9.0"/>
     </ItemGroup>
 

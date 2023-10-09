@@ -21,7 +21,7 @@ internal static class HttpResponseExtensions
             ForbiddenCode => response.SendStringAsync(ForbiddenMessage, ForbiddenCode),
             UnAuthorizedCode => response.SendUnauthorizedAsync(),
             SessionExpiredCode => response.SendStringAsync(SessionExpiredMessage, SessionExpiredCode),
-            _ => response.SendUnauthorizedAsync(),
+            _ => response.SendStringAsync(string.Empty, authorizationCode),
         };
     }
 

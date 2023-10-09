@@ -13,7 +13,7 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0"/>
-        <PackageReference Include="FastEndpoints" Version="5.16.0"/>
+        <PackageReference Include="FastEndpoints" Version="5.17.1.1" />
         <PackageReference Include="Arch.EndpointGraph.Abstractions" Version="0.9.0" />
         <PackageReference Include="Arch.EventBus.Configurations" Version="0.9.0" />
         <PackageReference Include="Arch.LoadBalancer.Configurations" Version="0.9.0" />
