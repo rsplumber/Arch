@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
-using Arch.Core.Extensions;
 using Arch.Core.Extensions.Http;
 using Arch.Core.Pipeline.Models;
+using FastEndpoints;
 using Microsoft.AspNetCore.Http;
 
 namespace Arch.Core.Pipeline;
@@ -52,6 +52,9 @@ internal sealed class RequestDispatcherMiddleware : IMiddleware
             case 403:
                 state.SetUnAuthorized((int)httpResponseMessage.StatusCode, requestElapsedTime);
                 await next(context).ConfigureAwait(false);
+                return;
+            case 302:
+                await context.Response.SendRedirectAsync(httpResponseMessage.Headers.Location!.ToString(), true).ConfigureAwait(false);
                 return;
             default:
                 state.Set(new ResponseInfo

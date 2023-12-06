@@ -16,7 +16,6 @@
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.11" />
-        <PackageReference Include="Arch.Gateway" Version="0.9.0" />
         <PackageReference Include="Arch.Gateway.Data.Caching.InMemory" Version="0.9.0" />
         <PackageReference Include="Arch.Gateway.Data.EF" Version="0.9.0" />
         <PackageReference Include="Arch.Gateway.Authorization.Kundera" Version="0.9.0" />
@@ -26,5 +25,14 @@
         <PackageReference Include="Arch.Gateway.Logging.Console" Version="0.9.0" />
         <PackageReference Include="Arch.Gateway.Logging.Logstash" Version="0.9.0" />
     </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="wwwroot\cert\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Arch\Arch.csproj" />
+    </ItemGroup>
+
 
 </Project>

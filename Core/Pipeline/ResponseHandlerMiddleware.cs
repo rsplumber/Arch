@@ -1,5 +1,4 @@
-﻿using Arch.Core.Extensions;
-using Arch.Core.Extensions.Http;
+﻿using Arch.Core.Extensions.Http;
 using FastEndpoints;
 using Microsoft.AspNetCore.Http;
 
@@ -14,6 +13,14 @@ internal sealed class ResponseHandlerMiddleware : IMiddleware
         {
             await next(context).ConfigureAwait(false);
             return;
+        }
+
+        if (state.ResponseInfo?.Headers is not null)
+        {
+            foreach (var (key, value) in state.ResponseInfo?.Headers!)
+            {
+                context.Response.Headers.TryAdd(key, value);
+            }    
         }
 
         if (state.HasEmptyResponse())

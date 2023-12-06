@@ -15,7 +15,7 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseKestrel(options => { options.Limits.MaxRequestBodySize = 50_000_000; });
-builder.WebHost.ConfigureKestrel((_, options) => { options.ListenAnyIP(5228, _ => { }); });
+builder.WebHost.ConfigureKestrel((_, options) => { options.ListenAnyIP(5229, listenOptions => { listenOptions.UseHttps("wwwroot/cert/crt.pfx", "123456"); }); });
 
 builder.Services.AddArch(options =>
 {
@@ -23,10 +23,11 @@ builder.Services.AddArch(options =>
     options.EnableCors();
     options.ConfigureEventBus(busOptions => busOptions.UseCap(capOptions =>
     {
-        capOptions.FailedRetryCount = 2;
+        capOptions.FailedRetryCount = 0;
         capOptions.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
         capOptions.JsonSerializerOptions.IgnoreReadOnlyFields = true;
-        capOptions.SucceedMessageExpiredAfter = 1;
+        capOptions.SucceedMessageExpiredAfter = 60 * 2;
+        capOptions.FailedMessageExpiredAfter = 60 * 2;
         capOptions.UseRabbitMQ(op =>
         {
             op.HostName = builder.Configuration.GetValue<string>("RabbitMQ:HostName") ?? throw new ArgumentNullException("RabbitMQ:HostName", "Enter RabbitMQ:HostName in app settings");

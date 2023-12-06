@@ -12,7 +12,10 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Arch.Gateway.Core" Version="0.9.0" />
         <PackageReference Include="Arch.Gateway.Configurations" Version="0.9.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Core\Core.csproj" />
     </ItemGroup>
 </Project>

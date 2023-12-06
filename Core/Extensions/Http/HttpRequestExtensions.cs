@@ -7,7 +7,7 @@ namespace Arch.Core.Extensions.Http;
 
 public static class HttpRequestExtensions
 {
-    public static string? Path(this HttpRequest request) => request.Path.Value?.ToLower();
+    public static string? Path(this HttpRequest request) => request.Path.Value;
 
     public static HttpMethod Method(this HttpRequest request) => request.Method switch
     {
