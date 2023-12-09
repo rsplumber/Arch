@@ -7,7 +7,7 @@
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <Title>Arch.Gateway.Configurations</Title>
         <Authors>Plumber</Authors>
-        <Version>0.9.0</Version>
+        <Version>0.9.2</Version>
         <PackageId>Arch.Gateway.Configurations</PackageId>
     </PropertyGroup>
 
@@ -17,7 +17,7 @@
         <PackageReference Include="Arch.EndpointGraph.Abstractions" Version="0.9.0" />
         <PackageReference Include="Arch.EventBus.Configurations" Version="0.9.0" />
         <PackageReference Include="Arch.LoadBalancer.Configurations" Version="0.9.0" />
-        <PackageReference Include="Arch.Gateway.Data.Abstractions" Version="0.9.0" />
+        <PackageReference Include="Arch.Gateway.Data.Abstractions" Version="0.9.2" />
     </ItemGroup>
 
     <ItemGroup>

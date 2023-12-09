@@ -49,8 +49,11 @@ internal sealed class RequestDispatcherMiddleware : IMiddleware
                 await next(context).ConfigureAwait(false);
                 return;
             case 401:
+                state.SetForbidden(requestElapsedTime);
+                await next(context).ConfigureAwait(false);
+                return;
             case 403:
-                state.SetUnAuthorized((int)httpResponseMessage.StatusCode, requestElapsedTime);
+                state.SetUnAuthorized(requestElapsedTime);
                 await next(context).ConfigureAwait(false);
                 return;
             case 302:

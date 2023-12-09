@@ -24,10 +24,18 @@ public record RequestState
         Headers = new Dictionary<string, string>()
     };
 
-    public void SetUnAuthorized(int code, long responseTime) => ResponseInfo = new ResponseInfo
+    public void SetUnAuthorized(long responseTime) => ResponseInfo = new ResponseInfo
     {
-        Code = code,
-        Value = code == 401 ? "UnAuthorized" : "Forbidden",
+        Code = 401,
+        Value = "UnAuthorized",
+        ResponseTimeMilliseconds = responseTime,
+        Headers = new Dictionary<string, string>()
+    };
+
+    public void SetForbidden(long responseTime) => ResponseInfo = new ResponseInfo
+    {
+        Code = 403,
+        Value = "Forbidden",
         ResponseTimeMilliseconds = responseTime,
         Headers = new Dictionary<string, string>()
     };

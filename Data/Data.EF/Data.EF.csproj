@@ -7,7 +7,7 @@
         <RootNamespace>Arch.Data.EF</RootNamespace>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageId>Arch.Gateway.Data.EF</PackageId>
-        <Version>0.9.0</Version>
+        <Version>0.9.2</Version>
         <Title>Arch.Gateway.Data.EF</Title>
         <Authors>Plumber</Authors>
     </PropertyGroup>
@@ -16,7 +16,7 @@
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.11" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="7.0.11" />
         <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="7.0.0" />
-        <PackageReference Include="Arch.Gateway.Data.Abstractions" Version="0.9.0" />
+        <PackageReference Include="Arch.Gateway.Data.Abstractions" Version="0.9.2" />
     </ItemGroup>
 
 </Project>

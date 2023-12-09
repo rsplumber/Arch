@@ -15,14 +15,6 @@ internal sealed class ResponseHandlerMiddleware : IMiddleware
             return;
         }
 
-        if (state.ResponseInfo?.Headers is not null)
-        {
-            foreach (var (key, value) in state.ResponseInfo?.Headers!)
-            {
-                context.Response.Headers.TryAdd(key, value);
-            }    
-        }
-
         if (state.HasEmptyResponse())
         {
             await context.Response.SendStringAsync(string.Empty, 400)

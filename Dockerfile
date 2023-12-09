@@ -1,6 +1,5 @@
 ﻿FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
 WORKDIR /app
-EXPOSE 5228
 EXPOSE 5229
 
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
@@ -9,7 +8,7 @@ RUN mkdir "outp"
 
 COPY ["./." , "outp/"]
 
-RUN dotnet dev-certs https -ep "outp/Application/wwwroot/cert/crt.pfx" -p 123456
+RUN dotnet dev-certs https --clean
 
 RUN dotnet restore "outp/Application/Application.csproj"
 
