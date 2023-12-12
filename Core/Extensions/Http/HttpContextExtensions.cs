@@ -1,5 +1,5 @@
-using Arch.Core.EndpointDefinitions;
 using Arch.Core.Pipeline.Models;
+using Arch.Core.ServiceConfigs.EndpointDefinitions;
 using DotNetCore.CAP;
 using FastEndpoints;
 using Microsoft.AspNetCore.Http;

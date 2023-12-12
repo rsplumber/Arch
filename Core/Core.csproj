@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <RootNamespace>Arch.Core</RootNamespace>
@@ -12,13 +12,16 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="DotNetCore.CAP" Version="7.2.1" />
-        <PackageReference Include="FastEndpoints" Version="5.17.1.1" />
-        <PackageReference Include="Arch.EndpointGraph.Abstractions" Version="0.9.0" />
+        <PackageReference Include="DotNetCore.CAP" Version="7.2.2" />
+        <PackageReference Include="FastEndpoints" Version="5.20.1" />
     </ItemGroup>
 
     <ItemGroup>
         <InternalsVisibleTo Include="Arch" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Libraries\EndpointGraphs\EndpointGraph.Abstractions\EndpointGraph.Abstractions.csproj" />
     </ItemGroup>
 
 

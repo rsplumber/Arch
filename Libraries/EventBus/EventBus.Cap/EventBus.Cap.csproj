@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <RootNamespace>Arch.EventBus.Cap</RootNamespace>
@@ -13,8 +13,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="DotNetCore.CAP" Version="7.2.1" />
-        <PackageReference Include="Arch.EventBus.Configurations" Version="0.9.0"/>
+        <PackageReference Include="DotNetCore.CAP" Version="7.2.2" />
     </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\EventBus.Configurations\EventBus.Configurations.csproj" />
+    </ItemGroup>
+
 
 </Project>

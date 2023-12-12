@@ -1,7 +1,6 @@
-﻿using Arch.Core.EndpointDefinitions;
-using Arch.Core.Metas;
+﻿using System.Text.Json;
 using Arch.Core.ServiceConfigs;
-using DotNetCore.CAP;
+using Arch.Core.ServiceConfigs.EndpointDefinitions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -9,24 +8,23 @@ namespace Arch.Data.EF;
 
 public class AppDbContext : DbContext
 {
-    private readonly ICapPublisher _eventBus;
-
-    public AppDbContext(DbContextOptions<AppDbContext> options, ICapPublisher eventBus) : base(options)
+    private static readonly JsonSerializerOptions JsonSerializerOptions = new()
     {
-        _eventBus = eventBus;
+        IgnoreReadOnlyFields = true
+    };
+
+    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
+    {
     }
 
     public DbSet<ServiceConfig> ServiceConfigs { get; set; }
 
     public DbSet<EndpointDefinition> EndpointDefinitions { get; set; }
 
-    public DbSet<Meta> Metas { get; set; }
-
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.ApplyConfiguration(new ServiceConfigEntityTypeConfiguration());
         builder.ApplyConfiguration(new EndpointDefinitionEntityTypeConfiguration());
-        builder.ApplyConfiguration(new MetaEntityTypeConfiguration());
         base.OnModelCreating(builder);
     }
 
@@ -47,9 +45,11 @@ public class AppDbContext : DbContext
 
             builder.HasIndex(config => config.Name);
 
-            builder.Property(serviceConfig => serviceConfig.BaseUrl)
+            builder.Property(serviceConfig => serviceConfig.BaseUrls)
                 .UsePropertyAccessMode(PropertyAccessMode.Property)
-                .HasColumnName("base_url");
+                .HasConversion(password => JsonSerializer.Serialize(password, JsonSerializerOptions),
+                    s => JsonSerializer.Deserialize<List<string>>(s, JsonSerializerOptions)!)
+                .HasColumnName("base_urls");
 
             builder.Property(serviceConfig => serviceConfig.Primary)
                 .UsePropertyAccessMode(PropertyAccessMode.Property)
@@ -65,11 +65,13 @@ public class AppDbContext : DbContext
                 .HasPrincipalKey(config => config.Id)
                 .HasForeignKey("service_config_id");
 
-            builder.HasMany(serviceConfig => serviceConfig.Meta)
-                .WithOne(meta => meta.ServiceConfig)
-                .OnDelete(DeleteBehavior.Cascade)
-                .HasPrincipalKey(config => config.Id)
-                .HasForeignKey("service_config_id");
+
+            builder.Property(serviceConfig => serviceConfig.Meta)
+                .UsePropertyAccessMode(PropertyAccessMode.Property)
+                .HasConversion(password => JsonSerializer.Serialize(password, JsonSerializerOptions),
+                    s => JsonSerializer.Deserialize<Dictionary<string, string>>(s, JsonSerializerOptions)!)
+                .HasColumnName("meta")
+                .IsRequired(false);
         }
     }
 
@@ -109,40 +111,12 @@ public class AppDbContext : DbContext
 
             builder.HasIndex(definition => definition.Pattern);
 
-            builder.HasMany(definition => definition.Meta)
-                .WithOne(meta => meta.EndpointDefinition)
-                .OnDelete(DeleteBehavior.Cascade)
-                .HasPrincipalKey(definition => definition.Id)
-                .HasForeignKey("endpoint_definition_id");
+            builder.Property(serviceConfig => serviceConfig.Meta)
+                .UsePropertyAccessMode(PropertyAccessMode.Property)
+                .HasConversion(password => JsonSerializer.Serialize(password, JsonSerializerOptions),
+                    s => JsonSerializer.Deserialize<Dictionary<string, string>>(s, JsonSerializerOptions)!)
+                .HasColumnName("meta")
+                .IsRequired(false);
         }
-    }
-
-    private class MetaEntityTypeConfiguration : IEntityTypeConfiguration<Meta>
-    {
-        public void Configure(EntityTypeBuilder<Meta> builder)
-        {
-            builder.ToTable("meta")
-                .HasKey(meta => meta.Id);
-
-            builder.Property(meta => meta.Id)
-                .UsePropertyAccessMode(PropertyAccessMode.Property)
-                .HasColumnName("id");
-
-            builder.Property(meta => meta.Key)
-                .UsePropertyAccessMode(PropertyAccessMode.Property)
-                .HasColumnName("key");
-
-            builder.HasIndex(definition => definition.Key);
-
-            builder.Property(meta => meta.Value)
-                .UsePropertyAccessMode(PropertyAccessMode.Property)
-                .HasColumnName("value");
-        }
-    }
-
-    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-    {
-        await _eventBus.DispatchDomainEventsAsync(this);
-        return await base.SaveChangesAsync(cancellationToken);
     }
 }

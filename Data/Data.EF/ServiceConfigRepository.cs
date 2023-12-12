@@ -33,27 +33,21 @@ public sealed class ServiceConfigRepository : IServiceConfigRepository
     public async Task<ServiceConfig?> FindAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return await _dbContext.ServiceConfigs
-            .Include(config => config.Meta)
             .Include(config => config.EndpointDefinitions)
-            .ThenInclude(definition => definition.Meta)
             .FirstOrDefaultAsync(model => model.Id == id, cancellationToken);
     }
 
     public async Task<ServiceConfig?> FindByNameAsync(string name, CancellationToken cancellationToken = default)
     {
         return await _dbContext.ServiceConfigs
-            .Include(config => config.Meta)
             .Include(config => config.EndpointDefinitions)
-            .ThenInclude(definition => definition.Meta)
             .FirstOrDefaultAsync(model => model.Name == name, cancellationToken);
     }
 
     public async Task<List<ServiceConfig>> FindAsync(CancellationToken cancellationToken = default)
     {
         return await _dbContext.ServiceConfigs
-            .Include(config => config.Meta)
             .Include(config => config.EndpointDefinitions)
-            .ThenInclude(definition => definition.Meta)
             .ToListAsync(cancellationToken);
     }
 
@@ -61,7 +55,6 @@ public sealed class ServiceConfigRepository : IServiceConfigRepository
     {
         return _dbContext.ServiceConfigs
             .Include(config => config.EndpointDefinitions)
-            .ThenInclude(definition => definition.Meta)
             .FirstOrDefaultAsync(config => config.EndpointDefinitions.Any(definition => definition.Id == endpointId), cancellationToken);
     }
 }

@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <RootNamespace>Arch.EndpointGraph.InMemory</RootNamespace>
@@ -13,7 +13,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Arch.EndpointGraph.Abstractions" Version="0.9.0"/>
+      <ProjectReference Include="..\EndpointGraph.Abstractions\EndpointGraph.Abstractions.csproj" />
     </ItemGroup>
+
 
 </Project>

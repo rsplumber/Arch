@@ -1,4 +1,4 @@
-namespace Arch.Core.EndpointDefinitions.Events;
+namespace Arch.Core.ServiceConfigs.EndpointDefinitions.Events;
 
 public sealed record EndpointDefinitionChangedEvent(Guid Id) : DomainEvent
 {

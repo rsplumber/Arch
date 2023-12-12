@@ -16,13 +16,12 @@ internal sealed class ServiceConfigQuery : IServiceConfigQuery
     public async ValueTask<ServiceConfigQueryResponse> QueryAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var serviceConfig = await _dbContext.ServiceConfigs
-            .Include(config => config.Meta)
             .Select(config => new ServiceConfigQueryResponse
             {
                 Id = config.Id,
                 Name = config.Name,
                 Primary = config.Primary,
-                BaseUrl = config.BaseUrl,
+                BaseUrl = config.BaseUrls.First(),
                 Meta = config.Meta.ToDictionary(a => a.Key, a => string.Join(";", a.Value))
             })
             .FirstOrDefaultAsync(config => config.Id == id, cancellationToken: cancellationToken);

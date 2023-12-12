@@ -1,6 +1,6 @@
 using Arch.EndpointGraph.Abstractions;
 
-namespace Arch.Core.EndpointDefinitions.Resolvers;
+namespace Arch.Core.ServiceConfigs.EndpointDefinitions.Resolvers;
 
 public sealed class EndpointDefinitionResolver : IEndpointDefinitionResolver
 {

@@ -1,15 +1,12 @@
-﻿using Arch.Core.EndpointDefinitions;
-using Arch.Core.EndpointDefinitions.Events;
-using Arch.Core.Metas;
+﻿using Arch.Core.ServiceConfigs.EndpointDefinitions.Events;
 using Arch.Core.ServiceConfigs.Events;
+using EndpointDefinition = Arch.Core.ServiceConfigs.EndpointDefinitions.EndpointDefinition;
 
 namespace Arch.Core.ServiceConfigs;
 
 public class ServiceConfig : BaseEntity
 {
-    private const string BaseUrlKey = "base_url";
     private const string IgnoreDispatchKey = "ignore_dispatch";
-
 
     protected ServiceConfig()
     {
@@ -18,23 +15,26 @@ public class ServiceConfig : BaseEntity
     private ServiceConfig(string name, string baseUrl)
     {
         Name = name;
-        BaseUrl = baseUrl;
+        BaseUrls.Add(baseUrl);
         AddDomainEvent(new ServiceConfigCreatedEvent(Id));
     }
 
 
     public static ServiceConfig Create(string name, string baseUrl, Dictionary<string, string>? meta = null)
     {
-        var config = new ServiceConfig(name, baseUrl);
-        config.Meta = meta is null ? new List<Meta>() : config.CalculateMeta(meta);
-        return config;
+        return new ServiceConfig(name, baseUrl)
+        {
+            Meta = meta ?? []
+        };
     }
 
     public static ServiceConfig CreatePrimary(string name, string baseUrl, Dictionary<string, string>? meta = null)
     {
-        var config = Create(name, baseUrl, meta);
-        config.Primary = true;
-        return config;
+        return new ServiceConfig(name, baseUrl)
+        {
+            Meta = meta ?? [],
+            Primary = true
+        };
     }
 
     public Guid Id { get; set; }
@@ -43,32 +43,37 @@ public class ServiceConfig : BaseEntity
 
     public bool Primary { get; private set; }
 
-    public string BaseUrl { get; private set; } = default!;
+    public List<string> BaseUrls { get; private set; } = [];
 
-    public List<EndpointDefinition> EndpointDefinitions { get; set; } = new();
+    public List<EndpointDefinition> EndpointDefinitions { get; set; } = [];
 
-    public List<Meta> Meta { get; private set; } = new();
+    public Dictionary<string, string> Meta { get; private set; } = [];
 
     public DateTime CreatedAtUtc { get; private set; } = DateTime.UtcNow;
 
     public void Update(string name, string baseUrl, Dictionary<string, string>? meta = null)
     {
         Name = name;
-        BaseUrl = baseUrl;
-        Meta = meta is null ? new List<Meta>() : CalculateMeta(meta);
+        if (!BaseUrls.Any(url => url.Equals(baseUrl)))
+        {
+            BaseUrls.Add(baseUrl);
+        }
+
+        Meta = meta ?? [];
         AddDomainEvent(new ServiceConfigChangedEvent(Id));
     }
 
 
-    public void Add(Meta meta)
+    public void AddMeta(string key, string value)
     {
-        Meta.Add(meta);
+        Meta.Remove(key);
+        Meta.Add(key, value);
         AddDomainEvent(new ServiceConfigChangedEvent(Id));
     }
 
-    public void Remove(Meta meta)
+    public void RemoveMeta(string key)
     {
-        Meta.Remove(meta);
+        Meta.Remove(key);
         AddDomainEvent(new ServiceConfigChangedEvent(Id));
     }
 
@@ -85,39 +90,14 @@ public class ServiceConfig : BaseEntity
         AddDomainEvent(new EndpointDefinitionRemovedEvent(definition.Id, Id));
     }
 
-    private List<Meta> CalculateMeta(Dictionary<string, string> meta)
+
+    public void SetIgnoreDispatch()
     {
-        var finalMeta = new List<Meta>();
-        AddAndSanitizeBaseUrlForMeta();
-        foreach (var (key, value) in meta)
-        {
-            finalMeta.Add(new Meta
-            {
-                Key = key,
-                Value = value
-            });
-        }
-
-        return finalMeta;
-
-        void AddAndSanitizeBaseUrlForMeta()
-        {
-            finalMeta.Add(new Meta
-            {
-                Key = BaseUrlKey,
-                Value = BaseUrl
-            });
-            meta.Remove(BaseUrlKey);
-        }
+        Meta.Remove(IgnoreDispatchKey);
+        Meta.Add(IgnoreDispatchKey, "true");
     }
 
-    public void SetIgnoreDispatch() => Meta.Add(new()
-    {
-        Key = IgnoreDispatchKey,
-        Value = "true"
-    });
-
-    public bool IgnoreDispatch() => Meta.Any(meta => meta.Key == IgnoreDispatchKey);
+    public bool IgnoreDispatch() => Meta.ContainsKey(IgnoreDispatchKey);
 
     public bool HasEndpoint(string pattern, HttpMethod method) => EndpointDefinitions.Any(definition => definition.Pattern == pattern
                                                                                                         && definition.Method == method);

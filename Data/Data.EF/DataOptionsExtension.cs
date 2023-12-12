@@ -1,5 +1,5 @@
-﻿using Arch.Core.EndpointDefinitions;
-using Arch.Core.ServiceConfigs;
+﻿using Arch.Core.ServiceConfigs;
+using Arch.Core.ServiceConfigs.EndpointDefinitions;
 using Arch.Data.Abstractions;
 using Arch.Data.Abstractions.EndpointDefinitions;
 using Arch.Data.Abstractions.ServiceConfigs;
@@ -14,7 +14,7 @@ public static class DataOptionsExtension
 {
     public static void UseEntityFramework(this DataOptions dataOptions, Action<DbContextOptionsBuilder> optionsAction)
     {
-        dataOptions.Services.AddDbContext<AppDbContext>(optionsAction);
+        dataOptions.Services.AddDbContextPool<AppDbContext>(optionsAction);
         dataOptions.Services.AddScoped<IServiceConfigRepository, ServiceConfigRepository>();
         dataOptions.Services.AddScoped<IEndpointDefinitionRepository, EndpointDefinitionRepository>();
 

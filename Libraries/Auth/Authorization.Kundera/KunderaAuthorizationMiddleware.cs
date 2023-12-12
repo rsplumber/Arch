@@ -3,13 +3,12 @@ using Arch.Core.Pipeline.Models;
 using FastEndpoints;
 using KunderaNet.Services.Authorization.Abstractions;
 using Microsoft.AspNetCore.Http;
-using EndpointDefinition = Arch.Core.EndpointDefinitions.EndpointDefinition;
+using EndpointDefinition = Arch.Core.ServiceConfigs.EndpointDefinitions.EndpointDefinition;
 
 namespace Arch.Authorization.Kundera;
 
 internal sealed class KunderaAuthorizationMiddleware : AuthorizationMiddleware
 {
-
     protected override async Task InvokeAsync(HttpContext context, EndpointDefinition endpointDefinition, RequestInfo requestInfo, RequestDelegate next)
     {
         if (endpointDefinition.AllowAnonymous())

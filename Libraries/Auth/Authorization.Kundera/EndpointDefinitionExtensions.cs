@@ -1,4 +1,4 @@
-using Arch.Core.EndpointDefinitions;
+using Arch.Core.ServiceConfigs.EndpointDefinitions;
 
 namespace Arch.Authorization.Kundera;
 
@@ -11,25 +11,21 @@ internal static class EndpointDefinitionExtensions
 
     public static string[] ExtractPermissions(this EndpointDefinition endpointDefinition)
     {
-        var permissionMeta = endpointDefinition.Meta.FirstOrDefault(meta1 => meta1.Key == PermissionsMetaKey);
-        return permissionMeta is null ? Array.Empty<string>() : permissionMeta.Value.Split(",");
+        return endpointDefinition.Meta.TryGetValue(PermissionsMetaKey, out var permissionValue) ? permissionValue.Split(",") : [];
     }
 
     public static string[] ExtractRoles(this EndpointDefinition endpointDefinition)
     {
-        var rolesMeta = endpointDefinition.Meta.FirstOrDefault(meta1 => meta1.Key == RolesMetaKey);
-        return rolesMeta is null ? Array.Empty<string>() : rolesMeta.Value.Split(",");
+        return endpointDefinition.Meta.TryGetValue(RolesMetaKey, out var rolesValue) ? rolesValue.Split(",") : [];
     }
 
     public static string ExtractServiceSecret(this EndpointDefinition endpointDefinition)
     {
-        var serviceSecretMeta = endpointDefinition.ServiceConfig.Meta.FirstOrDefault(meta1 => meta1.Key == ServiceSecretMetaKey);
-        return serviceSecretMeta is null ? string.Empty : serviceSecretMeta.Value;
+        return endpointDefinition.Meta.TryGetValue(ServiceSecretMetaKey, out var serviceSecretValue) ? serviceSecretValue : string.Empty;
     }
 
     public static bool AllowAnonymous(this EndpointDefinition endpointDefinition)
     {
-        var allowAnonymousMeta = endpointDefinition.Meta.FirstOrDefault(meta1 => meta1.Key == AllowAnonymousMetaKey);
-        return allowAnonymousMeta is not null;
+        return endpointDefinition.Meta.ContainsKey(AllowAnonymousMetaKey);
     }
 }

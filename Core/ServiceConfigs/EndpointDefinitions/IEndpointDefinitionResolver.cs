@@ -1,4 +1,4 @@
-﻿namespace Arch.Core.EndpointDefinitions;
+﻿namespace Arch.Core.ServiceConfigs.EndpointDefinitions;
 
 public interface IEndpointDefinitionResolver
 {

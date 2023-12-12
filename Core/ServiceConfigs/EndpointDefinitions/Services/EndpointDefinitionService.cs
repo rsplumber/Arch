@@ -1,10 +1,8 @@
-using Arch.Core.EndpointDefinitions.Exceptions;
-using Arch.Core.Metas;
-using Arch.Core.ServiceConfigs;
+using Arch.Core.ServiceConfigs.EndpointDefinitions.Exceptions;
 using Arch.Core.ServiceConfigs.Exceptions;
 using Arch.EndpointGraph.Abstractions;
 
-namespace Arch.Core.EndpointDefinitions.Services;
+namespace Arch.Core.ServiceConfigs.EndpointDefinitions.Services;
 
 public sealed class EndpointDefinitionService : IEndpointDefinitionService
 {
@@ -45,29 +43,22 @@ public sealed class EndpointDefinitionService : IEndpointDefinitionService
             MapTo = request.MapTo
         };
 
-        AddServiceConfigMetaToEndpoint();
-
         foreach (var (key, value) in request.Meta)
         {
-            endpointDefinition.Meta.Add(new Meta
-            {
-                Key = key,
-                Value = value
-            });
+            endpointDefinition.AddMeta(key, value);
         }
 
         serviceConfig.Add(endpointDefinition);
 
         await _serviceConfigRepository.UpdateAsync(serviceConfig, cancellationToken);
+        return;
 
         string SanitizedEndpoint()
         {
-            var sanitizedFirstIndex = request.Endpoint.StartsWith("/") ? request.Endpoint.Remove(0, 1) : request.Endpoint;
-            var sanitized = sanitizedFirstIndex.EndsWith("/") ? request.Endpoint.Remove(sanitizedFirstIndex.Length - 1, 1) : sanitizedFirstIndex;
+            var sanitizedFirstIndex = request.Endpoint.StartsWith('/') ? request.Endpoint.Remove(0, 1) : request.Endpoint;
+            var sanitized = sanitizedFirstIndex.EndsWith('/') ? request.Endpoint.Remove(sanitizedFirstIndex.Length - 1, 1) : sanitizedFirstIndex;
             return sanitized.ToLower();
         }
-
-        void AddServiceConfigMetaToEndpoint() => endpointDefinition.Meta.AddRange(serviceConfig.Meta);
     }
 
     public async ValueTask RemoveAsync(Guid endpointId, CancellationToken cancellationToken = default)

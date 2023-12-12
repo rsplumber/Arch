@@ -1,5 +1,5 @@
 ﻿using System.Collections.Concurrent;
-using Arch.Core.EndpointDefinitions;
+using Arch.Core.ServiceConfigs.EndpointDefinitions;
 using Arch.EndpointGraph.Abstractions;
 
 namespace Arch.Data.Caching.InMemory;

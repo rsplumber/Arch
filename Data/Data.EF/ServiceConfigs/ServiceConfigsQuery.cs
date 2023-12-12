@@ -27,7 +27,7 @@ internal sealed class ServiceConfigsQuery : IServiceConfigsQuery
                 Id = config.Id,
                 Name = config.Name,
                 Primary = config.Primary,
-                BaseUrl = config.BaseUrl
+                BaseUrl = config.BaseUrls.First()
             }).ToListAsync(cancellationToken: cancellationToken);
     }
 }

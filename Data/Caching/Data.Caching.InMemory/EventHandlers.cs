@@ -1,6 +1,6 @@
-using Arch.Core.EndpointDefinitions;
-using Arch.Core.EndpointDefinitions.Events;
 using Arch.Core.ServiceConfigs;
+using Arch.Core.ServiceConfigs.EndpointDefinitions;
+using Arch.Core.ServiceConfigs.EndpointDefinitions.Events;
 using DotNetCore.CAP;
 
 namespace Arch.Data.Caching.InMemory;

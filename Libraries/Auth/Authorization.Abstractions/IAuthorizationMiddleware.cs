@@ -1,7 +1,6 @@
-using Arch.Core.EndpointDefinitions;
-using Arch.Core.Extensions;
 using Arch.Core.Extensions.Http;
 using Arch.Core.Pipeline.Models;
+using Arch.Core.ServiceConfigs.EndpointDefinitions;
 using Microsoft.AspNetCore.Http;
 
 namespace Arch.Authorization.Abstractions;

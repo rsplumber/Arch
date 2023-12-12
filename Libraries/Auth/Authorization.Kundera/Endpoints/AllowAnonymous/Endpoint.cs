@@ -1,6 +1,5 @@
-using Arch.Core.EndpointDefinitions;
-using Arch.Core.EndpointDefinitions.Exceptions;
-using Arch.Core.Metas;
+using Arch.Core.ServiceConfigs.EndpointDefinitions;
+using Arch.Core.ServiceConfigs.EndpointDefinitions.Exceptions;
 using FastEndpoints;
 using FluentValidation;
 
@@ -32,11 +31,7 @@ internal sealed class Endpoint : Endpoint<Request>
 
         endpointDefinition.RemoveMeta("permissions");
         endpointDefinition.RemoveMeta("allow_anonymous");
-        endpointDefinition.Add(new Meta
-        {
-            Key = "allow_anonymous",
-            Value = "true"
-        });
+        endpointDefinition.AddMeta("allow_anonymous", "true");
         await _endpointDefinitionRepository.UpdateAsync(endpointDefinition, ct);
         await SendOkAsync(ct);
     }

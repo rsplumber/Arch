@@ -1,7 +1,7 @@
-﻿using Arch.Core.EndpointDefinitions;
-using Arch.Core.EndpointDefinitions.Resolvers;
-using Arch.Core.EndpointDefinitions.Services;
-using Arch.Core.Pipeline;
+﻿using Arch.Core.Pipeline;
+using Arch.Core.ServiceConfigs.EndpointDefinitions;
+using Arch.Core.ServiceConfigs.EndpointDefinitions.Resolvers;
+using Arch.Core.ServiceConfigs.EndpointDefinitions.Services;
 using Arch.Core.ServiceConfigs.Services;
 using Microsoft.Extensions.DependencyInjection;
 

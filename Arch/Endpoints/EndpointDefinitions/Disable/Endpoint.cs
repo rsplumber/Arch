@@ -1,5 +1,5 @@
-using Arch.Core.EndpointDefinitions;
-using Arch.Core.EndpointDefinitions.Exceptions;
+using Arch.Core.ServiceConfigs.EndpointDefinitions;
+using Arch.Core.ServiceConfigs.EndpointDefinitions.Exceptions;
 using FastEndpoints;
 using FluentValidation;
 

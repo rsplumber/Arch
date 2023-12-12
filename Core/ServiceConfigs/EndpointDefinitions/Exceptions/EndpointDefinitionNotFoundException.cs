@@ -1,4 +1,4 @@
-﻿namespace Arch.Core.EndpointDefinitions.Exceptions;
+﻿namespace Arch.Core.ServiceConfigs.EndpointDefinitions.Exceptions;
 
 public sealed class EndpointDefinitionNotFoundException : ArchException
 {

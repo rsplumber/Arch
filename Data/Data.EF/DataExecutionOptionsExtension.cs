@@ -1,6 +1,5 @@
-﻿using Arch.Core.EndpointDefinitions;
-using Arch.Core.Metas;
-using Arch.Core.ServiceConfigs;
+﻿using Arch.Core.ServiceConfigs;
+using Arch.Core.ServiceConfigs.EndpointDefinitions;
 using Arch.Data.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,9 +19,7 @@ public static class DataExecutionOptionsExtension
         void SeedData()
         {
             var archServiceConfig = dbContext.ServiceConfigs
-                .Include(serviceConfig => serviceConfig.Meta)
                 .Include(serviceConfig => serviceConfig.EndpointDefinitions)
-                .ThenInclude(endpoint => endpoint.Meta)
                 .FirstOrDefault(config => config.Name == "arch");
             //Seed internal APIs 
             if (archServiceConfig is null)
@@ -41,13 +38,9 @@ public static class DataExecutionOptionsExtension
                     Pattern = "api/v1/endpoint-definitions/##",
                     MapTo = "api/v1/endpoint-definitions/{0}",
                     Method = HttpMethod.Get,
-                    Meta = new List<Meta>
+                    Meta = new Dictionary<string, string>
                     {
-                        new()
-                        {
-                            Key = "permissions",
-                            Value = "details_endpoint_definition"
-                        },
+                        { "permissions", "details_endpoint_definition" }
                     }
                 });
             }
@@ -60,13 +53,9 @@ public static class DataExecutionOptionsExtension
                     Pattern = "api/v1/endpoint-definitions/##/enable",
                     MapTo = "api/v1/endpoint-definitions/{0}/enable",
                     Method = HttpMethod.Post,
-                    Meta = new List<Meta>
+                    Meta = new Dictionary<string, string>
                     {
-                        new()
-                        {
-                            Key = "permissions",
-                            Value = "enable_endpoint_definition"
-                        },
+                        { "permissions", "enable_endpoint_definition" }
                     }
                 });
             }
@@ -79,13 +68,9 @@ public static class DataExecutionOptionsExtension
                     Pattern = "api/v1/endpoint-definitions/##/disable",
                     MapTo = "api/v1/endpoint-definitions/{0}/disable",
                     Method = HttpMethod.Post,
-                    Meta = new List<Meta>
+                    Meta = new Dictionary<string, string>
                     {
-                        new()
-                        {
-                            Key = "permissions",
-                            Value = "disable_endpoint_definition"
-                        },
+                        { "permissions", "disable_endpoint_definition" }
                     }
                 });
             }
@@ -98,13 +83,9 @@ public static class DataExecutionOptionsExtension
                     Pattern = "api/v1/endpoint-definitions/##",
                     MapTo = "api/v1/endpoint-definitions/{0}",
                     Method = HttpMethod.Delete,
-                    Meta = new List<Meta>
+                    Meta = new Dictionary<string, string>
                     {
-                        new()
-                        {
-                            Key = "permissions",
-                            Value = "delete_endpoint_definition"
-                        },
+                        { "permissions", "delete_endpoint_definition" }
                     }
                 });
             }
@@ -117,13 +98,9 @@ public static class DataExecutionOptionsExtension
                     Pattern = "api/v1/endpoint-definitions/##",
                     MapTo = "api/v1/endpoint-definitions/{0}",
                     Method = HttpMethod.Put,
-                    Meta = new List<Meta>
+                    Meta = new Dictionary<string, string>
                     {
-                        new()
-                        {
-                            Key = "permissions",
-                            Value = "update_endpoint_definition"
-                        },
+                        { "permissions", "update_endpoint_definition" }
                     }
                 });
             }
@@ -136,13 +113,9 @@ public static class DataExecutionOptionsExtension
                     Pattern = "api/v1/endpoint-definitions/required-meta",
                     MapTo = "api/v1/endpoint-definitions/required-meta",
                     Method = HttpMethod.Get,
-                    Meta = new List<Meta>
+                    Meta = new Dictionary<string, string>
                     {
-                        new()
-                        {
-                            Key = "permissions",
-                            Value = "required-meta_endpoint_definition"
-                        },
+                        { "permissions", "required-meta_endpoint_definition" }
                     }
                 });
             }
@@ -155,13 +128,9 @@ public static class DataExecutionOptionsExtension
                     Pattern = "api/v1/service-configs",
                     MapTo = "service-configs",
                     Method = HttpMethod.Post,
-                    Meta = new List<Meta>
+                    Meta = new Dictionary<string, string>
                     {
-                        new()
-                        {
-                            Key = "permissions",
-                            Value = "create_service_config"
-                        }
+                        { "permissions", "create_service_config" }
                     }
                 });
             }
@@ -174,13 +143,9 @@ public static class DataExecutionOptionsExtension
                     Pattern = "api/v1/service-configs/required-meta",
                     MapTo = "service-configs/required-meta",
                     Method = HttpMethod.Get,
-                    Meta = new List<Meta>
+                    Meta = new Dictionary<string, string>
                     {
-                        new()
-                        {
-                            Key = "permissions",
-                            Value = "required-meta_service_config"
-                        },
+                        { "permissions", "required-meta_service_config" }
                     }
                 });
             }
@@ -193,13 +158,9 @@ public static class DataExecutionOptionsExtension
                     Pattern = "api/v1/service-configs",
                     MapTo = "service-configs",
                     Method = HttpMethod.Get,
-                    Meta = new List<Meta>
+                    Meta = new Dictionary<string, string>
                     {
-                        new()
-                        {
-                            Key = "permissions",
-                            Value = "list_service_config"
-                        },
+                        { "permissions", "list_service_config" }
                     }
                 });
             }
@@ -212,13 +173,9 @@ public static class DataExecutionOptionsExtension
                     Pattern = "api/v1/service-configs/##",
                     MapTo = "service-configs/{0}",
                     Method = HttpMethod.Delete,
-                    Meta = new List<Meta>
+                    Meta = new Dictionary<string, string>
                     {
-                        new()
-                        {
-                            Key = "permissions",
-                            Value = "delete_service_config"
-                        },
+                        { "permissions", "delete_service_config" }
                     }
                 });
             }
@@ -231,13 +188,9 @@ public static class DataExecutionOptionsExtension
                     Pattern = "api/v1/service-configs/##",
                     MapTo = "service-configs/{0}",
                     Method = HttpMethod.Get,
-                    Meta = new List<Meta>
+                    Meta = new Dictionary<string, string>
                     {
-                        new()
-                        {
-                            Key = "permissions",
-                            Value = "details_service_config"
-                        },
+                        { "permissions", "details_service_config" }
                     }
                 });
             }
@@ -250,13 +203,9 @@ public static class DataExecutionOptionsExtension
                     Pattern = "api/v1/service-configs/##",
                     MapTo = "service-configs/{0}",
                     Method = HttpMethod.Put,
-                    Meta = new List<Meta>
+                    Meta = new Dictionary<string, string>
                     {
-                        new()
-                        {
-                            Key = "permissions",
-                            Value = "update_service_config"
-                        },
+                        { "permissions", "update_service_config" }
                     }
                 });
             }
@@ -269,13 +218,9 @@ public static class DataExecutionOptionsExtension
                     Pattern = "api/v1/service-configs/##/endpoint-definitions",
                     MapTo = "service-configs/{0}/endpoint-definitions",
                     Method = HttpMethod.Post,
-                    Meta = new List<Meta>
+                    Meta = new Dictionary<string, string>
                     {
-                        new()
-                        {
-                            Key = "permissions",
-                            Value = "create_endpoint_definition"
-                        },
+                        { "permissions", "create_endpoint_definition" }
                     }
                 });
             }
@@ -288,13 +233,9 @@ public static class DataExecutionOptionsExtension
                     Pattern = "api/v1/service-configs/##/endpoint-definitions",
                     MapTo = "service-configs/{0}/endpoint-definitions",
                     Method = HttpMethod.Get,
-                    Meta = new List<Meta>
+                    Meta = new Dictionary<string, string>
                     {
-                        new()
-                        {
-                            Key = "permissions",
-                            Value = "list_endpoint_definition"
-                        },
+                        { "permissions", "list_endpoint_definition" }
                     }
                 });
             }

@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <RootNamespace>Arch.Authorization.Kundera</RootNamespace>
@@ -12,10 +12,12 @@
         <Authors>Plumber</Authors>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.11" />
-        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.0.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
+        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.0.3" />
         <PackageReference Include="KunderaNet.Services.Authorization.Http" Version="1.0.2" />
         <PackageReference Include="KunderaNet.Services.Authorization.Mock" Version="1.0.1" />
-        <PackageReference Include="Arch.Gateway.Authorization.Abstractions" Version="0.9.2" />
+    </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\Authorization.Abstractions\Authorization.Abstractions.csproj" />
     </ItemGroup>
 </Project>

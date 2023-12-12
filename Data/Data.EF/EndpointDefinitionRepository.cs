@@ -1,4 +1,4 @@
-﻿using Arch.Core.EndpointDefinitions;
+﻿using Arch.Core.ServiceConfigs.EndpointDefinitions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Arch.Data.EF;
@@ -41,9 +41,7 @@ public sealed class EndpointDefinitionRepository : IEndpointDefinitionRepository
     {
         return _dbContext.EndpointDefinitions
             .AsNoTracking()
-            .Include(definition => definition.Meta)
             .Include(definition => definition.ServiceConfig)
-            .ThenInclude(serviceConfig => serviceConfig.Meta)
             .FirstOrDefaultAsync(definition =>
                 definition.Pattern == definitionKey.Pattern &&
                 definition.Method == definitionKey.Method, cancellationToken);

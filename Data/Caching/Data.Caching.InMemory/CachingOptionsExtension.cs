@@ -1,4 +1,4 @@
-﻿using Arch.Core.EndpointDefinitions;
+﻿using Arch.Core.ServiceConfigs.EndpointDefinitions;
 using Arch.Data.Caching.Abstractions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

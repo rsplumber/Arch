@@ -1,4 +1,4 @@
-using Arch.Core.EndpointDefinitions;
+using Arch.Core.ServiceConfigs.EndpointDefinitions;
 
 namespace Arch.Core.Pipeline.Models;
 
