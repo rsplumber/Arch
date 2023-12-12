@@ -22,11 +22,11 @@ public static class ServiceCollectionExtension
         services.AddHttpClient("arch", client =>
         {
             client.DefaultRequestHeaders.Clear();
-            client.Timeout = TimeSpan.FromSeconds(60);
+            client.Timeout = TimeSpan.FromSeconds(120);
             client.MaxResponseContentBufferSize = int.MaxValue;
         }).ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
         {
             AllowAutoRedirect = false
-        }).SetHandlerLifetime(TimeSpan.FromMinutes(5));
+        });
     }
 }

@@ -21,7 +21,7 @@ internal static class EndpointDefinitionExtensions
 
     public static string ExtractServiceSecret(this EndpointDefinition endpointDefinition)
     {
-        return endpointDefinition.Meta.TryGetValue(ServiceSecretMetaKey, out var serviceSecretValue) ? serviceSecretValue : string.Empty;
+        return endpointDefinition.ServiceConfig.Meta.TryGetValue(ServiceSecretMetaKey, out var serviceSecretValue) ? serviceSecretValue : string.Empty;
     }
 
     public static bool AllowAnonymous(this EndpointDefinition endpointDefinition)
