@@ -8,7 +8,6 @@ public static class AfterDispatchingOptionsExtension
     public static void UseLogging(this AfterDispatchingOptions afterDispatchingOptions)
     {
         afterDispatchingOptions.ApplicationBuilder.UseMiddleware<LoggerMiddleware>();
-        afterDispatchingOptions.UseLogging(null);
     }
 
     public static void UseLogging(this AfterDispatchingOptions afterDispatchingOptions, Action<LoggingExecutionOptions>? options)

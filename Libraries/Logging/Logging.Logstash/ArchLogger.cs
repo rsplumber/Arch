@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Arch.Logging.Abstractions;
 using DotNetCore.CAP;
 

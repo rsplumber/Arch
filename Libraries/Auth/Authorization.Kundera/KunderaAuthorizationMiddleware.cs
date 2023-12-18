@@ -75,6 +75,8 @@ internal sealed class KunderaAuthorizationMiddleware : AuthorizationMiddleware
             authorizedResponse.ServiceId,
             authorizedResponse.ScopeId);
 
+        requestInfo.SetRequestBy(Guid.Parse(authorizedResponse.UserId));
+        requestInfo.SetScope(Guid.Parse(authorizedResponse.ScopeId!));
         await next(context).ConfigureAwait(false);
         return;
 

@@ -65,22 +65,26 @@ public sealed class EndpointDefinition : BaseEntity
 
     public sealed record LoggingOptions
     {
+        private const string DisabledValue = "disable";
         private const string LoggingJustErrorsMetaValue = "error";
+        private const string LoggingInformalMetaValue = "informal";
 
         public LoggingOptions(string? loggingMeta)
         {
-            if (loggingMeta is null)
+            Disabled = loggingMeta switch
             {
-                Enabled = false;
-                return;
-            }
+                DisabledValue => true,
+                _ => false
+            };
 
-            Enabled = true;
             JustError = loggingMeta == LoggingJustErrorsMetaValue;
+            Informal = loggingMeta == LoggingInformalMetaValue;
         }
 
-        public bool Enabled { get; private set; }
+        public bool Disabled { get; private set; }
 
         public bool JustError { get; private set; }
+
+        public bool Informal { get; private set; }
     }
 }

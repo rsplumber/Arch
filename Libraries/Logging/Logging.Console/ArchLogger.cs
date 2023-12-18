@@ -7,12 +7,7 @@ namespace Arch.Logging.Console;
 
 internal sealed class ArchLogger : IArchLogger
 {
-    private static readonly JsonSerializerOptions JsonSerializerOptions = new()
-    {
-        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-        ReferenceHandler = ReferenceHandler.Preserve
-    };
+    private static readonly JsonSerializerOptions JsonSerializerOptions = new();
 
     public Task LogAsync(dynamic message)
     {

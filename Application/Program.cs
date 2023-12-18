@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Arch;
 using Arch.Authorization.Abstractions;
 using Arch.Authorization.Kundera;
@@ -10,7 +11,7 @@ using Arch.EndpointGraph.InMemory;
 using Arch.EventBus.Cap;
 using Arch.LoadBalancer.Basic;
 using Arch.Logging.Abstractions;
-using Arch.Logging.Console;
+using Arch.Logging.Logstash;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,6 +26,8 @@ builder.Services.AddArch(options =>
     {
         capOptions.FailedRetryCount = 0;
         capOptions.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+        capOptions.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
+        capOptions.JsonSerializerOptions.WriteIndented = true;
         capOptions.JsonSerializerOptions.IgnoreReadOnlyFields = true;
         capOptions.SucceedMessageExpiredAfter = 60 * 2;
         capOptions.FailedMessageExpiredAfter = 60 * 2;
@@ -50,7 +53,7 @@ builder.Services.AddArch(options =>
         dataOptions.AddCaching(cachingOptions => cachingOptions.UseInMemory());
     });
 
-    options.AddLogging(loggingOptions => loggingOptions.UseConsole());
+    options.AddLogging(loggingOptions => loggingOptions.UseLogstash());
     options.AddAuthorization(authorizationOptions => authorizationOptions.UseKundera(builder.Configuration));
 });
 

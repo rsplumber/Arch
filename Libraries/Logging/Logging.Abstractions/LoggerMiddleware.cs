@@ -11,28 +11,71 @@ public sealed class LoggerMiddleware : IMiddleware
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
         var requestState = context.RequestState();
-        if (!requestState.EndpointDefinition.Logging.Enabled || IsJustErrorLogging())
+        if (requestState.EndpointDefinition.Logging.Disabled)
         {
             await next(context).ConfigureAwait(false);
             return;
         }
 
-        _ = SendLogsAsync().ConfigureAwait(false);
+        if (requestState.ResponseInfo is not null)
+        {
+            _ = SendLogsAsync().ConfigureAwait(false);
+        }
 
         await next(context).ConfigureAwait(false);
         return;
 
-        bool IsJustErrorLogging() => requestState.EndpointDefinition.Logging.JustError && requestState.ResponseInfo!.Code < 250;
-
         Task SendLogsAsync()
         {
-            var eventBus = context.EventBus();
-            return eventBus.PublishAsync(EventName, new
+            if (requestState.EndpointDefinition.Logging.JustError && requestState.ResponseInfo!.Code < 250)
             {
-                endpoint = requestState.EndpointDefinition,
-                request = requestState.RequestInfo,
-                response = requestState.ResponseInfo
-            });
+                return Task.CompletedTask;
+            }
+
+            var eventBus = context.EventBus();
+            object logData;
+            if (requestState.EndpointDefinition.Logging.Informal)
+            {
+                logData = new
+                {
+                    endpoint = new
+                    {
+                        requestState.EndpointDefinition.Id,
+                        requestState.EndpointDefinition.Endpoint,
+                        requestState.EndpointDefinition.Method,
+                        Service = new
+                        {
+                            requestState.EndpointDefinition.ServiceConfig.Id,
+                            requestState.EndpointDefinition.ServiceConfig.Name,
+                            requestState.EndpointDefinition.ServiceConfig.BaseUrls,
+                        }
+                    },
+                    request = requestState.RequestInfo,
+                    response = requestState.ResponseInfo
+                };
+            }
+            else
+            {
+                logData = new
+                {
+                    endpoint = new
+                    {
+                        requestState.EndpointDefinition.Id,
+                        requestState.EndpointDefinition.Endpoint,
+                        requestState.EndpointDefinition.Method,
+                        service = new
+                        {
+                            requestState.EndpointDefinition.ServiceConfig.Id,
+                            requestState.EndpointDefinition.ServiceConfig.Name,
+                            requestState.EndpointDefinition.ServiceConfig.BaseUrls,
+                        }
+                    },
+                    request = requestState.RequestInfo,
+                    response = requestState.ResponseInfo?.Code
+                };
+            }
+
+            return eventBus.PublishAsync(EventName, logData);
         }
     }
 }

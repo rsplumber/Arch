@@ -16,6 +16,10 @@ public class RequestInfo
 
     public Guid RequestId { get; } = Guid.NewGuid();
 
+    public Guid? RequestBy { get; private set; }
+
+    public Guid? RequestScope { get; private set; }
+
     public HttpMethod Method { get; }
 
     public string Path { get; }
@@ -23,4 +27,8 @@ public class RequestInfo
     public DateTime RequestDateUtc { get; } = DateTime.UtcNow;
 
     public required Dictionary<string, string> Headers { get; init; }
+
+    public void SetRequestBy(Guid userId) => RequestBy = userId;
+
+    public void SetScope(Guid scopeId) => RequestScope = scopeId;
 }
