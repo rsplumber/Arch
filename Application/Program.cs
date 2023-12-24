@@ -16,7 +16,7 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseKestrel(options => { options.Limits.MaxRequestBodySize = 50_000_000; });
-builder.WebHost.ConfigureKestrel((_, options) => { options.ListenAnyIP(5229, listenOptions => { listenOptions.UseHttps("wwwroot/cert/crt.pfx", "123456"); }); });
+builder.WebHost.ConfigureKestrel((_, options) => { options.ListenAnyIP(5229, listenOptions => { listenOptions.UseHttps("wwwroot/cert/ssl_cert.pfx", "D!gi#b@nk1402"); }); });
 
 builder.Services.AddArch(options =>
 {

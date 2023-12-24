@@ -19,10 +19,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="wwwroot\cert\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\Arch\Arch.csproj" />
       <ProjectReference Include="..\Data\Caching\Data.Caching.InMemory\Data.Caching.InMemory.csproj" />
       <ProjectReference Include="..\Data\Data.EF\Data.EF.csproj" />
