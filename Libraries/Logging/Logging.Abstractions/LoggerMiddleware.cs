@@ -27,29 +27,25 @@ public sealed class LoggerMiddleware : IMiddleware
 
         Task SendLogsAsync()
         {
-            if (requestState.EndpointDefinition.Logging.JustError && requestState.ResponseInfo!.Code < 250)
-            {
-                return Task.CompletedTask;
-            }
-
             var eventBus = context.EventBus();
             object logData;
+            var endpointData = new
+            {
+                requestState.EndpointDefinition.Id,
+                requestState.EndpointDefinition.Endpoint,
+                requestState.EndpointDefinition.Method,
+                Service = new
+                {
+                    requestState.EndpointDefinition.ServiceConfig.Id,
+                    requestState.EndpointDefinition.ServiceConfig.Name,
+                    requestState.EndpointDefinition.ServiceConfig.BaseUrls,
+                }
+            };
             if (requestState.EndpointDefinition.Logging.Informal)
             {
                 logData = new
                 {
-                    endpoint = new
-                    {
-                        requestState.EndpointDefinition.Id,
-                        requestState.EndpointDefinition.Endpoint,
-                        requestState.EndpointDefinition.Method,
-                        Service = new
-                        {
-                            requestState.EndpointDefinition.ServiceConfig.Id,
-                            requestState.EndpointDefinition.ServiceConfig.Name,
-                            requestState.EndpointDefinition.ServiceConfig.BaseUrls,
-                        }
-                    },
+                    endpoint = endpointData,
                     request = requestState.RequestInfo,
                     response = requestState.ResponseInfo
                 };
@@ -58,19 +54,8 @@ public sealed class LoggerMiddleware : IMiddleware
             {
                 logData = new
                 {
-                    endpoint = new
-                    {
-                        requestState.EndpointDefinition.Id,
-                        requestState.EndpointDefinition.Endpoint,
-                        requestState.EndpointDefinition.Method,
-                        service = new
-                        {
-                            requestState.EndpointDefinition.ServiceConfig.Id,
-                            requestState.EndpointDefinition.ServiceConfig.Name,
-                            requestState.EndpointDefinition.ServiceConfig.BaseUrls,
-                        }
-                    },
-                    request = requestState.RequestInfo,
+                    endpoint = endpointData,
+                    request = requestState.RequestInfo.RequestId,
                     response = requestState.ResponseInfo?.Code
                 };
             }
