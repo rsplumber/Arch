@@ -4,10 +4,12 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <AssemblyName>RateLimit.Configuration</AssemblyName>
+    <RootNamespace>RateLimit.Configuration</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\RateLimit.Cage\RateLimit.Cage.csproj" />
+    <ProjectReference Include="..\Arch.Configurations\Arch.Configurations.csproj" />
   </ItemGroup>
-
+  
 </Project>

@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Arch.Configurations\Arch.Configurations.csproj" />
+    <ProjectReference Include="..\RateLimit.Configuration\RateLimit.Configuration.csproj" />
   </ItemGroup>
 
 </Project>
