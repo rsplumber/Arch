@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace RateLimit.Cage.MiddleWare
 {
-    public class ChackRateLimitMiddleware : IMiddleware
+    public class ChackRateLimitMiddleware 
     {
         private readonly RequestDelegate _next;
         private RateLimitState rateLimitState;
@@ -31,7 +31,7 @@ namespace RateLimit.Cage.MiddleWare
             _next = next;
         }
 
-        public async Task InvokeAsync(HttpContext context, RequestDelegate next)
+        public async Task InvokeAsync(HttpContext context)
         {
             var _cacheService = context.RequestServices.GetService(typeof(IMemoryCache)) as IMemoryCache;
             var _service = context.RequestServices.GetService(typeof(RateLimitServices)) as RateLimitServices;
@@ -119,7 +119,9 @@ namespace RateLimit.Cage.MiddleWare
 
             bool requestHasBodyAndIsSpecial()
             {
-                return context.Request.HasBody() && !context.RequestState().EndpointDefinition.Meta.Any(x => x.Key == "identifier_request_body");
+                var test = endpointDefinition.Meta;
+                var test2 = test.SingleOrDefault(x => x.Key == "identifier_request_body");
+                return context.Request.HasBody() && context.RequestState().EndpointDefinition.Meta.Any(x => x.Key == "identifier_request_body");
             }
 
             bool isRequestInWindow()
