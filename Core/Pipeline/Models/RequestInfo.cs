@@ -31,4 +31,5 @@ public class RequestInfo
     public void SetRequestBy(Guid userId) => RequestBy = userId;
 
     public void SetScope(Guid scopeId) => RequestScope = scopeId;
+
 }
