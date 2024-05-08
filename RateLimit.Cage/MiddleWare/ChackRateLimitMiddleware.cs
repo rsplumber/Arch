@@ -119,7 +119,7 @@ namespace RateLimit.Cage.MiddleWare
 
             bool requestHasBodyAndIsSpecial()
             {
-                return context.Request.HasBody() && !context.RequestState().EndpointDefinition.Meta.Any(x => x.Key == "identifier_request_body");
+                return context.Request.HasBody() && context.RequestState().EndpointDefinition.Meta.Any(x => x.Key == "identifier_request_body");
             }
 
             bool isRequestInWindow()
