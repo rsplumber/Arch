@@ -13,32 +13,46 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using FastEndpoints;
+using Arch.Core.Pipeline.Models;
+using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 
 namespace RateLimit.Cage.MiddleWare
 {
-    public class ChackRateLimitMiddleware : IMiddleware
+    public class ChackRateLimitMiddleware
     {
         private readonly RequestDelegate _next;
-        private RateLimitState rateLimitState;
-        string key;
-        bool isLimited = false;
-        bool isDefaultConditions = false;
-        bool globalBlocked = false;
 
         public ChackRateLimitMiddleware(RequestDelegate next)
         {
-           
+
             _next = next;
         }
 
-        public async Task InvokeAsync(HttpContext context, RequestDelegate next)
+        public async Task InvokeAsync(HttpContext context)
         {
+
+            if (context.RequestState().RequestInfo.Headers.TryGetValue("version", out string value))
+            {
+
+                if (int.Parse(value) < 120)
+                {
+                    await _next(context);
+                    return;
+                }
+            }
+
+
             var _cacheService = context.RequestServices.GetService(typeof(IMemoryCache)) as IMemoryCache;
             var _service = context.RequestServices.GetService(typeof(RateLimitServices)) as RateLimitServices;
             var ip = context.Connection.RemoteIpAddress;
             var endpointDefinition = context.RequestState().EndpointDefinition;
             var limitConditions = _service.FillOptions(endpointDefinition);
-
+            string key;
+            bool isLimited = false;
+            bool isDefaultConditions = false;
+            bool globalBlocked = false;
 
             if (!isSpecial())
                 isDefaultConditions = true;
@@ -48,7 +62,13 @@ namespace RateLimit.Cage.MiddleWare
             {
                 if (!requestHasBodyAndIsSpecial())
                 {
-                    await _service.FillErrorResponse(context, "درخواست شما نامعتبر است", 400);
+                    await context.Response.SendAsync(new ResponseInfo()
+                    {
+                        Code = 400,
+                        Headers = new Dictionary<string, string>(),
+                        ResponseTimeMilliseconds = 1,
+                        Value = "درخواست شما نامعتبر است",
+                    }, 400);
                     return;
                 }
                 if (context.Request.HasBody())
@@ -58,17 +78,23 @@ namespace RateLimit.Cage.MiddleWare
                 }
                 if (string.IsNullOrEmpty(Identifier))
                 {
-                    await _service.FillErrorResponse(context, "درخواست شما نامعتبر است", 400);
+                    await context.Response.SendAsync(new ResponseInfo()
+                    {
+                        Code = 400,
+                        Headers = new Dictionary<string, string>(),
+                        ResponseTimeMilliseconds = 1,
+                        Value = "درخواست شما نامعتبر است",
+                    }, 400);
                     return;
                 }
             }
 
             key = generateKeyForGlobal();
-            rateLimitState = _cacheService.Get(key) as RateLimitState ?? null;
+            var rateLimitState = _cacheService.Get(key) as RateLimitState ?? null;
 
             if (rateLimitState != null)
             {
-                if (isRequestInWindow())
+                if (isRequestInWindow(GlobaConditions.Values().WindowsSize))
                 {
                     isLimited = shouldRequestBlock();
                     if (isLimited)
@@ -87,7 +113,7 @@ namespace RateLimit.Cage.MiddleWare
                     await setFirstRateLimitRecord();
                 }
 
-                if (!isRequestInWindow())
+                if (!isRequestInWindow(limitConditions.WindowsSize))
                 {
                     resetLimitState();
                 }
@@ -100,8 +126,13 @@ namespace RateLimit.Cage.MiddleWare
             {
                 var blockTime = calculateBlockTimeCondition();
                 string message = $"به دلیل درخواست های مکرر حساب شما تا {RemindedTime.Calculate(rateLimitState.LastAccess, blockTime)} دیگر مسدود شده است";
-                await _service.FillErrorResponse(context, message, 429);
-
+                await context.Response.SendAsync(new ResponseInfo()
+                {
+                    Code = 429,
+                    Headers = new Dictionary<string, string>(),
+                    ResponseTimeMilliseconds = 1,
+                    Value = message,
+                }, 429);
                 return;
             }
 
@@ -112,19 +143,19 @@ namespace RateLimit.Cage.MiddleWare
 
 
 
-            bool isSpecial()
-            {
-                return context.RequestState().EndpointDefinition.Meta.Any(x => x.Key == "rate_limit");
-            }
+            bool isSpecial() => context.RequestState().EndpointDefinition.Meta.Any(x => x.Key == "rate_limit");
 
             bool requestHasBodyAndIsSpecial()
             {
                 return context.Request.HasBody() && context.RequestState().EndpointDefinition.Meta.Any(x => x.Key == "identifier_request_body");
             }
 
-            bool isRequestInWindow()
+            bool isRequestInWindow(TimeSpan windowSize)
             {
-                return DateTime.UtcNow - rateLimitState.LastAccess < limitConditions.WindowsSize;
+                var now = DateTime.UtcNow;
+                var divided = now - rateLimitState.LastAccess;
+                var res = divided < windowSize;
+                return res;
             }
 
             bool shouldRequestBlock()
@@ -139,12 +170,12 @@ namespace RateLimit.Cage.MiddleWare
 
             string generateKeyForGlobal()
             {
-                return _service.ConcatKey(ip.ToString(), "global");
+                return _service.ConcatKey(ip.ToString(), GlobaConditions.Values().BriefURL);
             }
 
             string generateKeyForDefaultOrSpecial()
             {
-                string secondPart = (isDefaultConditions) ? "global" : endpointDefinition.Endpoint;
+                string secondPart = (isDefaultConditions) ? GlobaConditions.Values().BriefURL : endpointDefinition.Endpoint;
 
                 var firstPart = (isDefaultConditions) ? ip.ToString() : Identifier;
                 return _service.ConcatKey(firstPart, secondPart);
@@ -166,6 +197,8 @@ namespace RateLimit.Cage.MiddleWare
 
             }
         }
+
+
     }
     public class RateLimitState
     {

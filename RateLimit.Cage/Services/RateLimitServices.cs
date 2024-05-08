@@ -1,4 +1,5 @@
 ﻿using Arch.Core.Extensions.Http;
+using Arch.Core.Pipeline.Models;
 using Arch.Core.ServiceConfigs.EndpointDefinitions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -38,16 +39,7 @@ namespace RateLimit.Cage.Services
 
         }
 
-        public async Task FillErrorResponse(HttpContext context, string message, int statusCode)
-        {
-            var result = new ObjectResult(new { message = message })
-            {
-                StatusCode = statusCode
-            };
-            await context.Response.WriteAsJsonAsync(result);
-            await Task.CompletedTask;
-
-        }
+      
 
         public async Task<MemoryCacheEntryOptions> CacheOptions(int size, CacheItemPriority Priority, TimeSpan SlidingExpiration)
         {
