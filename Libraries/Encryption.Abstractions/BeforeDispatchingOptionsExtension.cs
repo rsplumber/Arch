@@ -4,9 +4,9 @@ namespace Encryption.Abstractions;
 
 public static class BeforeDispatchingOptionsExtension
 {
-    public static void UseEncryption(this BeforeDispatchingOptions beforeDispatchingOptions, Action<EncryptionExecutionOptions> options)
+    public static void UseRequestEncryption(this BeforeDispatchingOptions beforeDispatchingOptions, Action<RequestEncryptionExecutionOptions> options)
     {
-        options.Invoke(new EncryptionExecutionOptions
+        options.Invoke(new RequestEncryptionExecutionOptions
         {
             ApplicationBuilder = beforeDispatchingOptions.ApplicationBuilder
         });

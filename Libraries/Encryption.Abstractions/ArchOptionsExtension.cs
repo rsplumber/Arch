@@ -11,20 +11,4 @@ public static class ArchOptionsExtension
             Services = archOptions.Services
         });
     }
-
-    public static void AddResponseEncryption(this ArchOptions archOptions, Action<EncryptionOptions>? options = null)
-    {
-        options?.Invoke(new EncryptionOptions
-        {
-            Services = archOptions.Services
-        });
-    }
-
-    public static void AddRequestEncryption(this ArchOptions archOptions, Action<EncryptionOptions>? options = null)
-    {
-        options?.Invoke(new EncryptionOptions
-        {
-            Services = archOptions.Services
-        });
-    }
 }

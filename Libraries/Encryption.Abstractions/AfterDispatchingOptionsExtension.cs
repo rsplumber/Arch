@@ -4,11 +4,11 @@ namespace Encryption.Abstractions;
 
 public static class AfterDispatchingOptionsExtension
 {
-    public static void UseEncryption(this AfterDispatchingOptions beforeDispatchingOptions, Action<EncryptionExecutionOptions> options)
+    public static void UseResponseEncryption(this AfterDispatchingOptions afterDispatchingOptions, Action<ResponseEncryptionExecutionOptions> options)
     {
-        options.Invoke(new EncryptionExecutionOptions
+        options.Invoke(new ResponseEncryptionExecutionOptions
         {
-            ApplicationBuilder = beforeDispatchingOptions.ApplicationBuilder
+            ApplicationBuilder = afterDispatchingOptions.ApplicationBuilder
         });
     }
 }
