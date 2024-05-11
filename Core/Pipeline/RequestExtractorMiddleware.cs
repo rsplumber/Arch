@@ -33,6 +33,6 @@ internal sealed class RequestExtractorMiddleware : IMiddleware
             Headers = context.Request.Headers()
         });
 
-        await next(context).ConfigureAwait(false);
+         await next(context).ConfigureAwait(false);
     }
 }

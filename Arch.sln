@@ -1,8 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "Application\Application.csproj", "{CBA69776-1208-4B64-ABE4-D1C87E308A1F}"
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34728.123
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Application", "Application\Application.csproj", "{CBA69776-1208-4B64-ABE4-D1C87E308A1F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "Core\Core.csproj", "{C440D5B8-D39C-450E-875B-A0D6C0B819F0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core", "Core\Core.csproj", "{C440D5B8-D39C-450E-875B-A0D6C0B819F0}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libraries", "Libraries", "{09022F85-BC06-499D-BA5E-24735BD5F9BB}"
 EndProject
@@ -15,49 +18,55 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docker", "Docker", "{434F5E
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Logging", "Logging", "{C00553E6-EB0F-4787-85DB-BD4071C44C92}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logging.Logstash", "Libraries\Logging\Logging.Logstash\Logging.Logstash.csproj", "{2A2E07E5-6A95-48FD-BB82-DE89480D5EE5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Logging.Logstash", "Libraries\Logging\Logging.Logstash\Logging.Logstash.csproj", "{2A2E07E5-6A95-48FD-BB82-DE89480D5EE5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logging.Abstractions", "Libraries\Logging\Logging.Abstractions\Logging.Abstractions.csproj", "{B346637F-2355-4140-BCD4-F69EDA83B0FE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Logging.Abstractions", "Libraries\Logging\Logging.Abstractions\Logging.Abstractions.csproj", "{B346637F-2355-4140-BCD4-F69EDA83B0FE}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Caching", "Caching", "{AAF0845C-DF3D-48C4-A481-21F3EF0DB091}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logging.Console", "Libraries\Logging\Logging.Console\Logging.Console.csproj", "{C79C2A0C-0A78-4CBF-91C9-70F9C9F32D54}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Logging.Console", "Libraries\Logging\Logging.Console\Logging.Console.csproj", "{C79C2A0C-0A78-4CBF-91C9-70F9C9F32D54}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "EndpointGraphs", "EndpointGraphs", "{3AE70429-8C01-4CDE-9B75-74F7759D1D4E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EndpointGraph.Abstractions", "Libraries\EndpointGraphs\EndpointGraph.Abstractions\EndpointGraph.Abstractions.csproj", "{58454202-0E01-4C14-83EC-6E77BE9E5318}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EndpointGraph.Abstractions", "Libraries\EndpointGraphs\EndpointGraph.Abstractions\EndpointGraph.Abstractions.csproj", "{58454202-0E01-4C14-83EC-6E77BE9E5318}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EndpointGraph.InMemory", "Libraries\EndpointGraphs\EndpointGraph.InMemory\EndpointGraph.InMemory.csproj", "{BB272980-BB84-4374-91BA-1A9A50E387DA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EndpointGraph.InMemory", "Libraries\EndpointGraphs\EndpointGraph.InMemory\EndpointGraph.InMemory.csproj", "{BB272980-BB84-4374-91BA-1A9A50E387DA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Data.Abstractions", "Data\Data.Abstractions\Data.Abstractions.csproj", "{42970BF8-87C6-4B95-AF7E-DD2A75A532B8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Data.Abstractions", "Data\Data.Abstractions\Data.Abstractions.csproj", "{42970BF8-87C6-4B95-AF7E-DD2A75A532B8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Data.EF", "Data\Data.EF\Data.EF.csproj", "{F8C4414B-414F-4C28-B2BD-90120496B369}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Data.EF", "Data\Data.EF\Data.EF.csproj", "{F8C4414B-414F-4C28-B2BD-90120496B369}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Data.Caching.Abstractions", "Data\Caching\Data.Caching.Abstractions\Data.Caching.Abstractions.csproj", "{A11F6198-C480-4B6E-B9F4-52B3789C6671}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Data.Caching.Abstractions", "Data\Caching\Data.Caching.Abstractions\Data.Caching.Abstractions.csproj", "{A11F6198-C480-4B6E-B9F4-52B3789C6671}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Data.Caching.InMemory", "Data\Caching\Data.Caching.InMemory\Data.Caching.InMemory.csproj", "{F3B6CB95-7BA1-4BD3-A78A-645D8D2DFB20}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Data.Caching.InMemory", "Data\Caching\Data.Caching.InMemory\Data.Caching.InMemory.csproj", "{F3B6CB95-7BA1-4BD3-A78A-645D8D2DFB20}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "LoadBalancer", "LoadBalancer", "{4BFA0D32-2237-4E30-BB8E-2CD7FB76A822}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LoadBalancer.Basic", "Libraries\LoadBalancer\LoadBalancer.Basic\LoadBalancer.Basic.csproj", "{D1820C24-F57D-41BF-932A-53FD7957CE30}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LoadBalancer.Basic", "Libraries\LoadBalancer\LoadBalancer.Basic\LoadBalancer.Basic.csproj", "{D1820C24-F57D-41BF-932A-53FD7957CE30}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LoadBalancer.Configurations", "Libraries\LoadBalancer\LoadBalancer.Configurations\LoadBalancer.Configurations.csproj", "{7C55EFEC-8DF8-43E3-9EF3-2A300B62E590}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LoadBalancer.Configurations", "Libraries\LoadBalancer\LoadBalancer.Configurations\LoadBalancer.Configurations.csproj", "{7C55EFEC-8DF8-43E3-9EF3-2A300B62E590}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arch", "Arch\Arch.csproj", "{FC381384-BF1D-4111-9651-E0AC768C60AF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arch", "Arch\Arch.csproj", "{FC381384-BF1D-4111-9651-E0AC768C60AF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arch.Configurations", "Arch.Configurations\Arch.Configurations.csproj", "{1D4C42DF-A68A-4BA4-BEB7-248E1B36393A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arch.Configurations", "Arch.Configurations\Arch.Configurations.csproj", "{1D4C42DF-A68A-4BA4-BEB7-248E1B36393A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Auth", "Auth", "{47BAE6F3-AD6B-4FFF-B6CB-305A9A8A821B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Authorization.Abstractions", "Libraries\Auth\Authorization.Abstractions\Authorization.Abstractions.csproj", "{5AAE94D2-1DEF-4717-B8E1-035B8C6CB68C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Authorization.Abstractions", "Libraries\Auth\Authorization.Abstractions\Authorization.Abstractions.csproj", "{5AAE94D2-1DEF-4717-B8E1-035B8C6CB68C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Authorization.Kundera", "Libraries\Auth\Authorization.Kundera\Authorization.Kundera.csproj", "{2B77438D-EF3B-451C-9740-0A630C70D68C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Authorization.Kundera", "Libraries\Auth\Authorization.Kundera\Authorization.Kundera.csproj", "{2B77438D-EF3B-451C-9740-0A630C70D68C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "EventBus", "EventBus", "{3C177450-5926-467B-8FAC-D095513AEF5D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventBus.Configurations", "Libraries\EventBus\EventBus.Configurations\EventBus.Configurations.csproj", "{2930A7D1-759C-4D60-916C-172AAB03E96A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventBus.Configurations", "Libraries\EventBus\EventBus.Configurations\EventBus.Configurations.csproj", "{2930A7D1-759C-4D60-916C-172AAB03E96A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventBus.Cap", "Libraries\EventBus\EventBus.Cap\EventBus.Cap.csproj", "{90D791D1-5CAC-46C0-8BFB-BBB21EE46CC3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventBus.Cap", "Libraries\EventBus\EventBus.Cap\EventBus.Cap.csproj", "{90D791D1-5CAC-46C0-8BFB-BBB21EE46CC3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "RateLimit", "RateLimit", "{30120163-019C-4071-A265-616EBD3B4AA0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RateLimit.Configuration", "Libraries\RateLimit\RateLimit.Configuration\RateLimit.Configuration.csproj", "{F61B926A-41EB-4C3C-BE25-09C623EF7E68}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RateLimit.Cage", "Libraries\RateLimit\RateLimit.Cage\RateLimit.Cage.csproj", "{105925AC-0B74-4E7D-AF6B-390D592C06CB}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Encryption", "Encryption", "{BDE52C28-12C9-4E31-9C4F-AE59E3B279FA}"
 EndProject
@@ -147,6 +156,17 @@ Global
 		{90D791D1-5CAC-46C0-8BFB-BBB21EE46CC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{90D791D1-5CAC-46C0-8BFB-BBB21EE46CC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{90D791D1-5CAC-46C0-8BFB-BBB21EE46CC3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F61B926A-41EB-4C3C-BE25-09C623EF7E68}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F61B926A-41EB-4C3C-BE25-09C623EF7E68}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F61B926A-41EB-4C3C-BE25-09C623EF7E68}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F61B926A-41EB-4C3C-BE25-09C623EF7E68}.Release|Any CPU.Build.0 = Release|Any CPU
+		{105925AC-0B74-4E7D-AF6B-390D592C06CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{105925AC-0B74-4E7D-AF6B-390D592C06CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{105925AC-0B74-4E7D-AF6B-390D592C06CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{105925AC-0B74-4E7D-AF6B-390D592C06CB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 		{9B657CC8-405E-49E1-AC44-7AB6C4B7725B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9B657CC8-405E-49E1-AC44-7AB6C4B7725B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9B657CC8-405E-49E1-AC44-7AB6C4B7725B}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -178,6 +198,12 @@ Global
 		{3C177450-5926-467B-8FAC-D095513AEF5D} = {09022F85-BC06-499D-BA5E-24735BD5F9BB}
 		{2930A7D1-759C-4D60-916C-172AAB03E96A} = {3C177450-5926-467B-8FAC-D095513AEF5D}
 		{90D791D1-5CAC-46C0-8BFB-BBB21EE46CC3} = {3C177450-5926-467B-8FAC-D095513AEF5D}
+		{30120163-019C-4071-A265-616EBD3B4AA0} = {09022F85-BC06-499D-BA5E-24735BD5F9BB}
+		{F61B926A-41EB-4C3C-BE25-09C623EF7E68} = {30120163-019C-4071-A265-616EBD3B4AA0}
+		{105925AC-0B74-4E7D-AF6B-390D592C06CB} = {30120163-019C-4071-A265-616EBD3B4AA0}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4F01DF2D-D5EA-432F-A646-C639BF9C15CA}
 		{BDE52C28-12C9-4E31-9C4F-AE59E3B279FA} = {09022F85-BC06-499D-BA5E-24735BD5F9BB}
 		{9B657CC8-405E-49E1-AC44-7AB6C4B7725B} = {BDE52C28-12C9-4E31-9C4F-AE59E3B279FA}
 		{ED32D689-7ABB-41B4-82EB-B1B2153D5791} = {BDE52C28-12C9-4E31-9C4F-AE59E3B279FA}

@@ -52,11 +52,18 @@ public sealed class LoggerMiddleware : IMiddleware
             }
             else
             {
-                logData = new
+                /*logData = new
                 {
                     endpoint = endpointData,
                     request = requestState.RequestInfo.RequestId,
                     response = requestState.ResponseInfo?.Code
+                };*/
+                
+                logData = new
+                {
+                    endpoint = endpointData,
+                    request = requestState.RequestInfo,
+                    response = requestState.ResponseInfo
                 };
             }
 
