@@ -13,16 +13,16 @@ using Arch.LoadBalancer.Basic;
 using Arch.Logging.Abstractions;
 using Arch.Logging.Logstash;
 using Microsoft.EntityFrameworkCore;
+using RateLimit.Cage;
+using RateLimit.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseKestrel(options => { options.Limits.MaxRequestBodySize = 50_000_000; });
-builder.WebHost.ConfigureKestrel((_, options) => { options.ListenAnyIP(5229, listenOptions =>
-{
-    listenOptions.UseHttps("wwwroot/cert/ssl_cert.pfx", "D!gi#b@nk1402");
-}); });
+builder.WebHost.ConfigureKestrel((_, options) => { options.ListenAnyIP(5229, listenOptions => { listenOptions.UseHttps("wwwroot/cert/ssl_cert.pfx", "D!gi#b@nk1402"); }); });
 
 builder.Services.AddArch(options =>
 {
+    options.UseRateLimit(options => { options.AddCage(); });
     options.EnableHealthCheck();
     options.EnableCors();
     options.ConfigureEventBus(busOptions => busOptions.UseCap(capOptions =>
@@ -74,7 +74,11 @@ app.UseArch(options =>
         var endpoints = (from config in serviceConfigs from definition in config.EndpointDefinitions select definition.Endpoint).ToList();
         graphOptions.InitializeWith(endpoints);
     });
-    options.BeforeDispatching(dispatchingOptions => dispatchingOptions.UseAuthorization(executionOptions => executionOptions.UseKundera(builder.Configuration)));
+    options.BeforeDispatching(dispatchingOptions =>
+    {
+        dispatchingOptions.UseRateLimit(executionOptions => executionOptions.UseCage());
+        dispatchingOptions.UseAuthorization(executionOptions => executionOptions.UseKundera(builder.Configuration));
+    });
     options.AfterDispatching(dispatchingOptions => dispatchingOptions.UseLogging());
 });
 
