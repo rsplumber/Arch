@@ -9,7 +9,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Arch.Configurations\Arch.Configurations.csproj" />
+    <ProjectReference Include="..\..\..\Arch.Configurations\Arch.Configurations.csproj" />
   </ItemGroup>
+
   
 </Project>
