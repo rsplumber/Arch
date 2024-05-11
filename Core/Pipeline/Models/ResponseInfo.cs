@@ -4,7 +4,7 @@ public class ResponseInfo
 {
     public required int Code { get; init; }
 
-    public dynamic? Value { get; init; }
+    public dynamic? Value { get; set; }
 
     public required long ResponseTimeMilliseconds { get; init; }
 

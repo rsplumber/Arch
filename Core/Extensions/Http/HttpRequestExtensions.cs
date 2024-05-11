@@ -38,7 +38,7 @@ public static class HttpRequestExtensions
     public static async Task<JsonDocument?> ReadAsJsonAsync(this HttpRequest request, CancellationToken cancellationToken = default)
     {
         if (!request.HasBody()) return null;
-        using var streamReader = new StreamReader(request.Body);
+        var streamReader = new StreamReader(request.Body);
         return JsonDocument.Parse(await streamReader.ReadToEndAsync(cancellationToken).ConfigureAwait(false));
     }
 
