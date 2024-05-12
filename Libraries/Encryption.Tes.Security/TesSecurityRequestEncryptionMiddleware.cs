@@ -1,5 +1,7 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
+using Arch.Core.Extensions.Http;
+using Arch.Core.Pipeline.Models;
 using Microsoft.AspNetCore.Http;
 
 namespace Encryption.Tes.Security;
@@ -8,42 +10,73 @@ internal sealed class TesSecurityRequestEncryptionMiddleware : IMiddleware
 {
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
-        //context.Request.HasBody()
-        //context.Request.ContentType();
-        //RequestInfo.ApplicationJsonContentType
-        context.Request.EnableBuffering();
-        context.Request.Headers.TryGetValue("Authorization", out var token);
+        const string apkMd5 = "a60c6906f98dc4aad77585f5b314e54a";
 
-
-        if (token.Count == 0)
+        if (!context.Request.HasBody() || (context.Request.ContentType() is not RequestInfo.ApplicationJsonContentType and RequestInfo.PlainTextContentType))
         {
-            Console.WriteLine("token is null");
+            await next(context);
+            return;
         }
-        else
+        
+        if (context.RequestState().RequestInfo.Headers.TryGetValue("version", out string value))
         {
-            Console.WriteLine("token is not null");
-        }
 
-        var reader = new StreamReader(context.Request.Body);
-        var encryptedRequest = await reader.ReadToEndAsync();
-        var apkMd5 = "a60c6906f98dc4aad77585f5b314e54a";
-        var key = string.Empty;
-        if (context.Request.Headers.TryGetValue("key", out var cipheredKey))
-        {
-            key = Encryption.Decrypt(cipheredKey.FirstOrDefault());
+            if (int.Parse(value) < 120)
+            {
+                await next(context);
+                return;
+            }
         }
 
-        if (context.Request.Body.CanSeek)
-            context.Request.Body.Seek(0, SeekOrigin.Begin);
+        var requestInfo = context.RequestState().RequestInfo;
 
-        var encKey = HashGenerator.GenerateMD5FromString(apkMd5 + token + key);
+        var seed = CalculateSeed();
+        var authorizationToken = GetAuthorizationToken();
+
+        var encryptedRequest = await ReadRequestBodyAsync();
+
+        var encKey = HashGenerator.GenerateMD5FromString(apkMd5 + authorizationToken + seed);
         var aesEncryption = new AesEncryption(encKey);
         var decryptedText = aesEncryption.DecryptBase64ToString(encryptedRequest);
 
-        context.Items.Add("tes_encryption_key", encKey);
-        context.Request.Body = new MemoryStream(Encoding.UTF8.GetBytes(decryptedText));
+        context.Items.Add(TesEncryptionContextKey.EncryptionKey, encKey);
+
+        RefillRequestData();
 
         await next(context);
+
+        return;
+
+        string GetAuthorizationToken()
+        {
+            return requestInfo.Headers.TryGetValue("Authorization", out var token) ? token : string.Empty;
+        }
+
+        
+
+        string CalculateSeed()
+        {
+            context.Request.Headers.TryGetValue("key", out var cipheredKey);
+            var cipherKey = cipheredKey.FirstOrDefault() ?? string.Empty;
+            return Encryption.Decrypt(cipherKey);
+        }
+
+        async Task<string> ReadRequestBodyAsync()
+        {
+            context.Request.EnableBuffering();
+            var reader = new StreamReader(context.Request.Body);
+            var requestBody = await reader.ReadToEndAsync();
+            if (context.Request.Body.CanSeek) context.Request.Body.Seek(0, SeekOrigin.Begin);
+            return requestBody;
+        }
+
+        void RefillRequestData()
+        {
+            context.Request.Body = new MemoryStream(Encoding.UTF8.GetBytes(decryptedText));
+            context.Request.ContentType = RequestInfo.ApplicationJsonContentType;
+            context.RequestState().RequestInfo.Headers.Remove("Content-Type");
+            context.RequestState().RequestInfo.Headers.Add("Content-Type", RequestInfo.ApplicationJsonContentType);
+        }
     }
 }
 
@@ -54,12 +87,12 @@ public static class HashGenerator
         using (MD5 md5 = MD5.Create())
         {
             // Convert input string to byte array and compute hash
-            byte[] inputBytes = Encoding.ASCII.GetBytes(input);
-            byte[] hashBytes = md5.ComputeHash(inputBytes);
+            var inputBytes = Encoding.ASCII.GetBytes(input);
+            var hashBytes = md5.ComputeHash(inputBytes);
 
             // Convert byte array to hex string
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < hashBytes.Length; i++)
+            var sb = new StringBuilder();
+            for (var i = 0; i < hashBytes.Length; i++)
             {
                 sb.Append(hashBytes[i].ToString("x2"));
             }
@@ -138,9 +171,12 @@ public class Encryption
 
     public static string Decrypt(string encryptedText)
     {
-        var parts = encryptedText.Split(':');
-        var reversedTime = DecryptN(parts[1]);
-        var encryptedKey = parts[2];
+        var part1 = encryptedText.Substring(0, 8);
+        var part2 = encryptedText.Substring(9, 10);
+        var part3 = encryptedText.Substring(20, 10);
+        // var parts = encryptedText.Split(':');
+        var reversedTime = DecryptN(part2);
+        var encryptedKey = part3;
 
         var expirationTime = long.Parse(ReverseString(reversedTime)) * 1000;
         if (DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() > expirationTime)
@@ -148,7 +184,7 @@ public class Encryption
             return "Encryption expired";
         }
 
-        encryptedText = parts[0];
+        encryptedText = part1;
         var key = DecryptKey(encryptedKey, reversedTime);
 
         var decryptedText = string.Empty;
@@ -224,6 +260,7 @@ public class AesEncryption
         using var aesAlg = Aes.Create();
         aesAlg.Key = _key;
         aesAlg.Mode = CipherMode.ECB; // Set the mode to ECB
+
 
         var decryptor = aesAlg.CreateDecryptor();
 
