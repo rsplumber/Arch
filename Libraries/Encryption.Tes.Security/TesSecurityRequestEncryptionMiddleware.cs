@@ -17,10 +17,9 @@ internal sealed class TesSecurityRequestEncryptionMiddleware : IMiddleware
             await next(context);
             return;
         }
-        
+
         if (context.RequestState().RequestInfo.Headers.TryGetValue("version", out string value))
         {
-
             if (int.Parse(value) < 120)
             {
                 await next(context);
@@ -35,7 +34,7 @@ internal sealed class TesSecurityRequestEncryptionMiddleware : IMiddleware
 
         var encryptedRequest = await ReadRequestBodyAsync();
 
-        var encKey = HashGenerator.GenerateMD5FromString(apkMd5 + authorizationToken + seed);
+        var encKey = HashGenerator.GenerateMd5FromString(apkMd5 + authorizationToken + seed);
         var aesEncryption = new AesEncryption(encKey);
         var decryptedText = aesEncryption.DecryptBase64ToString(encryptedRequest);
 
@@ -52,13 +51,12 @@ internal sealed class TesSecurityRequestEncryptionMiddleware : IMiddleware
             return requestInfo.Headers.TryGetValue("Authorization", out var token) ? token : string.Empty;
         }
 
-        
 
         string CalculateSeed()
         {
             context.Request.Headers.TryGetValue("key", out var cipheredKey);
             var cipherKey = cipheredKey.FirstOrDefault() ?? string.Empty;
-            return Encryption.Decrypt(cipherKey);
+            return TesEncryption.Decrypt(cipherKey);
         }
 
         async Task<string> ReadRequestBodyAsync()
@@ -76,29 +74,6 @@ internal sealed class TesSecurityRequestEncryptionMiddleware : IMiddleware
             context.Request.ContentType = RequestInfo.ApplicationJsonContentType;
             context.RequestState().RequestInfo.Headers.Remove("Content-Type");
             context.RequestState().RequestInfo.Headers.Add("Content-Type", RequestInfo.ApplicationJsonContentType);
-        }
-    }
-}
-
-public static class HashGenerator
-{
-    public static string GenerateMD5FromString(string input)
-    {
-        using (MD5 md5 = MD5.Create())
-        {
-            // Convert input string to byte array and compute hash
-            var inputBytes = Encoding.ASCII.GetBytes(input);
-            var hashBytes = md5.ComputeHash(inputBytes);
-
-            // Convert byte array to hex string
-            var sb = new StringBuilder();
-            for (var i = 0; i < hashBytes.Length; i++)
-            {
-                sb.Append(hashBytes[i].ToString("x2"));
-            }
-
-            // Return the MD5 hash
-            return sb.ToString();
         }
     }
 }
@@ -174,7 +149,6 @@ public class Encryption
         var part1 = encryptedText.Substring(0, 8);
         var part2 = encryptedText.Substring(9, 10);
         var part3 = encryptedText.Substring(20, 10);
-        // var parts = encryptedText.Split(':');
         var reversedTime = DecryptN(part2);
         var encryptedKey = part3;
 
@@ -197,6 +171,7 @@ public class Encryption
 
         return decryptedText;
     }
+
 
     private static string ReverseString(string s)
     {
