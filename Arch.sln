@@ -68,13 +68,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RateLimit.Configuration", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RateLimit.Cage", "Libraries\RateLimit\RateLimit.Cage\RateLimit.Cage.csproj", "{105925AC-0B74-4E7D-AF6B-390D592C06CB}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Encryption", "Encryption", "{BDE52C28-12C9-4E31-9C4F-AE59E3B279FA}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Encryption.Abstractions", "Libraries\Encryption.Abstractions\Encryption.Abstractions.csproj", "{9B657CC8-405E-49E1-AC44-7AB6C4B7725B}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Encryption.Tes.Security", "Libraries\Encryption.Tes.Security\Encryption.Tes.Security.csproj", "{ED32D689-7ABB-41B4-82EB-B1B2153D5791}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Encryption", "Encryption", "{A8519A3E-75D0-4FFE-B62D-5BDBAC8F1988}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Encryption.Abstractions", "Libraries\Encryption\Encryption.Abstractions\Encryption.Abstractions.csproj", "{13F871F5-5F70-4744-94FA-6D390BC91D37}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Encryption.Tes.Security", "Libraries\Encryption\Encryption.Tes.Security\Encryption.Tes.Security.csproj", "{1110F5EB-4B50-4A85-93C6-0E765113DDAC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -166,10 +164,14 @@ Global
 		{105925AC-0B74-4E7D-AF6B-390D592C06CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{105925AC-0B74-4E7D-AF6B-390D592C06CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{105925AC-0B74-4E7D-AF6B-390D592C06CB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9B657CC8-405E-49E1-AC44-7AB6C4B7725B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9B657CC8-405E-49E1-AC44-7AB6C4B7725B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{ED32D689-7ABB-41B4-82EB-B1B2153D5791}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{ED32D689-7ABB-41B4-82EB-B1B2153D5791}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{13F871F5-5F70-4744-94FA-6D390BC91D37}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{13F871F5-5F70-4744-94FA-6D390BC91D37}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{13F871F5-5F70-4744-94FA-6D390BC91D37}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{13F871F5-5F70-4744-94FA-6D390BC91D37}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1110F5EB-4B50-4A85-93C6-0E765113DDAC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1110F5EB-4B50-4A85-93C6-0E765113DDAC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1110F5EB-4B50-4A85-93C6-0E765113DDAC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1110F5EB-4B50-4A85-93C6-0E765113DDAC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -208,8 +210,8 @@ Global
 		{F61B926A-41EB-4C3C-BE25-09C623EF7E68} = {30120163-019C-4071-A265-616EBD3B4AA0}
 		{105925AC-0B74-4E7D-AF6B-390D592C06CB} = {30120163-019C-4071-A265-616EBD3B4AA0}
 		{A8519A3E-75D0-4FFE-B62D-5BDBAC8F1988} = {09022F85-BC06-499D-BA5E-24735BD5F9BB}
-		{ED32D689-7ABB-41B4-82EB-B1B2153D5791} = {A8519A3E-75D0-4FFE-B62D-5BDBAC8F1988}
-		{9B657CC8-405E-49E1-AC44-7AB6C4B7725B} = {A8519A3E-75D0-4FFE-B62D-5BDBAC8F1988}
+		{13F871F5-5F70-4744-94FA-6D390BC91D37} = {A8519A3E-75D0-4FFE-B62D-5BDBAC8F1988}
+		{1110F5EB-4B50-4A85-93C6-0E765113DDAC} = {A8519A3E-75D0-4FFE-B62D-5BDBAC8F1988}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4F01DF2D-D5EA-432F-A646-C639BF9C15CA}
