@@ -71,14 +71,12 @@ internal static class TesEncryption
 
     public static string Decrypt(ReadOnlySpan<char> encryptedText)
     {
-        // Validate input length
-        if (encryptedText.Length < 30)
-            return "Invalid input";
+        if (encryptedText.Length == 0) return string.Empty;
 
         // Extract parts using indices
         var part1 = encryptedText.Slice(0, 8);
         var part2 = encryptedText.Slice(9, 10);
-        var part3 = encryptedText.Slice(20, 10);
+        var part3 = encryptedText[20..];
 
         // Decrypt part2 (assuming DecryptN exists)
         var reversedTime = DecryptN(part2.ToString());

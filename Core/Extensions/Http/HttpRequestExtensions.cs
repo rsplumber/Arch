@@ -49,10 +49,14 @@ public static class HttpRequestExtensions
 
     public static string? ContentType(this HttpRequest request)
     {
-        if (!request.HasBody()) return null;
         if (request.ContentType is not null && request.ContentType.StartsWith(RequestInfo.ApplicationJsonContentType))
         {
             return RequestInfo.ApplicationJsonContentType;
+        }
+
+        if (request.ContentType is not null && request.ContentType.StartsWith(RequestInfo.PlainTextContentType))
+        {
+            return RequestInfo.PlainTextContentType;
         }
 
         if (request.HasFormContentType)

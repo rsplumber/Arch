@@ -19,7 +19,7 @@ internal sealed class TesSecurityResponseEncryptionMiddleware : IMiddleware
 
         var responseValue = context.RequestState().ResponseInfo.Value;
         context.Items.TryGetValue(TesEncryptionContextKey.EncryptionKey, out var encKey);
-        var aesEncryption = new AesEncryption(encKey.ToString());
+        var aesEncryption = new TesSecurityRequestEncryptionMiddleware.AesEncryption(encKey.ToString());
         var encryptedBase64 = aesEncryption.EncryptStringToBase64(JsonSerializer.Serialize(responseValue));
         context.RequestState().ResponseInfo.Value = encryptedBase64;
         await next(context);
