@@ -20,7 +20,7 @@ namespace RateLimit.Cage.MiddleWare
         public async Task InvokeAsync(HttpContext context)
         {
             context.RequestState().RequestInfo.Headers.TryGetValue("version", out string? value);
-            if (string.IsNullOrEmpty(value) || int.Parse(value) < 120)
+            if (string.IsNullOrEmpty(value) || int.Parse(value) < RateLimitDefault.Version)
             {
                 await _next(context);
                 return;
@@ -143,7 +143,7 @@ namespace RateLimit.Cage.MiddleWare
 
             TimeSpan calculateBlockTimeCondition()
             {
-                return (globalBlocked) ? TimeSpan.FromMinutes(1) : limitConditions.WindowsSize;
+                return (globalBlocked) ? RateLimitDefault.WindowsSize : limitConditions.WindowsSize;
             }
 
             string generateKeyForGlobal()

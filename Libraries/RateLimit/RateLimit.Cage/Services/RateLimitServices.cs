@@ -66,8 +66,8 @@ namespace RateLimit.Cage.Services
             return new LimitCondition
             {
                 IdentifierInRequestBody = endpointDefinition.Meta.SingleOrDefault(x => x.Key == "identifier_request_body").Value ?? "userid",
-                MaxAllowdRequestInWindow = (isSpecial) ? int.Parse(endpointDefinition.Meta["max_allowd_request_in_window"]) : 5,
-                WindowsSize = (isSpecial) ? TimeSpan.Parse(endpointDefinition.Meta["window_size"]) : TimeSpan.FromMinutes(1)
+                MaxAllowdRequestInWindow = (isSpecial) ? int.Parse(endpointDefinition.Meta["max_allowd_request_in_window"]) : RateLimitDefault.MaxAllowdRequestInWindow,
+                WindowsSize = (isSpecial) ? TimeSpan.Parse(endpointDefinition.Meta["window_size"]) : RateLimitDefault.WindowsSize
             };
         }
 

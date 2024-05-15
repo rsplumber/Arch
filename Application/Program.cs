@@ -86,7 +86,7 @@ app.UseArch(options =>
     options.BeforeDispatching(dispatchingOptions =>
     {
         dispatchingOptions.UseRequestEncryption(executionOptions => executionOptions.UseTesSecurityEncryption());
-        // dispatchingOptions.UseRateLimit(executionOptions => executionOptions.UseCage());
+        dispatchingOptions.UseRateLimit(executionOptions => executionOptions.UseCage(builder.Configuration));
         dispatchingOptions.UseAuthorization(executionOptions => executionOptions.UseKundera(builder.Configuration));
     });
     options.AfterDispatching(dispatchingOptions =>
