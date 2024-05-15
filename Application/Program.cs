@@ -85,14 +85,14 @@ app.UseArch(options =>
     });
     options.BeforeDispatching(dispatchingOptions =>
     {
-        dispatchingOptions.UseRequestEncryption(executionOptions => executionOptions.UseTesSecurityEncryption());
+        //dispatchingOptions.UseRequestEncryption(executionOptions => executionOptions.UseTesSecurityEncryption());
         dispatchingOptions.UseRateLimit(executionOptions => executionOptions.UseCage(builder.Configuration));
         dispatchingOptions.UseAuthorization(executionOptions => executionOptions.UseKundera(builder.Configuration));
     });
     options.AfterDispatching(dispatchingOptions =>
     {
         dispatchingOptions.UseLogging();
-        dispatchingOptions.UseResponseEncryption(executionOptions => executionOptions.UseTesSecurityEncryption());
+        //dispatchingOptions.UseResponseEncryption(executionOptions => executionOptions.UseTesSecurityEncryption());
     });
 });
 

@@ -33,6 +33,7 @@ namespace RateLimit.Cage.MiddleWare
             var ip = context.Connection.RemoteIpAddress;
             var endpointDefinition = context.RequestState().EndpointDefinition;
             var limitConditions = _service.FillOptions(endpointDefinition);
+            var requestState = context.RequestState();
             string key;
             bool isLimited = false;
             bool isDefaultConditions = false;
@@ -48,8 +49,8 @@ namespace RateLimit.Cage.MiddleWare
                 {
                     await context.Response.SendAsync(new Response
                     {
-                        RequestId = context.RequestState().RequestInfo.RequestId,
-                        RequestDateUtc = context.RequestState().RequestInfo.RequestDateUtc,
+                        RequestId = requestState.RequestInfo.RequestId,
+                        RequestDateUtc = requestState.RequestInfo.RequestDateUtc,
                         Data = "درخواست شما نامعتبر است"
                     }, 400).ConfigureAwait(false);
                     return;
@@ -65,8 +66,8 @@ namespace RateLimit.Cage.MiddleWare
 
                     await context.Response.SendAsync(new Response
                     {
-                        RequestId = context.RequestState().RequestInfo.RequestId,
-                        RequestDateUtc = context.RequestState().RequestInfo.RequestDateUtc,
+                        RequestId = requestState.RequestInfo.RequestId,
+                        RequestDateUtc = requestState.RequestInfo.RequestDateUtc,
                         Data = "درخواست شما نامعتبر است"
                     }, 400).ConfigureAwait(false);
                     return;
@@ -111,8 +112,8 @@ namespace RateLimit.Cage.MiddleWare
                 string message = $"به دلیل درخواست های مکرر حساب شما تا {RemindedTime.Calculate(rateLimitState.LastAccess, blockTime)} دیگر مسدود شده است";
                 await context.Response.SendAsync(new Response
                 {
-                    RequestId = context.RequestState().RequestInfo.RequestId,
-                    RequestDateUtc = context.RequestState().RequestInfo.RequestDateUtc,
+                    RequestId = requestState.RequestInfo.RequestId,
+                    RequestDateUtc = requestState.RequestInfo.RequestDateUtc,
                     Data = message
                 }, 429).ConfigureAwait(false);
                 return;
