@@ -8,13 +8,11 @@ internal sealed class TesSecurityResponseEncryptionMiddleware : IMiddleware
 {
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
-        if (context.RequestState().RequestInfo.Headers.TryGetValue("version", out string value))
+        context.RequestState().RequestInfo.Headers.TryGetValue("version", out string? value);
+        if (string.IsNullOrEmpty(value) || int.Parse(value) < 120)
         {
-            if (int.Parse(value) < 120)
-            {
-                await next(context);
-                return;
-            }
+            await next(context);
+            return;
         }
 
         var responseValue = context.RequestState().ResponseInfo.Value;

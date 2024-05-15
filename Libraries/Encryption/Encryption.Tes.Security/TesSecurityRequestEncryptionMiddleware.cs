@@ -12,14 +12,11 @@ internal sealed class TesSecurityRequestEncryptionMiddleware : IMiddleware
     {
         const string apkMd5 = "a60c6906f98dc4aad77585f5b314e54a";
 
-
-        if (context.RequestState().RequestInfo.Headers.TryGetValue("version", out string value))
+        context.RequestState().RequestInfo.Headers.TryGetValue("version", out string? value);
+        if (string.IsNullOrEmpty(value) || int.Parse(value) < 120)
         {
-            if (int.Parse(value) < 120)
-            {
-                await next(context);
-                return;
-            }
+            await next(context);
+            return;
         }
 
         var requestInfo = context.RequestState().RequestInfo;
@@ -35,8 +32,8 @@ internal sealed class TesSecurityRequestEncryptionMiddleware : IMiddleware
         Console.WriteLine(encKey);
         context.Items.Add(TesEncryptionContextKey.EncryptionKey, encKey);
 
-        if (context.Request.ContentType() is 
-            RequestInfo.UrlEncodedFormDataContentType or 
+        if (context.Request.ContentType() is
+            RequestInfo.UrlEncodedFormDataContentType or
             RequestInfo.MultiPartFormData)
         {
             await next(context);

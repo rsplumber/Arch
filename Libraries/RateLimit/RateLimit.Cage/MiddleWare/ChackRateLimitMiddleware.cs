@@ -1,22 +1,10 @@
 ﻿using Arch.Core.Extensions.Http;
-using Arch.Core.ServiceConfigs.EndpointDefinitions;
-using Microsoft.AspNetCore.Authorization;
+using Arch.Core.Pipeline.Models;
+using FastEndpoints;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
-using Newtonsoft.Json;
 using RateLimit.Cage.Extension;
 using RateLimit.Cage.Services;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
-using FastEndpoints;
-using Arch.Core.Pipeline.Models;
-using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
 
 namespace RateLimit.Cage.MiddleWare
 {
@@ -26,21 +14,16 @@ namespace RateLimit.Cage.MiddleWare
 
         public ChackRateLimitMiddleware(RequestDelegate next)
         {
-
             _next = next;
         }
 
         public async Task InvokeAsync(HttpContext context)
         {
-
-            if (context.RequestState().RequestInfo.Headers.TryGetValue("version", out string value))
+            context.RequestState().RequestInfo.Headers.TryGetValue("version", out string? value);
+            if (string.IsNullOrEmpty(value) || int.Parse(value) < 120)
             {
-
-                if (int.Parse(value) < 120)
-                {
-                    await _next(context);
-                    return;
-                }
+                await _next(context);
+                return;
             }
 
 
@@ -71,11 +54,12 @@ namespace RateLimit.Cage.MiddleWare
                     }, 400);
                     return;
                 }
+
                 if (context.Request.HasBody())
                 {
                     Identifier = await _service.ReadRequestBody(context, limitConditions);
-
                 }
+
                 if (string.IsNullOrEmpty(Identifier))
                 {
                     await context.Response.SendAsync(new ResponseInfo()
@@ -99,9 +83,7 @@ namespace RateLimit.Cage.MiddleWare
                     isLimited = shouldRequestBlock();
                     if (isLimited)
                         globalBlocked = true;
-
                 }
-
             }
 
             if (!isLimited)
@@ -117,9 +99,9 @@ namespace RateLimit.Cage.MiddleWare
                 {
                     resetLimitState();
                 }
+
                 rateLimitState.Count++;
                 isLimited = shouldRequestBlock();
-
             }
 
             if (isLimited)
@@ -137,10 +119,6 @@ namespace RateLimit.Cage.MiddleWare
             }
 
             await _next(context);
-
-
-
-
 
 
             bool isSpecial() => context.RequestState().EndpointDefinition.Meta.Any(x => x.Key == "rate_limit");
@@ -179,14 +157,12 @@ namespace RateLimit.Cage.MiddleWare
 
                 var firstPart = (isDefaultConditions) ? ip.ToString() : Identifier;
                 return _service.ConcatKey(firstPart, secondPart);
-
             }
 
             void resetLimitState()
             {
                 rateLimitState.Count = 0;
                 rateLimitState.LastAccess = DateTime.UtcNow;
-
             }
 
             async Task setFirstRateLimitRecord()
@@ -194,12 +170,10 @@ namespace RateLimit.Cage.MiddleWare
                 rateLimitState = new RateLimitState(DateTime.UtcNow);
                 var cacheOptions = await _service.CacheOptions(500, CacheItemPriority.Normal, TimeSpan.FromMinutes(10));
                 _cacheService.Set(key, rateLimitState, cacheOptions);
-
             }
         }
-
-
     }
+
     public class RateLimitState
     {
         public int Count { get; set; }
@@ -211,5 +185,4 @@ namespace RateLimit.Cage.MiddleWare
             LastAccess = lastAccess;
         }
     }
-
 }

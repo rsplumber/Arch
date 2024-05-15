@@ -20,7 +20,13 @@ using RateLimit.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseKestrel(options => { options.Limits.MaxRequestBodySize = 50_000_000; });
-builder.WebHost.ConfigureKestrel((_, options) => { options.ListenAnyIP(5229, listenOptions => { listenOptions.UseHttps("wwwroot/cert/ssl_cert.pfx", "D!gi#b@nk1402"); }); });
+builder.WebHost.ConfigureKestrel((_, options) =>
+{
+    options.ListenAnyIP(5229, listenOptions =>
+    {
+        // listenOptions.UseHttps("wwwroot/cert/ssl_cert.pfx", "D!gi#b@nk1402");
+    });
+});
 
 builder.Services.AddArch(options =>
 {
@@ -80,7 +86,7 @@ app.UseArch(options =>
     options.BeforeDispatching(dispatchingOptions =>
     {
         dispatchingOptions.UseRequestEncryption(executionOptions => executionOptions.UseTesSecurityEncryption());
-        dispatchingOptions.UseRateLimit(executionOptions => executionOptions.UseCage());
+        // dispatchingOptions.UseRateLimit(executionOptions => executionOptions.UseCage());
         dispatchingOptions.UseAuthorization(executionOptions => executionOptions.UseKundera(builder.Configuration));
     });
     options.AfterDispatching(dispatchingOptions =>
