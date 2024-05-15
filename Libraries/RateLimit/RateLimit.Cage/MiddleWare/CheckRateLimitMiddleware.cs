@@ -9,11 +9,11 @@ using Arch.Core.Pipeline;
 
 namespace RateLimit.Cage.MiddleWare
 {
-    public class ChackRateLimitMiddleware
+    public class CheckRateLimitMiddleware
     {
         private readonly RequestDelegate _next;
 
-        public ChackRateLimitMiddleware(RequestDelegate next)
+        public CheckRateLimitMiddleware(RequestDelegate next)
         {
             _next = next;
         }
@@ -176,15 +176,4 @@ namespace RateLimit.Cage.MiddleWare
         }
     }
 
-    public class RateLimitState
-    {
-        public int Count { get; set; }
-        public DateTime LastAccess { get; set; }
-
-        public RateLimitState(DateTime lastAccess)
-        {
-            Count = 0;
-            LastAccess = lastAccess;
-        }
-    }
 }
