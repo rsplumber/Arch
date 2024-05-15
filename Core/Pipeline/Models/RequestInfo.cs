@@ -7,6 +7,7 @@ public class RequestInfo
     public const string ApplicationJsonContentType = "application/json";
     public const string UrlEncodedFormDataContentType = "application/x-www-form-urlencoded";
     public const string MultiPartFormData = "multipart/form-data";
+    public const string PlainTextContentType = "text/plain";
 
     public RequestInfo(HttpMethod method, string mapTo, object[] pathParameters, string? queryString)
     {

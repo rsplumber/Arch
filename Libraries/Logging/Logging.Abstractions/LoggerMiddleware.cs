@@ -10,6 +10,7 @@ public sealed class LoggerMiddleware : IMiddleware
 
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
+        context.Request.EnableBuffering();
         var requestState = context.RequestState();
         if (requestState.EndpointDefinition.Logging.Disabled)
         {

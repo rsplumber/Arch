@@ -38,7 +38,7 @@ public static class HttpRequestExtensions
     public static async Task<JsonDocument?> ReadAsJsonAsync(this HttpRequest request, CancellationToken cancellationToken = default)
     {
         if (!request.HasBody()) return null;
-        using var streamReader = new StreamReader(request.Body);
+        var streamReader = new StreamReader(request.Body);
         return JsonDocument.Parse(await streamReader.ReadToEndAsync(cancellationToken).ConfigureAwait(false));
     }
 
@@ -49,10 +49,14 @@ public static class HttpRequestExtensions
 
     public static string? ContentType(this HttpRequest request)
     {
-        if (!request.HasBody()) return null;
         if (request.ContentType is not null && request.ContentType.StartsWith(RequestInfo.ApplicationJsonContentType))
         {
             return RequestInfo.ApplicationJsonContentType;
+        }
+
+        if (request.ContentType is not null && request.ContentType.StartsWith(RequestInfo.PlainTextContentType))
+        {
+            return RequestInfo.PlainTextContentType;
         }
 
         if (request.HasFormContentType)
