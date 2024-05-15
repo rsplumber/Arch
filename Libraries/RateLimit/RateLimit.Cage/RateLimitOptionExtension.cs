@@ -11,5 +11,4 @@ public static class RateLimitOptionExtension
         rateLimitOptions.Services.AddScoped<RateLimitServices>();
         rateLimitOptions.Services.AddMemoryCache();
     }
-
 }
