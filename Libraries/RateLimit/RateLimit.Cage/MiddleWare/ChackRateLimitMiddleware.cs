@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using RateLimit.Cage.Extension;
 using RateLimit.Cage.Services;
+using Arch.Core.Pipeline;
 
 namespace RateLimit.Cage.MiddleWare
 {
@@ -45,13 +46,12 @@ namespace RateLimit.Cage.MiddleWare
             {
                 if (!requestHasBodyAndIsSpecial())
                 {
-                    await context.Response.SendAsync(new ResponseInfo()
+                    await context.Response.SendAsync(new Response
                     {
-                        Code = 400,
-                        Headers = new Dictionary<string, string>(),
-                        ResponseTimeMilliseconds = 1,
-                        Value = "درخواست شما نامعتبر است",
-                    }, 400);
+                        RequestId = context.RequestState().RequestInfo.RequestId,
+                        RequestDateUtc = context.RequestState().RequestInfo.RequestDateUtc,
+                        Data = "درخواست شما نامعتبر است"
+                    }, 400).ConfigureAwait(false);
                     return;
                 }
 
@@ -62,14 +62,15 @@ namespace RateLimit.Cage.MiddleWare
 
                 if (string.IsNullOrEmpty(Identifier))
                 {
-                    await context.Response.SendAsync(new ResponseInfo()
+
+                    await context.Response.SendAsync(new Response
                     {
-                        Code = 400,
-                        Headers = new Dictionary<string, string>(),
-                        ResponseTimeMilliseconds = 1,
-                        Value = "درخواست شما نامعتبر است",
-                    }, 400);
+                        RequestId = context.RequestState().RequestInfo.RequestId,
+                        RequestDateUtc = context.RequestState().RequestInfo.RequestDateUtc,
+                        Data = "درخواست شما نامعتبر است"
+                    }, 400).ConfigureAwait(false);
                     return;
+
                 }
             }
 
@@ -108,14 +109,14 @@ namespace RateLimit.Cage.MiddleWare
             {
                 var blockTime = calculateBlockTimeCondition();
                 string message = $"به دلیل درخواست های مکرر حساب شما تا {RemindedTime.Calculate(rateLimitState.LastAccess, blockTime)} دیگر مسدود شده است";
-                await context.Response.SendAsync(new ResponseInfo()
+                await context.Response.SendAsync(new Response
                 {
-                    Code = 429,
-                    Headers = new Dictionary<string, string>(),
-                    ResponseTimeMilliseconds = 1,
-                    Value = message,
-                }, 429);
+                    RequestId = context.RequestState().RequestInfo.RequestId,
+                    RequestDateUtc = context.RequestState().RequestInfo.RequestDateUtc,
+                    Data = message
+                }, 429).ConfigureAwait(false);
                 return;
+
             }
 
             await _next(context);

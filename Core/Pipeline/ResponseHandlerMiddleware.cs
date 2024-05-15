@@ -31,7 +31,7 @@ internal sealed class ResponseHandlerMiddleware : IMiddleware
     }
 }
 
-internal sealed record Response
+public sealed record Response
 {
     public required Guid RequestId { get; init; }
 
