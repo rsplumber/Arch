@@ -140,7 +140,7 @@ namespace RateLimit.Cage.MiddleWare
 
             bool shouldRequestBlock()
             {
-                return rateLimitState.Count > limitConditions.MaxAllowdRequestInWindow;
+                return rateLimitState.Count > limitConditions.MaxAllowedRequestInWindow;
             }
 
             TimeSpan calculateBlockTimeCondition()
