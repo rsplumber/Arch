@@ -12,17 +12,23 @@ internal sealed class AesEncryption
         _key = Encoding.UTF8.GetBytes(key);
     }
 
+
     public async ValueTask<string> EncryptAsync(string plainText)
     {
         using var aesAlg = Aes.Create();
         aesAlg.Key = _key;
-        aesAlg.Mode = CipherMode.ECB;
+        aesAlg.Mode = CipherMode.ECB; // Set the mode to ECB
         var encryptor = aesAlg.CreateEncryptor();
-        var plainBytes = Encoding.UTF8.GetBytes(plainText);
-        using var msEncrypt = new MemoryStream();
-        await using var csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write);
-        await csEncrypt.WriteAsync(plainBytes);
-        var encryptedBytes = msEncrypt.ToArray();
+        byte[] plainBytes = Encoding.UTF8.GetBytes(plainText);
+        byte[] encryptedBytes;
+        using (MemoryStream msEncrypt = new MemoryStream())
+        {
+            await using (CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
+            {
+                await csEncrypt.WriteAsync(plainBytes, 0, plainBytes.Length);
+            }
+            encryptedBytes = msEncrypt.ToArray();
+        }
         return Convert.ToBase64String(encryptedBytes);
     }
 
