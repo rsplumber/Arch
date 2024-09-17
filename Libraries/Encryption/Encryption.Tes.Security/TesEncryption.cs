@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace Encryption.Tes.Security;
 
 internal static class TesEncryption
@@ -8,100 +10,128 @@ internal static class TesEncryption
 
     public static string EncryptN(string input)
     {
-        // Create a char array to store the encrypted characters
-        var encryptedChars = new char[input.Length];
-
-        for (var i = 0; i < input.Length; i++)
+        var result = new StringBuilder();
+        foreach (char currentChar in input)
         {
-            var c = input[i];
-            if (int.TryParse(c.ToString(), out var digit))
+            int digit = char.GetNumericValue(currentChar) is double val && val >= 0 && val <= 9 ? (int)val : -1;
+
+            if (digit >= 0 && digit <= 9)
             {
-                // Calculate the encrypted character
-                var encryptedChar = (char)((digit + EncryptionKey) % 10 + CharOffset);
-                encryptedChars[i] = encryptedChar;
+                char encryptedChar = (char)(((digit + EncryptionKey) % 10) + CharOffset);
+                result.Append(encryptedChar);
             }
             else
             {
-                encryptedChars[i] = c;
+                // If the input contains non-numeric characters, leave them unchanged
+                result.Append(currentChar);
             }
         }
 
-        // Create a string from the char array
-        return new string(encryptedChars);
+        return result.ToString();
     }
 
     public static string DecryptN(ReadOnlySpan<char> input)
     {
-        Span<int> result = stackalloc int[input.Length];
-        var resultIndex = 0;
-
-        foreach (var c in input)
+        var result = new StringBuilder();
+        foreach (char currentChar in input)
         {
-            var charCode = c - CharOffset;
-            var decryptedDigit = (charCode - EncryptionKey + 10) % 10;
-            result[resultIndex++] = decryptedDigit;
+            int charCode = (int)currentChar - CharOffset;
+            int decryptedDigit = (charCode - EncryptionKey + 10) % 10;
+            result.Append(decryptedDigit);
         }
 
-        return string.Join("", result.ToArray());
+        return result.ToString();
     }
 
 
     public static string Encrypt(string text)
     {
-        var currentTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-        var expirationTime = (currentTime + 30000) / 1000;
+        // Get current time in milliseconds
+        long currentTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 
-        // Use a Span<char> for efficient character manipulation
-        Span<char> encryptedText = stackalloc char[text.Length];
-        var index = 0;
-        foreach (var c in text)
+        // Remove milliseconds and add 30 seconds
+        long expirationTime = (currentTime + 30000) / 1000;
+
+        // Convert time to string and reverse it
+        string reversedTime = new string(expirationTime.ToString().Reverse().ToArray());
+
+        // Encryption key based on reversed time
+        long key = long.Parse(reversedTime);
+
+        // Encrypt the text using the key
+        var encryptedText = new StringBuilder();
+        foreach (char currentChar in text)
         {
-            var charCode = (c - 32 + expirationTime) % 95 + 32;
-            encryptedText[index++] = (char)charCode;
+            // Restrict to English characters range (32 to 126)
+            long charCode = ((currentChar - 32 + key) % 95) + 32;
+            encryptedText.Append((char)charCode);
         }
 
-        // EncryptN(reversedTime) remains unchanged
-        var encryptedKey = EncryptN(ReverseString(expirationTime.ToString()));
+        // Encrypt the key
+        var encryptedKey = new StringBuilder();
+        string keyString = key.ToString();
+        foreach (char currentChar in keyString)
+        {
+            // Restrict to English characters range (32 to 126)
+            long charCode = ((currentChar - 32 + key) % 95) + 32;
+            encryptedKey.Append((char)charCode);
+        }
 
-        // Combine the parts without intermediate allocations
-        var combinedText = $"{encryptedText.ToString()}:{encryptedKey}:{expirationTime}";
-        return combinedText;
+        // Combine encrypted text with expiration timestamp and encrypted key
+        return encryptedText + "-:-" + EncryptN(reversedTime) + "-:-" + encryptedKey;
     }
 
-
-    public static string Decrypt(ReadOnlySpan<char> encryptedText)
+    public static string Decrypt(string encryptedText)
     {
-        if (encryptedText.Length == 0) return string.Empty;
-
-        // Extract parts using indices
-        var part1 = encryptedText.Slice(0, 8);
-        var part2 = encryptedText.Slice(9, 10);
-        var part3 = encryptedText[20..];
-
-        // Decrypt part2 (assuming DecryptN exists)
-        var reversedTime = DecryptN(part2.ToString());
-
-        // Check expiration time
-        var expirationTime = long.Parse(ReverseString(reversedTime)) * 1000;
-        if (DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() > expirationTime)
+        if (encryptedText.Length == 0) return "InvalidCipher-Empty";
+        try
         {
-            return "Encryption expired";
+            // Extract expiration timestamp and encrypted key from the encrypted text
+            string[] parts = encryptedText.Split("-:-");
+            string reversedTime = DecryptN(parts[1]); // Update the encryptionKey and charOffset accordingly
+            string encryptedKey = parts[2];
+
+            // Convert time to milliseconds
+            long expirationTime = long.Parse(new string(reversedTime.Reverse().ToArray())) * 1000;
+
+            var time = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            // Check if the encryption has expired
+            if (time > expirationTime)
+            {
+                return "InvalidCipher-Time";
+            }
+
+            // Remove expiration timestamp and encrypted key from the encrypted text
+            encryptedText = parts[0];
+
+            // Decrypt the key
+            var key = new StringBuilder();
+            foreach (char currentChar in encryptedKey)
+            {
+                // Restrict to English characters range (32 to 126)
+                var charCode = ((currentChar - 32 - long.Parse(reversedTime)) % 95) + 32;
+                if (charCode < 32) charCode += 95;
+                key.Append((char)charCode);
+            }
+
+            // Decrypt the text using the key
+            var decryptedText = new StringBuilder();
+            foreach (char currentChar in encryptedText)
+            {
+                // Restrict to English characters range (32 to 126)
+                var charCode = ((currentChar - 32 - long.Parse(key.ToString())) % 95) + 32;
+                if (charCode < 32) charCode += 95;
+                decryptedText.Append((char)charCode);
+            }
+
+            return decryptedText.ToString();
         }
-
-        // Decrypt part1 (assuming DecryptKey exists)
-        var key = DecryptKey(part3, long.Parse(reversedTime));
-
-        // Build decryptedText using Span<char>
-        Span<char> decryptedText = stackalloc char[part1.Length];
-        for (var i = 0; i < part1.Length; i++)
+        catch (Exception e)
         {
-            var charCode = (part1[i] - 32 - long.Parse(key)) % 95 + 32;
-            if (charCode < 32) charCode += 95;
-            decryptedText[i] = (char)charCode;
+            return "InvalidCipher";
         }
-
-        return decryptedText.ToString();
     }
+
 
     private static string ReverseString(ReadOnlySpan<char> s)
     {

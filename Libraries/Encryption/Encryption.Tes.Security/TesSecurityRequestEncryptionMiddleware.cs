@@ -1,8 +1,12 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 using Arch.Core.Extensions.Http;
+using Arch.Core.Pipeline;
 using Arch.Core.Pipeline.Models;
+using Encryption.Tes.Security.Endpoints.Key;
+using FastEndpoints;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Encryption.Tes.Security;
 
@@ -10,23 +14,60 @@ internal sealed class TesSecurityRequestEncryptionMiddleware : IMiddleware
 {
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
-        const string apkMd5 = "a60c6906f98dc4aad77585f5b314e54a";
-
-        context.RequestState().RequestInfo.Headers.TryGetValue("version", out string? value);
-        if (string.IsNullOrEmpty(value) || int.Parse(value) < 120)
+        var state = context.RequestState();
+        state.RequestInfo.Headers.TryGetValue("version", out var value);
+        if (string.IsNullOrEmpty(value) || int.Parse(value) < 120 || state.IgnoreDispatch() || state.EndpointDefinition.Meta.ContainsKey("encryptionOff"))
         {
-            await next(context);
+            await next(context).ConfigureAwait(false);
             return;
         }
 
         var requestInfo = context.RequestState().RequestInfo;
 
         var seed = CalculateSeed();
+        if (seed == "InvalidCipher")
+        {
+            await context.Response.SendAsync(new Response
+            {
+                RequestId = state.RequestInfo.RequestId,
+                RequestDateUtc = state.RequestInfo.RequestDateUtc,
+                Data = "InvalidCipher"
+            }, 400);
+            return;
+        }
+
+        ;
         var authorizationToken = GetAuthorizationToken();
 
         var encryptedRequest = await ReadRequestBodyAsync();
 
-        var encKey = HashGenerator.GenerateMd5FromString(authorizationToken + apkMd5 + seed);
+        var keyManagement = context.RequestServices.GetService(typeof(IKeyManagement)) as IKeyManagement;
+        if (keyManagement == null) throw new ArgumentNullException(nameof(keyManagement));
+
+        var encKey = "";
+        if (authorizationToken.Length == 0)
+        {
+            context.Request.Headers.TryGetValue("key", out var cipheredKey);
+            var cipherKey = cipheredKey.FirstOrDefault() ?? string.Empty;
+            encKey = await keyManagement.ExitsAsync(cipherKey, CancellationToken.None);
+        }
+        else
+        {
+            encKey = await keyManagement.ExitsAsync(authorizationToken, CancellationToken.None);
+        }
+
+        if (encKey is null)
+        {
+            await context.Response.SendAsync(new Response
+            {
+                RequestId = state.RequestInfo.RequestId,
+                RequestDateUtc = state.RequestInfo.RequestDateUtc,
+                Data = "InvalidKey"
+            }, 460);
+            return;
+        }
+
+
         Console.WriteLine(seed);
         Console.WriteLine(authorizationToken);
         Console.WriteLine(encKey);
@@ -48,8 +89,21 @@ internal sealed class TesSecurityRequestEncryptionMiddleware : IMiddleware
         }
 
         var aesEncryption = new AesEncryption(encKey);
-        var decryptedText = aesEncryption.DecryptBase64ToString(encryptedRequest);
-
+        var decryptedText = "";
+        try
+        {
+            decryptedText = aesEncryption.DecryptBase64ToString(encryptedRequest);
+        }
+        catch (Exception e)
+        {
+            await context.Response.SendAsync(new Response
+            {
+                RequestId = state.RequestInfo.RequestId,
+                RequestDateUtc = state.RequestInfo.RequestDateUtc,
+                Data = "FailedDepryct"
+            }, 400);
+            return;
+        }
 
         RefillRequestData();
 
@@ -67,6 +121,8 @@ internal sealed class TesSecurityRequestEncryptionMiddleware : IMiddleware
         {
             context.Request.Headers.TryGetValue("key", out var cipheredKey);
             var cipherKey = cipheredKey.FirstOrDefault() ?? string.Empty;
+            if (cipherKey.Contains("InvalidCipher")) throw new InvalidCipher(message: cipheredKey);
+
             return TesEncryption.Decrypt(cipherKey);
         }
 

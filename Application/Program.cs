@@ -14,6 +14,7 @@ using Arch.Logging.Abstractions;
 using Arch.Logging.Logstash;
 using Encryption.Abstractions;
 using Encryption.Tes.Security;
+using Encryption.Tes.Security.Domain;
 using Microsoft.EntityFrameworkCore;
 using RateLimit.Cage;
 using RateLimit.Configuration;
@@ -24,7 +25,7 @@ builder.WebHost.ConfigureKestrel((_, options) =>
 {
     options.ListenAnyIP(5229, listenOptions =>
     {
-        listenOptions.UseHttps("wwwroot/cert/ssl_cert.pfx", "D!gi#b@nk1402");
+        // listenOptions.UseHttps("wwwroot/cert/ssl_cert.pfx", "D!gi#b@nk1402");
     });
 });
 
@@ -71,6 +72,19 @@ builder.Services.AddArch(options =>
 
 var app = builder.Build();
 
+using var serviceScope = app.Services.GetService<IServiceScopeFactory>()?.CreateScope();
+if (serviceScope == null) return;
+try
+{
+    var context = serviceScope.ServiceProvider.GetRequiredService<EncryptionDbContext>();
+    context.Database.Migrate();
+}
+catch (Exception e)
+{
+    Console.WriteLine(e);
+    // ignored
+}
+
 app.UseArch(options =>
 {
     options.UseData(dataOptions => dataOptions.UseEntityFramework());
@@ -85,9 +99,10 @@ app.UseArch(options =>
     });
     options.BeforeDispatching(dispatchingOptions =>
     {
+        dispatchingOptions.UseAuthorization(executionOptions => executionOptions.UseKundera(builder.Configuration));
         dispatchingOptions.UseRequestEncryption(executionOptions => executionOptions.UseTesSecurityEncryption());
         dispatchingOptions.UseRateLimit(executionOptions => executionOptions.UseCage(builder.Configuration));
-        dispatchingOptions.UseAuthorization(executionOptions => executionOptions.UseKundera(builder.Configuration));
+        
     });
     options.AfterDispatching(dispatchingOptions =>
     {
