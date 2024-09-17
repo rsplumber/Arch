@@ -15,6 +15,7 @@ using Arch.Logging.Logstash;
 using Encryption.Abstractions;
 using Encryption.Tes.Security;
 using Encryption.Tes.Security.Domain;
+using Encryption.Tes.Security.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using RateLimit.Cage;
 using RateLimit.Configuration;

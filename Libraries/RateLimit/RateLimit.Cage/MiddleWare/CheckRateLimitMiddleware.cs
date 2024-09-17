@@ -20,8 +20,6 @@ namespace RateLimit.Cage.MiddleWare
 
         public async Task InvokeAsync(HttpContext context)
         {
-            await _next(context);
-            return;
             context.RequestState().RequestInfo.Headers.TryGetValue("version", out string? value);
             if (string.IsNullOrEmpty(value) || int.Parse(value) < RateLimitDefault.Version)
             {

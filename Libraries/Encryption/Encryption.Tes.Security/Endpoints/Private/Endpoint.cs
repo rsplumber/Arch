@@ -2,8 +2,6 @@
 using Arch.Core.Pipeline;
 using Encryption.Tes.Security.Domain;
 using FastEndpoints;
-using KeyGuard.Core;
-
 
 namespace Encryption.Tes.Security.Endpoints.Key.Private
 {
@@ -37,9 +35,8 @@ namespace Encryption.Tes.Security.Endpoints.Key.Private
             }
 
             var key = await _keyManagement.GenerateAsync(token, ct);
-
             var cipher = TesEncryption.Decrypt(query.Cipher);
-            if (cipher.Contains("InvalidCipher"))
+            if (cipher == "InvalidCipher")
             {
                 await SendAsync(new Response
                 {
@@ -51,12 +48,23 @@ namespace Encryption.Tes.Security.Endpoints.Key.Private
             }
 
             var version = state.RequestInfo.Headers.GetValueOrDefault("version");
-            var versionKey = await _versionKeyRepository.FindByVersionAsync(int.Parse(version ?? string.Empty), ct);
-            var encKey = HashGenerator.GenerateMd5FromString(query.Authorization + versionKey?.Key + query.Cipher);
-            var aesEncryption = new TesSecurityRequestEncryptionMiddleware.AesEncryption(encKey);
-            var encryptedBase64 = aesEncryption.EncryptStringToBase64(key);
+            var versionKey = await _versionKeyRepository.FindAsync(int.Parse(version ?? string.Empty), ct);
+            if (versionKey is null)
+            {
+                await SendAsync(new Response
+                {
+                    RequestId = state.RequestInfo.RequestId,
+                    RequestDateUtc = state.RequestInfo.RequestDateUtc,
+                    Data = "Invalid version"
+                }, 400, ct);
+                return;
+            }
 
-            var res = new Response()
+            var encKey = HashGenerator.GenerateMd5FromString(query.Authorization + versionKey?.Key + query.Cipher);
+            var aesEncryption = new AesEncryption(encKey);
+            var encryptedBase64 = await aesEncryption.EncryptAsync(key);
+
+            var res = new Response
             {
                 RequestId = HttpContext.RequestState().RequestInfo.RequestId,
                 RequestDateUtc = HttpContext.RequestState().RequestInfo.RequestDateUtc,
@@ -69,8 +77,6 @@ namespace Encryption.Tes.Security.Endpoints.Key.Private
 
 internal sealed class Request
 {
-    public Guid Id { get; init; } = default!;
-
     [FromHeader("Key")] public string Cipher { get; init; } = default!;
 
     [FromHeader("Authorization")] public string Authorization { get; init; } = default!;

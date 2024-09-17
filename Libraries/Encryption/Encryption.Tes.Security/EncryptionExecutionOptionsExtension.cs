@@ -1,6 +1,7 @@
 using Encryption.Abstractions;
 using Encryption.Tes.Security.Domain;
 using Encryption.Tes.Security.Endpoints.Key;
+using Encryption.Tes.Security.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,10 +16,8 @@ public static class EncryptionExecutionOptionsExtension
         options.Services.AddSingleton<TesSecurityResponseEncryptionMiddleware>();
         options.Services.AddScoped<IKeyManagement, KeyManagement>();
         options.Services.AddScoped<IVersionKeyRepository, VersionKeyRepository>();
-
         options.Services.AddDistributedMemoryCache();
-
-        var connectionString = "User ID=tesdbadmin;Password=Tes@DBPass@;Host=192.168.67.17;Port=5432;Database=arch;Pooling=true;";
-        options.Services.AddDbContextPool<EncryptionDbContext>(options => { options.UseNpgsql(connectionString); }, poolSize: 500);
+        var connectionString = configuration.GetConnectionString("TesEncryption");
+        options.Services.AddDbContextPool<EncryptionDbContext>(op => { op.UseNpgsql(connectionString); }, poolSize: 200);
     }
 }

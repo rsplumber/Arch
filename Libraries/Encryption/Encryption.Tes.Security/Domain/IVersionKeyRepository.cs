@@ -1,8 +1,6 @@
 ﻿namespace Encryption.Tes.Security.Domain;
 
-public interface IVersionKeyRepository
+internal interface IVersionKeyRepository
 {
-
-    Task<VersionKey?> FindByVersionAsync(int version, CancellationToken cancellationToken = default);
-
+    Task<VersionKey?> FindAsync(int version, CancellationToken cancellationToken = default);
 }

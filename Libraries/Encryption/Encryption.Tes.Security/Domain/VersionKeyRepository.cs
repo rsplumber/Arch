@@ -1,8 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Encryption.Tes.Security.Infrastructure;
+using Microsoft.EntityFrameworkCore;
 
 namespace Encryption.Tes.Security.Domain;
 
-public class VersionKeyRepository : IVersionKeyRepository
+internal sealed class VersionKeyRepository : IVersionKeyRepository
 {
     private readonly EncryptionDbContext _encryptionDbContext;
 
@@ -11,9 +12,8 @@ public class VersionKeyRepository : IVersionKeyRepository
         _encryptionDbContext = encryptionDbContext;
     }
 
-    public async Task<VersionKey?> FindByVersionAsync(int version, CancellationToken cancellationToken = default)
+    public async Task<VersionKey?> FindAsync(int version, CancellationToken cancellationToken = default)
     {
-        var versionKey = await _encryptionDbContext.VersionKey.FirstOrDefaultAsync(key => key.Version == version, cancellationToken);
-        return versionKey;
+        return await _encryptionDbContext.VersionKey.FirstOrDefaultAsync(key => key.Version == version, cancellationToken);
     }
 }

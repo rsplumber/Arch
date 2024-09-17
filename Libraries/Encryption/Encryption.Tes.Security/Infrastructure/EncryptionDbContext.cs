@@ -1,10 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Encryption.Tes.Security.Domain;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Encryption.Tes.Security.Domain;
+namespace Encryption.Tes.Security.Infrastructure;
 
 public class EncryptionDbContext : DbContext
 {
+    private const string Schema = "encryption";
+
     public EncryptionDbContext(DbContextOptions<EncryptionDbContext> options) : base(options)
     {
     }
@@ -22,28 +25,22 @@ public class EncryptionDbContext : DbContext
     {
         public void Configure(EntityTypeBuilder<VersionKey> builder)
         {
-            builder.ToTable("version_key")
-                .HasKey(model => model.Id);
+            builder.ToTable("version_key", Schema)
+                .HasKey(model => model.Version);
 
-            builder.Property(model => model.Id)
+            builder.Property(model => model.Version)
                 .UsePropertyAccessMode(PropertyAccessMode.Property)
-                .HasColumnName("id");
+                .HasColumnName("version");
 
             builder.Property(model => model.Key)
                 .UsePropertyAccessMode(PropertyAccessMode.Property)
                 .HasColumnName("key")
-                .IsRequired(true);
-
-            builder.Property(model => model.Version)
-                .UsePropertyAccessMode(PropertyAccessMode.Property)
-                .HasColumnName("version")
-                .IsRequired(true);
-            builder.HasIndex(model => model.Version).IsUnique();
+                .IsRequired();
 
             builder.Property(model => model.CreateDateUtc)
                 .UsePropertyAccessMode(PropertyAccessMode.Property)
                 .HasColumnName("create_date_utc")
-                .IsRequired(true);
+                .IsRequired();
         }
     }
 }
