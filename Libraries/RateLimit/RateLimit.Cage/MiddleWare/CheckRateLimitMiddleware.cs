@@ -114,7 +114,11 @@ namespace RateLimit.Cage.MiddleWare
                 {
                     RequestId = requestState.RequestInfo.RequestId,
                     RequestDateUtc = requestState.RequestInfo.RequestDateUtc,
-                    Data = message
+                    Data = new
+                    {
+                        message = "Blocked",
+                        clientMessage = message
+                    }
                 }, 429).ConfigureAwait(false);
                 return;
 
