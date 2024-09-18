@@ -50,8 +50,10 @@ internal sealed class TesSecurityRequestEncryptionMiddleware : IMiddleware
 
         var keyManagement = context.RequestServices.GetRequiredService<IKeyManagement>();
 
+        state.EndpointDefinition.Meta.TryGetValue("encryption_key_mode", out var encryptionKeyMode);
+
         string? encryptionKey;
-        if (authorizationToken.Length == 0)
+        if (authorizationToken.Length == 0 && (encryptionKeyMode is not null && encryptionKeyMode == "public"))
         {
             var cipherKey = apiKey.FirstOrDefault() ?? string.Empty;
             encryptionKey = await keyManagement.ExitsAsync(cipherKey);
@@ -99,7 +101,7 @@ internal sealed class TesSecurityRequestEncryptionMiddleware : IMiddleware
         {
             decryptedText = await aesEncryption.DecryptAsync(encryptedRequest);
         }
-        catch (Exception)
+        catch (Exception e)
         {
             await context.Response.SendAsync(new Response
             {

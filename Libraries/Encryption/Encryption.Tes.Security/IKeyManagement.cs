@@ -1,4 +1,4 @@
-﻿namespace Encryption.Tes.Security.Endpoints.Key;
+﻿namespace Encryption.Tes.Security;
 
 interface IKeyManagement
 {

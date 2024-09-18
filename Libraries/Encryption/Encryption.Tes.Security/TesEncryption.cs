@@ -50,7 +50,7 @@ internal static class TesEncryption
         long currentTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 
         // Remove milliseconds and add 30 seconds
-        long expirationTime = (currentTime + 30000) / 1000;
+        long expirationTime = (currentTime) / 1000;
 
         // Convert time to string and reverse it
         string reversedTime = new string(expirationTime.ToString().Reverse().ToArray());
@@ -92,7 +92,7 @@ internal static class TesEncryption
             string encryptedKey = parts[2];
 
             // Convert time to milliseconds
-            long expirationTime = long.Parse(new string(reversedTime.Reverse().ToArray())) * 1000;
+            long expirationTime = long.Parse(new string(reversedTime.Reverse().ToArray())) * (1000 * 30);
 
             var time = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
             // Check if the encryption has expired
