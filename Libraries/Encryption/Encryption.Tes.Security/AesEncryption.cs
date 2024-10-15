@@ -32,16 +32,31 @@ internal sealed class AesEncryption
         return Convert.ToBase64String(encryptedBytes);
     }
 
-    public async ValueTask<string> DecryptAsync(string base64CipherText)
+    // public async ValueTask<string> DecryptAsync(string base64CipherText)
+    // {
+    //     using var aesAlg = Aes.Create();
+    //     aesAlg.Key = _key;
+    //     aesAlg.Mode = CipherMode.ECB;
+    //     var decryptor = aesAlg.CreateDecryptor();
+    //     var cipherBytes = Convert.FromBase64String(base64CipherText);
+    //     using var msDecrypt = new MemoryStream(cipherBytes);
+    //     await using var csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read);
+    //     using var srDecrypt = new StreamReader(csDecrypt);
+    //     return await srDecrypt.ReadToEndAsync();
+    // }
+    
+    public async ValueTask<string> DecryptAsync(string encryptedText)
     {
         using var aesAlg = Aes.Create();
         aesAlg.Key = _key;
-        aesAlg.Mode = CipherMode.ECB;
+        aesAlg.Mode = CipherMode.ECB; // Must match the encryption mode
         var decryptor = aesAlg.CreateDecryptor();
-        var cipherBytes = Convert.FromBase64String(base64CipherText);
-        using var msDecrypt = new MemoryStream(cipherBytes);
-        await using var csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read);
-        using var srDecrypt = new StreamReader(csDecrypt);
-        return await srDecrypt.ReadToEndAsync();
+    
+        byte[] encryptedBytes = Convert.FromBase64String(encryptedText);
+        using var msDecrypt = new MemoryStream(encryptedBytes);
+        using var csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read);
+    
+        using var reader = new StreamReader(csDecrypt);
+        return await reader.ReadToEndAsync();
     }
 }

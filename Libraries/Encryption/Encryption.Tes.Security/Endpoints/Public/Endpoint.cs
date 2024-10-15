@@ -40,7 +40,13 @@ namespace Encryption.Tes.Security.Endpoints.Key.Public
             }
 
 
-            var key = await _keyManagement.GenerateAsync(query.Cipher, ct);
+            var key = await _keyManagement.ExitsAsync(query.Cipher, ct);
+            if (key is null)
+            {
+                key = await _keyManagement.GenerateAsync(query.Cipher, ct);
+                await _keyManagement.SaveAsync(query.Cipher, key, ct);
+            }
+
             var version = state.RequestInfo.Headers.GetValueOrDefault("version");
             var versionKey = await _versionKeyRepository.FindAsync(int.Parse(version ?? string.Empty), ct);
             if (versionKey is null)

@@ -34,7 +34,13 @@ namespace Encryption.Tes.Security.Endpoints.Key.Private
                 return;
             }
 
-            var key = await _keyManagement.GenerateAsync(token, ct);
+            var key = await _keyManagement.ExitsAsync(query.Cipher, ct);
+            if (key is null)
+            {
+                key = await _keyManagement.GenerateAsync(token, ct);
+                await _keyManagement.SaveAsync(token, key, ct);
+            }
+
             var cipher = TesEncryption.Decrypt(query.Cipher);
             if (cipher == "InvalidCipher")
             {
@@ -63,6 +69,7 @@ namespace Encryption.Tes.Security.Endpoints.Key.Private
             var encKey = HashGenerator.GenerateMd5FromString(query.Authorization + versionKey?.Key + query.Cipher);
             var aesEncryption = new AesEncryption(encKey);
             var encryptedBase64 = await aesEncryption.EncryptAsync(key);
+            await _keyManagement.SaveAsync(token, key, ct);
 
             var res = new Response
             {
