@@ -21,7 +21,7 @@ public static class HttpRequestExtensions
         _ => Get
     };
 
-    public static bool HasBody(this HttpRequest request) => request.ContentLength > 4;
+    public static bool HasBody(this HttpRequest request) => request.ContentLength > 0;
 
     public static async Task<dynamic?> ReadAsync(this HttpRequest request, CancellationToken cancellationToken = default)
     {
