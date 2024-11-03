@@ -14,8 +14,6 @@ using Arch.Logging.Abstractions;
 using Arch.Logging.Logstash;
 using Encryption.Abstractions;
 using Encryption.Tes.Security;
-using Encryption.Tes.Security.Domain;
-using Encryption.Tes.Security.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using RateLimit.Cage;
 using RateLimit.Configuration;
@@ -75,16 +73,7 @@ var app = builder.Build();
 
 using var serviceScope = app.Services.GetService<IServiceScopeFactory>()?.CreateScope();
 if (serviceScope == null) return;
-try
-{
-    var context = serviceScope.ServiceProvider.GetRequiredService<EncryptionDbContext>();
-    context.Database.Migrate();
-}
-catch (Exception e)
-{
-    Console.WriteLine(e);
-    // ignored
-}
+
 
 app.UseArch(options =>
 {

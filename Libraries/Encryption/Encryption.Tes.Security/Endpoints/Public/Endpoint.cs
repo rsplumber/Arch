@@ -1,19 +1,16 @@
 ﻿using Arch.Core.Extensions.Http;
 using Arch.Core.Pipeline;
-using Encryption.Tes.Security.Domain;
 using FastEndpoints;
 
-namespace Encryption.Tes.Security.Endpoints.Key.Public
+namespace Encryption.Tes.Security.Endpoints.Public
 {
     internal class Endpoint : Endpoint<Request, Response>
     {
         private readonly IKeyManagement _keyManagement;
-        private readonly IVersionKeyRepository _versionKeyRepository;
 
-        public Endpoint(IKeyManagement keyManagement, IVersionKeyRepository versionKeyRepository)
+        public Endpoint(IKeyManagement keyManagement)
         {
             _keyManagement = keyManagement;
-            _versionKeyRepository = versionKeyRepository;
         }
 
 
@@ -27,42 +24,30 @@ namespace Encryption.Tes.Security.Endpoints.Key.Public
         public override async Task HandleAsync(Request query, CancellationToken ct)
         {
             var state = HttpContext.RequestState();
-            var cipher = TesEncryption.Decrypt(query.Cipher);
-            if (cipher == "InvalidCipher")
+            var key = TesEncryption.Decrypt(query.Key);
+            if (key == "InvalidCipher")
             {
                 await SendAsync(new Response
                 {
                     RequestId = state.RequestInfo.RequestId,
                     RequestDateUtc = state.RequestInfo.RequestDateUtc,
-                    Data = cipher
+                    Data = "InvalidCipher"
                 }, 400, ct);
                 return;
             }
 
 
-            var key = await _keyManagement.ExitsAsync(query.Cipher, ct);
-            if (key is null)
+            var cacheKey = await _keyManagement.ExitsAsync(key, ct);
+            if (cacheKey is null)
             {
-                key = await _keyManagement.GenerateAsync(query.Cipher, ct);
-                await _keyManagement.SaveAsync(query.Cipher, key, ct);
+                cacheKey = await _keyManagement.GenerateAsync(key, ct);
+                await _keyManagement.SaveAsync(key, cacheKey, ct);
             }
+            
 
-            var version = state.RequestInfo.Headers.GetValueOrDefault("version");
-            var versionKey = await _versionKeyRepository.FindAsync(int.Parse(version ?? string.Empty), ct);
-            if (versionKey is null)
-            {
-                await SendAsync(new Response
-                {
-                    RequestId = state.RequestInfo.RequestId,
-                    RequestDateUtc = state.RequestInfo.RequestDateUtc,
-                    Data = "Invalid version"
-                }, 400, ct);
-                return;
-            }
-
-            var encKey = HashGenerator.GenerateMd5FromString(versionKey?.Key + query.Cipher);
+            var encKey = HashGenerator.GenerateMd5FromString(key);
             var aesEncryption = new AesEncryption(encKey);
-            var encryptedBase64 = await aesEncryption.EncryptAsync(key);
+            var encryptedBase64 = await aesEncryption.EncryptAsync(cacheKey);
             await SendOkAsync(new Response
             {
                 RequestId = HttpContext.RequestState().RequestInfo.RequestId,
@@ -74,6 +59,6 @@ namespace Encryption.Tes.Security.Endpoints.Key.Public
 
     internal sealed class Request
     {
-        [FromHeader("Key")] public string Cipher { get; init; } = default!;
+        [FromHeader("Key")] public string Key { get; init; } = default!;
     }
 }

@@ -17,7 +17,7 @@ internal sealed class TesSecurityRequestEncryptionMiddleware : IMiddleware
         state.RequestInfo.Headers.TryGetValue("version", out var version);
         state.EndpointDefinition.Meta.TryGetValue("encryption", out var encryptionMeta);
         if (string.IsNullOrEmpty(version) ||
-            int.Parse(version) < 120 ||
+            int.Parse(version) < 60 ||
             state.IgnoreDispatch() ||
             (encryptionMeta is not null && encryptionMeta == "disable"))
         {
@@ -50,13 +50,13 @@ internal sealed class TesSecurityRequestEncryptionMiddleware : IMiddleware
 
         var keyManagement = context.RequestServices.GetRequiredService<IKeyManagement>();
 
-        state.EndpointDefinition.Meta.TryGetValue("encryption_key_mode", out var encryptionKeyMode);
+        state.EndpointDefinition.Meta.TryGetValue("allow_anonymous", out var allowAnonymous);
 
         string? encryptionKey;
-        if (authorizationToken.Length == 0 && (encryptionKeyMode is not null && encryptionKeyMode == "public"))
+        if (authorizationToken.Length == 0 && (allowAnonymous is not null && allowAnonymous == "true"))
         {
-            var cipherKey = apiKey.FirstOrDefault() ?? string.Empty;
-            encryptionKey = await keyManagement.ExitsAsync(cipherKey);
+            var cipherKey = seed;
+            encryptionKey = await keyManagement.ExitsAsync(seed);
         }
         else
         {
