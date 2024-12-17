@@ -22,9 +22,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseKestrel(options => { options.Limits.MaxRequestBodySize = 50_000_000; });
 builder.WebHost.ConfigureKestrel((_, options) =>
 {
+    // options.ListenAnyIP(5229, listenOptions =>
+    // {
+    //     listenOptions.UseHttps("wwwroot/cert/ssl_cert.pfx", "D!gi#b@nk1402");
+    // });
+    
     options.ListenAnyIP(5229, listenOptions =>
     {
-        // listenOptions.UseHttps("wwwroot/cert/ssl_cert.pfx", "D!gi#b@nk1402");
+        listenOptions.UseHttps("wwwroot/cert/digibanking.sbank.ir.pfx", "b$jUb6S0");
     });
 });
 
