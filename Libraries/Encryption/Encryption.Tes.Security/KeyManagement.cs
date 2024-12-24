@@ -44,7 +44,7 @@ internal sealed class KeyManagement : IKeyManagement
         var md5Bytes = Encoding.UTF8.GetBytes(key);
         var cacheEntryOptions = new DistributedCacheEntryOptions
         {
-            AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1)
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(2)
         };
         await _cache.SetAsync(cacheKey, md5Bytes, cacheEntryOptions, cancellationToken);
     }

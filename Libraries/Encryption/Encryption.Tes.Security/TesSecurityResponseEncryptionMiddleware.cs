@@ -14,7 +14,8 @@ internal sealed class TesSecurityResponseEncryptionMiddleware : IMiddleware
         state.RequestInfo.Headers.TryGetValue("version", out var version);
         state.EndpointDefinition.Meta.TryGetValue("encryption", out var encryptionMeta);
         if (string.IsNullOrEmpty(version) ||
-            int.Parse(version) < 120 ||
+            int.Parse(version) < 60 ||
+            int.Parse(version) == 101 ||
             state.IgnoreDispatch() ||
             (encryptionMeta is not null && encryptionMeta == "disable"))
         {
