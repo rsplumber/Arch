@@ -21,7 +21,7 @@ namespace RateLimit.Cage.MiddleWare
         public async Task InvokeAsync(HttpContext context)
         {
             context.RequestState().RequestInfo.Headers.TryGetValue("version", out string? value);
-            if (string.IsNullOrEmpty(value) || int.Parse(value) < RateLimitDefault.Version)
+            if (string.IsNullOrEmpty(value) || int.Parse(value) < RateLimitDefault.Version || int.Parse(value) == 101)
             {
                 await _next(context);
                 return;
