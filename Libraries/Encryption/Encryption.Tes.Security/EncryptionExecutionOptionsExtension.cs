@@ -10,5 +10,7 @@ public static class EncryptionExecutionOptionsExtension
     {
         options.Services.AddSingleton<TesSecurityRequestEncryptionMiddleware>();
         options.Services.AddSingleton<TesSecurityResponseEncryptionMiddleware>();
+        options.Services.AddScoped<IKeyManagement, KeyManagement>();
+        options.Services.AddDistributedMemoryCache();
     }
 }

@@ -1,8 +1,11 @@
-﻿using System.Security.Cryptography;
-using System.Text;
+﻿using System.Text;
 using Arch.Core.Extensions.Http;
+using Arch.Core.Pipeline;
 using Arch.Core.Pipeline.Models;
+using Encryption.Tes.Security.Endpoints.Key;
+using FastEndpoints;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Encryption.Tes.Security;
 
@@ -10,27 +13,72 @@ internal sealed class TesSecurityRequestEncryptionMiddleware : IMiddleware
 {
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
-        const string apkMd5 = "a60c6906f98dc4aad77585f5b314e54a";
-
-        context.RequestState().RequestInfo.Headers.TryGetValue("version", out string? value);
-        if (string.IsNullOrEmpty(value) || int.Parse(value) < 120)
+        var state = context.RequestState();
+        state.RequestInfo.Headers.TryGetValue("version", out var version);
+        state.EndpointDefinition.Meta.TryGetValue("encryption", out var encryptionMeta);
+        if (string.IsNullOrEmpty(version) ||
+            int.Parse(version) < 60 ||
+            state.IgnoreDispatch() ||
+            (encryptionMeta is not null && encryptionMeta == "disable"))
         {
-            await next(context);
+            await next(context).ConfigureAwait(false);
             return;
         }
 
         var requestInfo = context.RequestState().RequestInfo;
 
+        context.Request.Headers.TryGetValue("key", out var apiKey);
         var seed = CalculateSeed();
+        if (seed is null)
+        {
+            await context.Response.SendAsync(new Response
+            {
+                RequestId = state.RequestInfo.RequestId,
+                RequestDateUtc = state.RequestInfo.RequestDateUtc,
+                Data = new
+                {
+                    message = "InvalidKey",
+                    clientMessage = string.Empty
+                }
+            }, 400);
+            return;
+        }
+
         var authorizationToken = GetAuthorizationToken();
 
         var encryptedRequest = await ReadRequestBodyAsync();
 
-        var encKey = HashGenerator.GenerateMd5FromString(authorizationToken + apkMd5 + seed);
-        Console.WriteLine(seed);
-        Console.WriteLine(authorizationToken);
-        Console.WriteLine(encKey);
-        context.Items.Add(TesEncryptionContextKey.EncryptionKey, encKey);
+        var keyManagement = context.RequestServices.GetRequiredService<IKeyManagement>();
+
+        state.EndpointDefinition.Meta.TryGetValue("allow_anonymous", out var allowAnonymous);
+
+        string? encryptionKey;
+        if (authorizationToken.Length == 0 && (allowAnonymous is not null && allowAnonymous == "true"))
+        {
+            var cipherKey = seed;
+            encryptionKey = await keyManagement.ExitsAsync(seed);
+        }
+        else
+        {
+            encryptionKey = await keyManagement.ExitsAsync(authorizationToken);
+        }
+
+        if (encryptionKey is null)
+        {
+            await context.Response.SendAsync(new Response
+            {
+                RequestId = state.RequestInfo.RequestId,
+                RequestDateUtc = state.RequestInfo.RequestDateUtc,
+                Data = new
+                {
+                    message = "InvalidKey",
+                    clientMessage = string.Empty
+                }
+            }, 460);
+            return;
+        }
+
+        context.Items.Add(TesEncryptionContextKey.EncryptionKey, encryptionKey);
 
         if (context.Request.ContentType() is
             RequestInfo.UrlEncodedFormDataContentType or
@@ -47,9 +95,22 @@ internal sealed class TesSecurityRequestEncryptionMiddleware : IMiddleware
             return;
         }
 
-        var aesEncryption = new AesEncryption(encKey);
-        var decryptedText = aesEncryption.DecryptBase64ToString(encryptedRequest);
-
+        var aesEncryption = new AesEncryption(encryptionKey);
+        string decryptedText;
+        try
+        {
+            decryptedText = await aesEncryption.DecryptAsync(encryptedRequest);
+        }
+        catch (Exception e)
+        {
+            await context.Response.SendAsync(new Response
+            {
+                RequestId = state.RequestInfo.RequestId,
+                RequestDateUtc = state.RequestInfo.RequestDateUtc,
+                Data = "IncorrectData",
+            }, 400);
+            return;
+        }
 
         RefillRequestData();
 
@@ -63,11 +124,10 @@ internal sealed class TesSecurityRequestEncryptionMiddleware : IMiddleware
         }
 
 
-        string CalculateSeed()
+        string? CalculateSeed()
         {
-            context.Request.Headers.TryGetValue("key", out var cipheredKey);
-            var cipherKey = cipheredKey.FirstOrDefault() ?? string.Empty;
-            return TesEncryption.Decrypt(cipherKey);
+            var cipherKey = apiKey.FirstOrDefault() ?? string.Empty;
+            return cipherKey.Contains("InvalidCipher") ? null : TesEncryption.Decrypt(cipherKey);
         }
 
         async Task<string> ReadRequestBodyAsync()
@@ -85,70 +145,6 @@ internal sealed class TesSecurityRequestEncryptionMiddleware : IMiddleware
             context.Request.ContentType = RequestInfo.ApplicationJsonContentType;
             context.RequestState().RequestInfo.Headers.Remove("Content-Type");
             context.RequestState().RequestInfo.Headers.Add("Content-Type", RequestInfo.ApplicationJsonContentType);
-        }
-    }
-
-
-    public class AesEncryption
-    {
-        private readonly byte[] _key; // Your existing AES key (you should securely manage this key)
-
-        public AesEncryption(string key)
-        {
-            _key = Encoding.UTF8.GetBytes(key);
-        }
-
-        public string EncryptStringToBase64(string plainText)
-        {
-            using var aesAlg = Aes.Create();
-            aesAlg.Key = _key;
-            aesAlg.Mode = CipherMode.ECB; // Set the mode to ECB
-
-            var encryptor = aesAlg.CreateEncryptor();
-
-            // Convert plaintext to bytes
-            byte[] plainBytes = Encoding.UTF8.GetBytes(plainText);
-
-            // Encrypt the plaintext
-            byte[] encryptedBytes;
-            using (MemoryStream msEncrypt = new MemoryStream())
-            {
-                using (CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
-                {
-                    csEncrypt.Write(plainBytes, 0, plainBytes.Length);
-                }
-
-                encryptedBytes = msEncrypt.ToArray();
-            }
-
-            // Convert encrypted bytes to base64 for transmission
-            return Convert.ToBase64String(encryptedBytes);
-        }
-
-        public string DecryptBase64ToString(string base64CipherText)
-        {
-            using var aesAlg = Aes.Create();
-            aesAlg.Key = _key;
-            aesAlg.Mode = CipherMode.ECB; // Set the mode to ECB
-
-
-            var decryptor = aesAlg.CreateDecryptor();
-
-            // Convert base64 ciphertext to bytes
-            byte[] cipherBytes = Convert.FromBase64String(base64CipherText);
-
-            // Decrypt the ciphertext
-            byte[] decryptedBytes;
-            using (MemoryStream msDecrypt = new MemoryStream(cipherBytes))
-            {
-                using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
-                {
-                    using (StreamReader srDecrypt = new StreamReader(csDecrypt))
-                    {
-                        return srDecrypt.ReadToEnd();
-                    }
-                }
-            }
         }
     }
 }
