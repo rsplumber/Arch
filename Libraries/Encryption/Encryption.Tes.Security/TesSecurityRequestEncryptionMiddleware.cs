@@ -128,7 +128,10 @@ internal sealed class TesSecurityRequestEncryptionMiddleware : IMiddleware
         string? CalculateSeed()
         {
             var cipherKey = apiKey.FirstOrDefault() ?? string.Empty;
-            return cipherKey.Contains("InvalidCipher") ? null : TesEncryption.Decrypt(cipherKey);
+            var cipherText = TesEncryption.Decrypt(cipherKey);
+            if (cipherText == "InvalidCipher") cipherText = cipherKey;
+            return cipherKey.Contains("InvalidCipher") ? null : cipherText;
+            //TesEncryption.Decrypt(cipherKey);
         }
 
         async Task<string> ReadRequestBodyAsync()

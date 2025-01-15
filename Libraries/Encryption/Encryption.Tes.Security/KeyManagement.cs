@@ -34,7 +34,7 @@ internal sealed class KeyManagement : IKeyManagement
             // Store the MD5 hash in the cache with a 5-minute expiration
 
 
-            Console.WriteLine("GetKeyAsync " + md5);
+           // Console.WriteLine("GetKeyAsync " + md5);
             return md5;
         }
     }
