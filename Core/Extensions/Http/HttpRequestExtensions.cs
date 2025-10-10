@@ -67,7 +67,7 @@ public static class HttpRequestExtensions
         return null;
     }
 
-    public static Dictionary<string, string> Headers(this HttpRequest request) => request.Headers.ToDictionary(a => a.Key, a => string.Join(";", a.Value!));
+    public static Dictionary<string, string> Headers(this HttpRequest request) => request.Headers.ToDictionary(a => a.Key, a => string.Join(";", (string[])a.Value!));
 
     public static string? ReadQueryString(this HttpRequest request) => request.QueryString.Value;
 }
