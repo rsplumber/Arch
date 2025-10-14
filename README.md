@@ -101,7 +101,7 @@ Minimal `appsettings.json` example:
 }
 ```
 
-For advanced configuration (environment variables, encryption and authorization options, CAP, logging, and production guidance), see `docs/SETUP.md`.
+For advanced configuration (environment variables, encryption and authorization options, CAP, logging, and production guidance), see [Setup Guide](docs/SETUP.md).
 
 ## Libraries ecosystem
 
@@ -120,16 +120,16 @@ For advanced configuration (environment variables, encryption and authorization 
 - Built for performance on .NET 9 with low memory overhead
 - Event‑first design with CAP integration
 
-More details and comparisons are available in `docs/TECHNICAL.md`.
+More details and comparisons are available in [Technical Overview](docs/TECHNICAL.md).
 
 ## Performance (summary)
 - High routing throughput and low lookup latency with in‑memory endpoint graph
 - Efficient resource usage with a small memory baseline
-- See benchmark details in `docs/TECHNICAL.md`
+- See benchmark details in [Technical Overview](docs/TECHNICAL.md)
 
 ## Deployment
 - Container‑friendly (Docker) and Kubernetes‑ready
-- See production notes and examples in `docs/SETUP.md`
+- See production notes and examples in [Setup Guide](docs/SETUP.md)
 
 ## Contributing
 Contributions are welcome.
