@@ -9,7 +9,7 @@ public static class HttpClientExtensions
 {
     public static async ValueTask<HttpResponseMessage?> SendAsync(this HttpClient client, HttpMethod method, string url, HttpRequest request)
     {
-        var httpRequest = new HttpRequestMessage(method, url);
+        using var httpRequest = new HttpRequestMessage(method, url);
         try
         {
             if (!request.HasBody()) return await client.SendAsync(httpRequest).ConfigureAwait(false);
@@ -29,10 +29,7 @@ public static class HttpClientExtensions
 
                     foreach (var formFile in multiPartFormCollection.Files)
                     {
-                        var memoryStream = new MemoryStream();
-                        await formFile.CopyToAsync(memoryStream).ConfigureAwait(false);
-                        memoryStream.Position = 0;
-                        var streamContent = new StreamContent(memoryStream);
+                        var streamContent = new StreamContent(formFile.OpenReadStream());
                         streamContent.Headers.ContentType = new MediaTypeHeaderValue(formFile.ContentType);
                         multipartFormDataContent.Add(streamContent, formFile.Name, formFile.FileName);
                     }

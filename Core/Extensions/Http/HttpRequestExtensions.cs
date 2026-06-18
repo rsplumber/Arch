@@ -38,7 +38,7 @@ public static class HttpRequestExtensions
     public static async Task<JsonDocument?> ReadAsJsonAsync(this HttpRequest request, CancellationToken cancellationToken = default)
     {
         if (!request.HasBody()) return null;
-        var streamReader = new StreamReader(request.Body);
+        using var streamReader = new StreamReader(request.Body);
         return JsonDocument.Parse(await streamReader.ReadToEndAsync(cancellationToken).ConfigureAwait(false));
     }
 
@@ -49,25 +49,26 @@ public static class HttpRequestExtensions
 
     public static string? ContentType(this HttpRequest request)
     {
-        if (request.ContentType is not null && request.ContentType.StartsWith(RequestInfo.ApplicationJsonContentType))
+        var contentType = request.ContentType;
+        if (contentType is not null && contentType.StartsWith(RequestInfo.ApplicationJsonContentType, StringComparison.Ordinal))
         {
             return RequestInfo.ApplicationJsonContentType;
         }
 
-        if (request.ContentType is not null && request.ContentType.StartsWith(RequestInfo.PlainTextContentType))
+        if (contentType is not null && contentType.StartsWith(RequestInfo.PlainTextContentType, StringComparison.Ordinal))
         {
             return RequestInfo.PlainTextContentType;
         }
 
         if (request.HasFormContentType)
         {
-            return request.ContentType!.StartsWith("multipart/form-data") ? RequestInfo.MultiPartFormData : RequestInfo.UrlEncodedFormDataContentType;
+            return contentType!.StartsWith(RequestInfo.MultiPartFormData, StringComparison.Ordinal) ? RequestInfo.MultiPartFormData : RequestInfo.UrlEncodedFormDataContentType;
         }
 
         return null;
     }
 
-    public static Dictionary<string, string> Headers(this HttpRequest request) => request.Headers.ToDictionary(a => a.Key, a => string.Join(";", (string[])a.Value!));
+    public static Dictionary<string, string> Headers(this HttpRequest request) => request.Headers.ToDictionary(a => a.Key, a => string.Join(';', (string[])a.Value!));
 
     public static string? ReadQueryString(this HttpRequest request) => request.QueryString.Value;
 }

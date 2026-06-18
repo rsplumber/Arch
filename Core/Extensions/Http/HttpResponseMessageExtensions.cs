@@ -31,5 +31,5 @@ public static class HttpResponseMessageExtensions
         return await httpResponse.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
     }
 
-    public static Dictionary<string, string> Headers(this HttpResponseMessage response) => response.Headers.ToDictionary(a => a.Key, a => string.Join(";", a.Value!));
+    public static Dictionary<string, string> Headers(this HttpResponseMessage response) => response.Headers.ToDictionary(a => a.Key, a => string.Join(';', a.Value!));
 }

@@ -26,14 +26,13 @@ internal sealed class RequestDispatcherMiddleware : IMiddleware
         var serviceEndpointResolver = context.LoadBalancer();
         var apiPath = await serviceEndpointResolver.ResolveAsync(state.EndpointDefinition, state.RequestInfo.Path);
 
-        var watch = Stopwatch.StartNew();
-        var httpResponseMessage = await httpClient.SendAsync(
+        var startTimestamp = Stopwatch.GetTimestamp();
+        using var httpResponseMessage = await httpClient.SendAsync(
                 state.RequestInfo.Method,
                 apiPath,
                 context.Request)
             .ConfigureAwait(false);
-        watch.Stop();
-        var requestElapsedTime = watch.ElapsedMilliseconds;
+        var requestElapsedTime = (long)Stopwatch.GetElapsedTime(startTimestamp).TotalMilliseconds;
 
         if (httpResponseMessage is null)
         {

@@ -21,7 +21,7 @@ public record RequestState
         Code = 503,
         Value = "Service Unavailable",
         ResponseTimeMilliseconds = responseTime,
-        Headers = new Dictionary<string, string>()
+        Headers = []
     };
 
     public void SetUnAuthorized(long responseTime) => ResponseInfo = new ResponseInfo
@@ -29,7 +29,7 @@ public record RequestState
         Code = 401,
         Value = "UnAuthorized",
         ResponseTimeMilliseconds = responseTime,
-        Headers = new Dictionary<string, string>()
+        Headers = []
     };
 
     public void SetForbidden(long responseTime) => ResponseInfo = new ResponseInfo
@@ -37,7 +37,7 @@ public record RequestState
         Code = 403,
         Value = "Forbidden",
         ResponseTimeMilliseconds = responseTime,
-        Headers = new Dictionary<string, string>()
+        Headers = []
     };
 
     public void SetServiceTimeOut(long responseTime) => ResponseInfo = new ResponseInfo
@@ -45,7 +45,7 @@ public record RequestState
         Code = 504,
         Value = "Gateway timeout",
         ResponseTimeMilliseconds = responseTime,
-        Headers = new Dictionary<string, string>()
+        Headers = []
     };
 
     public bool IgnoreDispatch() => EndpointDefinition.ServiceConfig.IgnoreDispatch();
