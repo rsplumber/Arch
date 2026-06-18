@@ -32,7 +32,7 @@
       <ProjectReference Include="..\Libraries\LoadBalancer\LoadBalancer.Basic\LoadBalancer.Basic.csproj" />
       <ProjectReference Include="..\Libraries\Logging\Logging.Console\Logging.Console.csproj" />
       <ProjectReference Include="..\Libraries\Logging\Logging.Logstash\Logging.Logstash.csproj" />
-      <ProjectReference Include="..\Libraries\RateLimit\RateLimit.Cage\RateLimit.Cage.csproj" />
+      <ProjectReference Include="..\Libraries\RateLimit\RateLimit.ArchLimit\RateLimit.ArchLimit.csproj" />
       <ProjectReference Include="..\Libraries\RateLimit\RateLimit.Configuration\RateLimit.Configuration.csproj" />
     </ItemGroup>
 
