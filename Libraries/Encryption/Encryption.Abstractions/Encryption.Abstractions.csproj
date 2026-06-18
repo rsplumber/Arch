@@ -12,6 +12,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\..\Arch.Configurations\Arch.Configurations.csproj" />
+      <ProjectReference Include="..\..\..\Core\Core.csproj" />
     </ItemGroup>
 
 

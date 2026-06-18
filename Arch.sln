@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34728.123
@@ -74,7 +74,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Encryption", "Encryption", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Encryption.Abstractions", "Libraries\Encryption\Encryption.Abstractions\Encryption.Abstractions.csproj", "{13F871F5-5F70-4744-94FA-6D390BC91D37}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Encryption.Tes.Security", "Libraries\Encryption\Encryption.Tes.Security\Encryption.Tes.Security.csproj", "{1110F5EB-4B50-4A85-93C6-0E765113DDAC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Encryption.Archrypt", "Libraries\Encryption\Encryption.Archrypt\Encryption.Archrypt.csproj", "{B2C3D4E5-F6A7-4901-BCDE-F23456789012}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -174,10 +174,10 @@ Global
 		{13F871F5-5F70-4744-94FA-6D390BC91D37}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{13F871F5-5F70-4744-94FA-6D390BC91D37}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{13F871F5-5F70-4744-94FA-6D390BC91D37}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1110F5EB-4B50-4A85-93C6-0E765113DDAC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1110F5EB-4B50-4A85-93C6-0E765113DDAC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1110F5EB-4B50-4A85-93C6-0E765113DDAC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1110F5EB-4B50-4A85-93C6-0E765113DDAC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B2C3D4E5-F6A7-4901-BCDE-F23456789012}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B2C3D4E5-F6A7-4901-BCDE-F23456789012}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B2C3D4E5-F6A7-4901-BCDE-F23456789012}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B2C3D4E5-F6A7-4901-BCDE-F23456789012}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -218,7 +218,7 @@ Global
 		{A1B2C3D4-E5F6-7890-ABCD-EF1234567890} = {30120163-019C-4071-A265-616EBD3B4AA0}
 		{A8519A3E-75D0-4FFE-B62D-5BDBAC8F1988} = {09022F85-BC06-499D-BA5E-24735BD5F9BB}
 		{13F871F5-5F70-4744-94FA-6D390BC91D37} = {A8519A3E-75D0-4FFE-B62D-5BDBAC8F1988}
-		{1110F5EB-4B50-4A85-93C6-0E765113DDAC} = {A8519A3E-75D0-4FFE-B62D-5BDBAC8F1988}
+		{B2C3D4E5-F6A7-4901-BCDE-F23456789012} = {A8519A3E-75D0-4FFE-B62D-5BDBAC8F1988}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4F01DF2D-D5EA-432F-A646-C639BF9C15CA}

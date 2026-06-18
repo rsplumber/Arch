@@ -14,7 +14,7 @@ using Arch.LoadBalancer.Basic;
 using Arch.Logging.Abstractions;
 using Arch.Logging.Logstash;
 using Encryption.Abstractions;
-using Encryption.Tes.Security;
+using Encryption.Archrypt;
 using Microsoft.EntityFrameworkCore;
 using RateLimit.ArchLimit;
 using RateLimit.Configuration;
@@ -68,7 +68,7 @@ builder.Services.AddArch(options =>
     });
 
     options.AddLogging(loggingOptions => loggingOptions.UseLogstash());
-    options.AddEncryption(encryptionOptions => encryptionOptions.UseTesSecurityEncryption(builder.Configuration));
+    options.AddEncryption(encryptionOptions => encryptionOptions.UseArchrypt());
     options.AddAuthorization(authorizationOptions => authorizationOptions.UseKundera(builder.Configuration));
 });
 
@@ -93,14 +93,14 @@ app.UseArch(options =>
     options.BeforeDispatching(dispatchingOptions =>
     {
         dispatchingOptions.UseAuthorization(executionOptions => executionOptions.UseSimpleJwt(builder.Configuration));
-        dispatchingOptions.UseRequestEncryption(executionOptions => executionOptions.UseTesSecurityEncryption());
+        dispatchingOptions.UseRequestEncryption();
         dispatchingOptions.UseRateLimit(executionOptions => executionOptions.UseArchLimit(builder.Configuration));
         
     });
     options.AfterDispatching(dispatchingOptions =>
     {
         dispatchingOptions.UseLogging();
-        dispatchingOptions.UseResponseEncryption(executionOptions => executionOptions.UseTesSecurityEncryption());
+        dispatchingOptions.UseResponseEncryption();
     });
 });
 
