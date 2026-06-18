@@ -1,0 +1,13 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "arch",
+      "runtimeExecutable": "/usr/local/share/dotnet/dotnet",
+      "runtimeArgs": ["run", "--no-launch-profile", "--project", "Application/Application.csproj"],
+      "port": 5229,
+      "autoPort": false,
+      "env": { "ASPNETCORE_ENVIRONMENT": "Development", "DOTNET_ENVIRONMENT": "Development" }
+    }
+  ]
+}

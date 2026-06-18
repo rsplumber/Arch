@@ -1,0 +1,44 @@
+<Modal Visible="Visible" VisibleChanged="VisibleChanged" Title="@Title" Subtitle="@Message">
+    <Footer>
+        <button class="btn ghost" @onclick="Cancel" disabled="@Busy">Cancel</button>
+        <button class="btn @(Danger ? "danger" : "primary")" @onclick="Confirm" disabled="@Busy">
+            @if (Busy)
+            {
+                <span class="spinner"></span>
+            }
+            else if (Danger)
+            {
+                <Icon Name="trash" />
+            }
+            <span>@ConfirmLabel</span>
+        </button>
+    </Footer>
+</Modal>
+
+@code {
+    [Parameter] public bool Visible { get; set; }
+    [Parameter] public EventCallback<bool> VisibleChanged { get; set; }
+    [Parameter] public string Title { get; set; } = "Are you sure?";
+    [Parameter] public string Message { get; set; } = "";
+    [Parameter] public string ConfirmLabel { get; set; } = "Confirm";
+    [Parameter] public bool Danger { get; set; } = true;
+    [Parameter] public EventCallback OnConfirm { get; set; }
+
+    private bool Busy;
+
+    private async Task Confirm()
+    {
+        Busy = true;
+        try
+        {
+            await OnConfirm.InvokeAsync();
+        }
+        finally
+        {
+            Busy = false;
+            await VisibleChanged.InvokeAsync(false);
+        }
+    }
+
+    private async Task Cancel() => await VisibleChanged.InvokeAsync(false);
+}

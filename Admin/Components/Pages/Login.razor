@@ -1,0 +1,46 @@
+@page "/login"
+@layout LoginLayout
+@attribute [AllowAnonymous]
+
+<PageTitle>Sign in · Arch Admin</PageTitle>
+
+<div class="login-wrap">
+    <div class="login-card">
+        <div class="lc-brand">
+            <div class="logo">A</div>
+        </div>
+        <h1>Welcome back</h1>
+        <p class="lc-sub">Sign in to the Arch gateway admin panel</p>
+
+        @if (Error)
+        {
+            <div class="login-alert" role="alert">
+                <Icon Name="alert" /> <span>Invalid username or password.</span>
+            </div>
+        }
+
+        <form method="post" action="auth/login">
+            <input type="hidden" name="returnUrl" value="@ReturnUrl" />
+            <div class="field">
+                <label for="username">Username</label>
+                <input class="input" id="username" name="username" autocomplete="username" required autofocus />
+            </div>
+            <div class="field">
+                <label for="password">Password</label>
+                <input class="input" id="password" name="password" type="password" autocomplete="current-password" required />
+            </div>
+            <button class="btn primary" type="submit">
+                <Icon Name="lock" /> Sign in
+            </button>
+        </form>
+
+        <p class="login-hint">Tech access only · session expires after inactivity</p>
+    </div>
+</div>
+
+@code {
+    [SupplyParameterFromQuery(Name = "error")] public string? ErrorFlag { get; set; }
+    [SupplyParameterFromQuery(Name = "returnUrl")] public string? ReturnUrl { get; set; }
+
+    private bool Error => !string.IsNullOrEmpty(ErrorFlag);
+}

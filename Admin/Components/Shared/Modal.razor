@@ -1,0 +1,48 @@
+@if (Visible)
+{
+    <div class="modal-scrim" @onclick="OnScrimClick">
+        <div class="modal @(Large ? "lg" : "")" role="dialog" aria-modal="true" @onclick:stopPropagation="true">
+            <div class="modal-head">
+                <div>
+                    <h2>@Title</h2>
+                    @if (!string.IsNullOrWhiteSpace(Subtitle))
+                    {
+                        <p>@Subtitle</p>
+                    }
+                </div>
+                <button class="icon-btn" aria-label="Close" @onclick="Close"><Icon Name="x" /></button>
+            </div>
+            <div class="modal-body">
+                @Body
+            </div>
+            @if (Footer is not null)
+            {
+                <div class="modal-foot">
+                    @Footer
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool Visible { get; set; }
+    [Parameter] public EventCallback<bool> VisibleChanged { get; set; }
+    [Parameter] public string Title { get; set; } = "";
+    [Parameter] public string? Subtitle { get; set; }
+    [Parameter] public bool Large { get; set; }
+    [Parameter] public bool CloseOnScrim { get; set; } = true;
+    [Parameter] public RenderFragment? Body { get; set; }
+    [Parameter] public RenderFragment? Footer { get; set; }
+
+    private async Task Close()
+    {
+        Visible = false;
+        await VisibleChanged.InvokeAsync(false);
+    }
+
+    private async Task OnScrimClick()
+    {
+        if (CloseOnScrim) await Close();
+    }
+}

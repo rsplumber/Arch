@@ -1,0 +1,446 @@
+@page "/services/{Id:guid}"
+@attribute [Authorize]
+@inject AdminConfigService Config
+@inject ToastService Toasts
+@inject NavigationManager Nav
+
+<PageTitle>Service · Arch Admin</PageTitle>
+
+<div class="content">
+    @if (_loading)
+    {
+        <div class="loading-block"><span class="spinner"></span> Loading…</div>
+    }
+    else if (_detail is null)
+    {
+        <div class="card">
+            <div class="empty">
+                <div class="e-icon"><Icon Name="alert" /></div>
+                <h3>Service not found</h3>
+                <p>It may have been deleted.</p>
+                <a class="btn ghost" href="">Back to dashboard</a>
+            </div>
+        </div>
+    }
+    else
+    {
+        var svc = _detail.Service;
+        <div class="crumb" style="margin-bottom:14px;">
+            <a href="" class="text-2">Dashboard</a>
+            <Icon Name="chevron-right" />
+            <b>@svc.Name</b>
+        </div>
+
+        <div class="page-head">
+            <div>
+                <div class="flex items-center gap-8">
+                    <h1>@svc.Name</h1>
+                    @if (svc.Primary)
+                    {
+                        <span class="badge primary"><Icon Name="star" /> primary</span>
+                    }
+                    @if (svc.Disabled)
+                    {
+                        <span class="badge off"><span class="dot"></span> disabled</span>
+                    }
+                    else
+                    {
+                        <span class="badge ok"><span class="dot"></span> active</span>
+                    }
+                </div>
+                <p class="mono" style="margin-top:6px;">@(svc.BaseUrls.FirstOrDefault() ?? "—")</p>
+            </div>
+            @if (!svc.Primary)
+            {
+                <button class="btn primary" @onclick="OpenAddEndpoint"><Icon Name="plus" /> Add endpoint</button>
+            }
+            else
+            {
+                <span class="badge muted"><Icon Name="lock" /> read-only</span>
+            }
+        </div>
+
+        @if (svc.Primary)
+        {
+            <div class="card pad" style="margin-bottom:16px;display:flex;gap:11px;align-items:flex-start;">
+                <span style="color:var(--accent);margin-top:1px;"><Icon Name="lock" /></span>
+                <div>
+                    <b>Primary service</b>
+                    <p class="text-2" style="margin:3px 0 0;font-size:13px;">
+                        This is the gateway’s primary service. Its configuration and endpoints are
+                        protected and cannot be edited from the panel.
+                    </p>
+                </div>
+            </div>
+        }
+
+        @if (svc.BaseUrls.Count > 1)
+        {
+            <div class="card pad" style="margin-bottom:16px;">
+                <h3 style="margin-bottom:10px;">Base URLs</h3>
+                <div class="meta-view">
+                    @foreach (var url in svc.BaseUrls)
+                    {
+                        <span class="meta-chip"><span class="mv">@url</span></span>
+                    }
+                </div>
+            </div>
+        }
+
+        <div class="card pad" style="margin-bottom:16px;">
+            <h3 style="margin-bottom:10px;">Service meta</h3>
+            @if (svc.Meta.Count == 0)
+            {
+                <p class="text-3" style="margin:0;font-size:13px;">No meta configured.</p>
+            }
+            else
+            {
+                <div class="meta-view">
+                    @foreach (var kv in svc.Meta)
+                    {
+                        <span class="meta-chip"><span class="mk">@kv.Key</span><span class="sep">=</span><span class="mv">@kv.Value</span></span>
+                    }
+                </div>
+            }
+        </div>
+
+        <div class="card">
+            <div class="flex between items-center wrap" style="padding:16px 20px;border-bottom:1px solid var(--border);gap:12px;">
+                <h3>Endpoints <span class="text-3 tnum">· @_detail.Endpoints.Count</span></h3>
+                @if (_detail.Endpoints.Count > 0)
+                {
+                    <div class="field" style="margin:0;width:300px;max-width:100%;">
+                        <div style="position:relative;">
+                            <span style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text-3);"><Icon Name="search" /></span>
+                            <input class="input" style="padding-left:36px;" placeholder="Search by endpoint or target URL…"
+                                   @bind="_endpointQuery" @bind:event="oninput" />
+                        </div>
+                    </div>
+                }
+            </div>
+
+            @if (_detail.Endpoints.Count == 0)
+            {
+                <div class="empty">
+                    <div class="e-icon"><Icon Name="endpoints" /></div>
+                    <h3>No endpoints</h3>
+                    <p>This service has no routed endpoints yet.</p>
+                    @if (!svc.Primary)
+                    {
+                        <button class="btn primary" @onclick="OpenAddEndpoint"><Icon Name="plus" /> Add endpoint</button>
+                    }
+                </div>
+            }
+            else if (FilteredEndpoints.Count == 0)
+            {
+                <div class="empty">
+                    <div class="e-icon"><Icon Name="search" /></div>
+                    <h3>No matches</h3>
+                    <p>No endpoint matches “@_endpointQuery”.</p>
+                </div>
+            }
+            else
+            {
+                <div class="table-wrap">
+                    <table class="data">
+                        <thead>
+                            <tr>
+                                <th>Method</th>
+                                <th>Endpoint</th>
+                                <th>Maps to</th>
+                                <th>Meta</th>
+                                <th style="text-align:center;">Enabled</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var ep in FilteredEndpoints)
+                            {
+                                <tr>
+                                    <td><span class="method @MethodClass(ep.Method)">@ep.Method</span></td>
+                                    <td class="cell-mono">@ep.Endpoint</td>
+                                    <td class="cell-mono">@ep.MapTo</td>
+                                    <td>
+                                        @{
+                                            var shown = ep.Meta.Where(m => m.Key != "disabled").ToList();
+                                        }
+                                        @if (shown.Count == 0)
+                                        {
+                                            <span class="text-3">—</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge muted">@shown.Count setting@(shown.Count == 1 ? "" : "s")</span>
+                                        }
+                                    </td>
+                                    <td style="text-align:center;">
+                                        @if (svc.Primary)
+                                        {
+                                            <span class="text-3"><Icon Name="lock" /></span>
+                                        }
+                                        else
+                                        {
+                                            <label class="switch" title="@(ep.Disabled ? "Enable endpoint" : "Disable endpoint")">
+                                                <input type="checkbox" checked="@(!ep.Disabled)"
+                                                       @onchange="e => ToggleEndpoint(ep, !(bool)e.Value!)" />
+                                                <span class="track"></span>
+                                            </label>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="row-actions">
+                                            @if (!svc.Primary)
+                                            {
+                                                <button class="icon-btn" aria-label="Edit meta" @onclick="() => OpenMeta(ep)"><Icon Name="settings" /></button>
+                                                <button class="icon-btn danger" aria-label="Remove" @onclick="() => AskRemove(ep)"><Icon Name="trash" /></button>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<Modal Visible="_addOpen" VisibleChanged="v => _addOpen = v" Title="Add endpoint" Subtitle="Route a new path through this service.">
+    <Body>
+        <div class="field">
+            <label>Method <span class="req">*</span></label>
+            <select class="select" @bind="_add.Method">
+                @foreach (var m in Methods)
+                {
+                    <option value="@m">@m</option>
+                }
+            </select>
+        </div>
+        <div class="field">
+            <label>Endpoint <span class="req">*</span></label>
+            <input class="input mono" @bind="_add.Endpoint" placeholder="orders/{id}" />
+            <span class="hint">Incoming path pattern, relative to the gateway.</span>
+        </div>
+        <div class="field">
+            <label>Maps to <span class="req">*</span></label>
+            <input class="input mono" @bind="_add.MapTo" placeholder="api/v1/orders/{id}" />
+            <span class="hint">Upstream path the request is forwarded to.</span>
+        </div>
+        <div class="field">
+            <label>Meta</label>
+            <span class="hint">Optional per-endpoint settings.</span>
+            <div style="margin-top:8px;">
+                <MetaEditor @ref="_addMeta" ReservedKeys="_reserved" />
+            </div>
+        </div>
+        @if (!string.IsNullOrEmpty(_addError))
+        {
+            <div class="form-error">@_addError</div>
+        }
+    </Body>
+    <Footer>
+        <button class="btn ghost" @onclick="() => _addOpen = false" disabled="@_busy">Cancel</button>
+        <button class="btn primary" @onclick="AddEndpoint" disabled="@_busy">
+            @if (_busy)
+            {
+                <span class="spinner"></span>
+            }
+            <span>Add endpoint</span>
+        </button>
+    </Footer>
+</Modal>
+
+<Modal Visible="_metaOpen" VisibleChanged="v => _metaOpen = v" Title="Edit endpoint meta"
+       Subtitle="@(_metaTarget is null ? null : $"{_metaTarget.Method} {_metaTarget.Endpoint}")">
+    <Body>
+        <p class="text-2" style="margin:0 0 14px;font-size:13px;">
+            Configure key/value settings for this endpoint (e.g. <code>logging</code>).
+        </p>
+        <MetaEditor @ref="_editMeta" Initial="_metaTarget?.Meta" ReservedKeys="_reserved" />
+        @if (!string.IsNullOrEmpty(_metaError))
+        {
+            <div class="form-error">@_metaError</div>
+        }
+    </Body>
+    <Footer>
+        <button class="btn ghost" @onclick="() => _metaOpen = false" disabled="@_busy">Cancel</button>
+        <button class="btn primary" @onclick="SaveMeta" disabled="@_busy">
+            @if (_busy)
+            {
+                <span class="spinner"></span>
+            }
+            <span>Save meta</span>
+        </button>
+    </Footer>
+</Modal>
+
+<ConfirmDialog Visible="_removeOpen" VisibleChanged="v => _removeOpen = v"
+               Title="Remove endpoint?"
+               Message="@($"This removes the route \"{_pendingRemove?.Method} {_pendingRemove?.Endpoint}\". This cannot be undone.")"
+               ConfirmLabel="Remove endpoint"
+               OnConfirm="ConfirmRemove" />
+
+@code {
+    [Parameter] public Guid Id { get; set; }
+
+    private static readonly string[] Methods = ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"];
+    private readonly string[] _reserved = ["disabled"];
+
+    private bool _loading = true;
+    private ServiceWithEndpoints? _detail;
+    private string _endpointQuery = "";
+
+    private List<EndpointSummary> FilteredEndpoints
+    {
+        get
+        {
+            if (_detail is null) return [];
+            if (string.IsNullOrWhiteSpace(_endpointQuery)) return _detail.Endpoints.ToList();
+            var q = _endpointQuery.Trim();
+            return _detail.Endpoints.Where(ep =>
+                ep.Endpoint.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                ep.MapTo.Contains(q, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
+    }
+
+    private sealed class AddForm { public string Method = "GET"; public string Endpoint = ""; public string MapTo = ""; }
+
+    private bool _addOpen, _metaOpen, _removeOpen, _busy;
+    private string? _addError, _metaError;
+    private AddForm _add = new();
+    private MetaEditor? _addMeta;
+    private MetaEditor? _editMeta;
+    private EndpointSummary? _metaTarget;
+    private EndpointSummary? _pendingRemove;
+
+    protected override async Task OnParametersSetAsync() => await Reload();
+
+    private async Task Reload()
+    {
+        _loading = true;
+        _detail = await Config.GetServiceAsync(Id);
+        _loading = false;
+    }
+
+    private void OpenAddEndpoint()
+    {
+        _add = new AddForm();
+        _addError = null;
+        _addOpen = true;
+    }
+
+    private async Task AddEndpoint()
+    {
+        _addError = null;
+        if (string.IsNullOrWhiteSpace(_add.Endpoint) || string.IsNullOrWhiteSpace(_add.MapTo))
+        {
+            _addError = "Endpoint and target path are required.";
+            return;
+        }
+
+        _busy = true;
+        try
+        {
+            await Config.AddEndpointAsync(Id, _add.Endpoint, _add.MapTo, _add.Method, _addMeta?.ToDictionary() ?? new());
+            Toasts.Success("Endpoint added.");
+            _addOpen = false;
+            await Reload();
+        }
+        catch (Exception ex)
+        {
+            _addError = Friendly(ex);
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    private void OpenMeta(EndpointSummary ep)
+    {
+        _metaTarget = ep;
+        _metaError = null;
+        _metaOpen = true;
+    }
+
+    private async Task SaveMeta()
+    {
+        if (_metaTarget is null) return;
+        _metaError = null;
+        var meta = _editMeta?.ToDictionary() ?? new();
+        // Preserve the disabled flag managed via the toggle.
+        if (_metaTarget.Disabled) meta["disabled"] = "true";
+
+        _busy = true;
+        try
+        {
+            await Config.UpdateEndpointMetaAsync(_metaTarget.Id, meta);
+            Toasts.Success("Endpoint meta updated.");
+            _metaOpen = false;
+            await Reload();
+        }
+        catch (Exception ex)
+        {
+            _metaError = Friendly(ex);
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    private async Task ToggleEndpoint(EndpointSummary ep, bool disabled)
+    {
+        try
+        {
+            await Config.SetEndpointDisabledAsync(ep.Id, disabled);
+            Toasts.Success($"Endpoint {(disabled ? "disabled" : "enabled")}.");
+            await Reload();
+        }
+        catch (Exception ex)
+        {
+            Toasts.Error(Friendly(ex));
+            await Reload();
+        }
+    }
+
+    private void AskRemove(EndpointSummary ep)
+    {
+        _pendingRemove = ep;
+        _removeOpen = true;
+    }
+
+    private async Task ConfirmRemove()
+    {
+        if (_pendingRemove is null) return;
+        try
+        {
+            await Config.RemoveEndpointAsync(_pendingRemove.Id);
+            Toasts.Success("Endpoint removed.");
+            await Reload();
+        }
+        catch (Exception ex)
+        {
+            Toasts.Error(Friendly(ex));
+        }
+    }
+
+    private static string MethodClass(string method) => method.ToUpperInvariant() switch
+    {
+        "GET" => "get",
+        "POST" => "post",
+        "PUT" => "put",
+        "PATCH" => "patch",
+        "DELETE" => "delete",
+        _ => "other"
+    };
+
+    private static string Friendly(Exception ex) => ex switch
+    {
+        Arch.Core.ServiceConfigs.Exceptions.PrimaryServiceModificationException => "The primary service is protected and cannot be modified.",
+        Arch.Core.ServiceConfigs.Exceptions.ServiceConfigNotFoundException => "Service no longer exists.",
+        Arch.Core.ServiceConfigs.EndpointDefinitions.Exceptions.EndpointDefinitionNotFoundException => "Endpoint no longer exists.",
+        _ => ex.Message
+    };
+}

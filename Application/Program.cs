@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Arch;
+using Arch.Admin.Hosting;
 using Arch.Authorization.Abstractions;
 using Arch.Authorization.Kundera;
 using Arch.Authorization.SimpleJwt;
@@ -72,7 +73,14 @@ builder.Services.AddArch(options =>
     options.AddAuthorization(authorizationOptions => authorizationOptions.UseKundera(builder.Configuration));
 });
 
+// Embedded admin panel (Blazor Server). Mounted as an isolated /admin branch below.
+builder.Services.AddArchAdmin();
+
 var app = builder.Build();
+
+// Mount the admin panel BEFORE UseArch: the gateway's request-extractor returns 404 for any
+// path that isn't a registered upstream endpoint, so /admin must be branched off first.
+app.MapArchAdmin();
 
 using var serviceScope = app.Services.GetService<IServiceScopeFactory>()?.CreateScope();
 if (serviceScope == null) return;

@@ -5,6 +5,10 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+        <!-- The Blazor admin panel's components live in the Admin RCL, so this Web host has no
+             .razor files of its own. Opt in explicitly so the Blazor framework static web assets
+             (e.g. _framework/blazor.web.js) are included and served. -->
+        <RequiresAspNetWebAssets>true</RequiresAspNetWebAssets>
     </PropertyGroup>
 
     <ItemGroup>
@@ -34,6 +38,7 @@
       <ProjectReference Include="..\Libraries\Logging\Logging.Logstash\Logging.Logstash.csproj" />
       <ProjectReference Include="..\Libraries\RateLimit\RateLimit.ArchLimit\RateLimit.ArchLimit.csproj" />
       <ProjectReference Include="..\Libraries\RateLimit\RateLimit.Configuration\RateLimit.Configuration.csproj" />
+      <ProjectReference Include="..\Admin\Admin.csproj" />
     </ItemGroup>
 
     <ItemGroup>

@@ -1,0 +1,330 @@
+@page "/"
+@attribute [Authorize]
+@inject AdminConfigService Config
+@inject ToastService Toasts
+
+<PageTitle>Dashboard · Arch Admin</PageTitle>
+
+<div class="content">
+    <div class="page-head">
+        <div>
+            <h1>Dashboard</h1>
+            <p>Overview of services and endpoints managed by the gateway.</p>
+        </div>
+        <button class="btn primary" @onclick="OpenCreate"><Icon Name="plus" /> Add service</button>
+    </div>
+
+    @if (_services is null)
+    {
+        <div class="loading-block"><span class="spinner"></span> Loading…</div>
+    }
+    else
+    {
+        <div class="grid kpi" style="margin-bottom:16px;">
+            <div class="card kpi-card">
+                <div class="k-top">
+                    <span class="k-label">Services</span>
+                    <span class="k-icon"><Icon Name="services" /></span>
+                </div>
+                <div class="k-val tnum">@_services.Count</div>
+                <div class="k-sub">@ActiveServices active · @DisabledServices disabled</div>
+            </div>
+            <div class="card kpi-card">
+                <div class="k-top">
+                    <span class="k-label">Endpoints</span>
+                    <span class="k-icon"><Icon Name="endpoints" /></span>
+                </div>
+                <div class="k-val tnum">@TotalEndpoints</div>
+                <div class="k-sub">@ActiveEndpoints active · @DisabledEndpoints disabled</div>
+            </div>
+            <div class="card kpi-card">
+                <div class="k-top">
+                    <span class="k-label">Active routes</span>
+                    <span class="k-icon"><Icon Name="activity" /></span>
+                </div>
+                <div class="k-val tnum">@ActiveEndpoints</div>
+                <div class="k-sub">currently serving traffic</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="flex between items-center wrap" style="padding:16px 20px;border-bottom:1px solid var(--border);gap:12px;">
+                <h3>Services</h3>
+                <div class="field" style="margin:0;width:300px;max-width:100%;">
+                    <div style="position:relative;">
+                        <span style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text-3);"><Icon Name="search" /></span>
+                        <input class="input" style="padding-left:36px;" placeholder="Search by name or URL…"
+                               @bind="_query" @bind:event="oninput" />
+                    </div>
+                </div>
+            </div>
+
+            @if (_services.Count == 0)
+            {
+                <div class="empty">
+                    <div class="e-icon"><Icon Name="services" /></div>
+                    <h3>No services registered</h3>
+                    <p>Add your first upstream service to begin configuring routes.</p>
+                    <button class="btn primary" @onclick="OpenCreate"><Icon Name="plus" /> Add service</button>
+                </div>
+            }
+            else if (Filtered.Count == 0)
+            {
+                <div class="empty">
+                    <div class="e-icon"><Icon Name="search" /></div>
+                    <h3>No matches</h3>
+                    <p>No service matches “@_query”.</p>
+                </div>
+            }
+            else
+            {
+                <div class="table-wrap">
+                    <table class="data">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Status</th>
+                                <th>Endpoints</th>
+                                <th>Base URL</th>
+                                <th style="text-align:center;">Enabled</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var svc in Filtered)
+                            {
+                                <tr>
+                                    <td>
+                                        <a href="@($"services/{svc.Id}")" class="flex items-center gap-8">
+                                            <span class="cell-strong">@svc.Name</span>
+                                            @if (svc.Primary)
+                                            {
+                                                <span class="badge primary"><Icon Name="star" /> primary</span>
+                                            }
+                                        </a>
+                                    </td>
+                                    <td>
+                                        @if (svc.Disabled)
+                                        {
+                                            <span class="badge off"><span class="dot"></span> disabled</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge ok"><span class="dot"></span> active</span>
+                                        }
+                                    </td>
+                                    <td class="tnum">@svc.ActiveEndpointCount<span class="text-3"> / @svc.EndpointCount</span></td>
+                                    <td class="cell-mono">@(svc.BaseUrls.FirstOrDefault() ?? "—")</td>
+                                    <td style="text-align:center;">
+                                        @if (svc.Primary)
+                                        {
+                                            <span class="text-3" title="Primary service cannot be modified"><Icon Name="lock" /></span>
+                                        }
+                                        else
+                                        {
+                                            <label class="switch" title="@(svc.Disabled ? "Enable service" : "Disable service")">
+                                                <input type="checkbox" checked="@(!svc.Disabled)"
+                                                       @onchange="e => ToggleDisabled(svc, !(bool)e.Value!)" />
+                                                <span class="track"></span>
+                                            </label>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="row-actions">
+                                            <a class="icon-btn" href="@($"services/{svc.Id}")" aria-label="Open"><Icon Name="chevron-right" /></a>
+                                            @if (!svc.Primary)
+                                            {
+                                                <button class="icon-btn" aria-label="Edit" @onclick="() => OpenEdit(svc)"><Icon Name="edit" /></button>
+                                                <button class="icon-btn danger" aria-label="Delete" @onclick="() => AskDelete(svc)"><Icon Name="trash" /></button>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<Modal Visible="_editorOpen" VisibleChanged="v => _editorOpen = v" Title="@(_editing is null ? "Add service" : "Edit service")"
+       Subtitle="@(_editing is null ? "Register a new upstream service." : _editing.Name)">
+    <Body>
+        <div class="field">
+            <label>Name <span class="req">*</span></label>
+            <input class="input" @bind="_form.Name" placeholder="e.g. orders-service" />
+        </div>
+        <div class="field">
+            <label>Base URL <span class="req">*</span></label>
+            <input class="input mono" @bind="_form.BaseUrl" placeholder="https://orders.internal:8080" />
+            <span class="hint">The upstream origin requests are forwarded to.</span>
+        </div>
+        <div class="field">
+            <label>Meta</label>
+            <span class="hint">Optional key/value settings attached to this service.</span>
+            <div style="margin-top:8px;">
+                <MetaEditor @ref="_metaEditor" Initial="_editing?.Meta" ReservedKeys="_reserved" />
+            </div>
+        </div>
+        @if (!string.IsNullOrEmpty(_formError))
+        {
+            <div class="form-error">@_formError</div>
+        }
+    </Body>
+    <Footer>
+        <button class="btn ghost" @onclick="() => _editorOpen = false" disabled="@_saving">Cancel</button>
+        <button class="btn primary" @onclick="Save" disabled="@_saving">
+            @if (_saving)
+            {
+                <span class="spinner"></span>
+            }
+            <span>@(_editing is null ? "Create service" : "Save changes")</span>
+        </button>
+    </Footer>
+</Modal>
+
+<ConfirmDialog Visible="_confirmOpen" VisibleChanged="v => _confirmOpen = v"
+               Title="Delete service?"
+               Message="@($"This permanently removes \"{_pendingDelete?.Name}\" and all of its endpoints. This cannot be undone.")"
+               ConfirmLabel="Delete service"
+               OnConfirm="ConfirmDelete" />
+
+@code {
+    private sealed class Form { public string Name = ""; public string BaseUrl = ""; }
+
+    private List<ServiceSummary>? _services;
+    private string _query = "";
+    private readonly string[] _reserved = ["disabled"];
+
+    private bool _editorOpen;
+    private bool _saving;
+    private string? _formError;
+    private ServiceSummary? _editing;
+    private Form _form = new();
+    private MetaEditor? _metaEditor;
+
+    private bool _confirmOpen;
+    private ServiceSummary? _pendingDelete;
+
+    private int ActiveServices => _services?.Count(s => !s.Disabled) ?? 0;
+    private int DisabledServices => _services?.Count(s => s.Disabled) ?? 0;
+    private int TotalEndpoints => _services?.Sum(s => s.EndpointCount) ?? 0;
+    private int DisabledEndpoints => _services?.Sum(s => s.DisabledEndpointCount) ?? 0;
+    private int ActiveEndpoints => TotalEndpoints - DisabledEndpoints;
+
+    private List<ServiceSummary> Filtered
+    {
+        get
+        {
+            if (_services is null) return [];
+            if (string.IsNullOrWhiteSpace(_query)) return _services;
+            var q = _query.Trim();
+            return _services.Where(s =>
+                s.Name.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                s.BaseUrls.Any(url => url.Contains(q, StringComparison.OrdinalIgnoreCase))).ToList();
+        }
+    }
+
+    protected override async Task OnInitializedAsync() => await Reload();
+
+    private async Task Reload() => _services = await Config.GetServicesAsync();
+
+    private void OpenCreate()
+    {
+        _editing = null;
+        _form = new Form();
+        _formError = null;
+        _editorOpen = true;
+    }
+
+    private void OpenEdit(ServiceSummary svc)
+    {
+        _editing = svc;
+        _form = new Form { Name = svc.Name, BaseUrl = svc.BaseUrls.FirstOrDefault() ?? "" };
+        _formError = null;
+        _editorOpen = true;
+    }
+
+    private async Task Save()
+    {
+        _formError = null;
+        if (string.IsNullOrWhiteSpace(_form.Name) || string.IsNullOrWhiteSpace(_form.BaseUrl))
+        {
+            _formError = "Name and base URL are required.";
+            return;
+        }
+
+        var meta = _metaEditor?.ToDictionary() ?? new();
+        if (_editing is { Disabled: true }) meta["disabled"] = "true";
+
+        _saving = true;
+        try
+        {
+            if (_editing is null)
+            {
+                await Config.CreateServiceAsync(_form.Name, _form.BaseUrl, meta);
+                Toasts.Success($"Service \"{_form.Name}\" created.");
+            }
+            else
+            {
+                await Config.UpdateServiceAsync(_editing.Id, _form.Name, _form.BaseUrl, meta);
+                Toasts.Success("Service updated.");
+            }
+            _editorOpen = false;
+            await Reload();
+        }
+        catch (Exception ex)
+        {
+            _formError = Friendly(ex);
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+
+    private async Task ToggleDisabled(ServiceSummary svc, bool disabled)
+    {
+        try
+        {
+            await Config.SetServiceDisabledAsync(svc.Id, disabled);
+            Toasts.Success($"Service \"{svc.Name}\" {(disabled ? "disabled" : "enabled")}.");
+            await Reload();
+        }
+        catch (Exception ex)
+        {
+            Toasts.Error(Friendly(ex));
+            await Reload();
+        }
+    }
+
+    private void AskDelete(ServiceSummary svc)
+    {
+        _pendingDelete = svc;
+        _confirmOpen = true;
+    }
+
+    private async Task ConfirmDelete()
+    {
+        if (_pendingDelete is null) return;
+        try
+        {
+            await Config.DeleteServiceAsync(_pendingDelete.Id);
+            Toasts.Success($"Service \"{_pendingDelete.Name}\" deleted.");
+            await Reload();
+        }
+        catch (Exception ex)
+        {
+            Toasts.Error(Friendly(ex));
+        }
+    }
+
+    private static string Friendly(Exception ex) => ex switch
+    {
+        Arch.Core.ServiceConfigs.Exceptions.PrimaryServiceModificationException => "The primary service is protected and cannot be modified.",
+        Arch.Core.ServiceConfigs.Exceptions.ServiceConfigNotFoundException => "Service no longer exists.",
+        _ => ex.Message
+    };
+}
