@@ -33,7 +33,7 @@ internal sealed class Endpoint : Endpoint<Request>
 
         await _endpointDefinitionRepository.UpdateAsync(endpointDefinition, ct);
 
-        await SendOkAsync(ct);
+        await HttpContext.Response.SendOkAsync(ct);
     }
 }
 

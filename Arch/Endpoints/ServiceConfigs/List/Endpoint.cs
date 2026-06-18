@@ -22,7 +22,7 @@ internal sealed class Endpoint : Endpoint<Request, List<ServiceConfigsQueryRespo
     public override async Task HandleAsync(Request request, CancellationToken ct)
     {
         var response = await _query.QueryAsync(request.Name, ct);
-        await SendOkAsync(response, ct);
+        await HttpContext.Response.SendOkAsync(response, null, ct);
     }
 }
 

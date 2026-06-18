@@ -23,7 +23,7 @@ internal sealed class Endpoint : Endpoint<Request>
     public override async Task HandleAsync(Request req, CancellationToken ct)
     {
         await _endpointDefinitionService.RemoveAsync(req.Id, ct);
-        await SendOkAsync(ct);
+        await HttpContext.Response.SendOkAsync(ct);
     }
 }
 

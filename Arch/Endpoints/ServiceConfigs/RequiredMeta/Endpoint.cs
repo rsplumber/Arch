@@ -13,9 +13,9 @@ internal sealed class Endpoint : EndpointWithoutRequest
 
     public override async Task HandleAsync(CancellationToken ct)
     {
-        await SendOkAsync(new
+        await HttpContext.Response.SendOkAsync(new
         {
             Meta = Array.Empty<string>()
-        }, ct);
+        }, null, ct);
     }
 }

@@ -30,7 +30,7 @@ internal sealed class Endpoint : Endpoint<Request>
             ServiceConfigId = req.Id,
             MapTo = req.MapTo
         }, ct);
-        await SendOkAsync(ct);
+        await HttpContext.Response.SendOkAsync(ct);
     }
 }
 

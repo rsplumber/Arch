@@ -17,6 +17,7 @@ using Encryption.Tes.Security;
 using Microsoft.EntityFrameworkCore;
 using RateLimit.Cage;
 using RateLimit.Configuration;
+using Savorboard.CAP.InMemoryMessageQueue;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseKestrel(options => { options.Limits.MaxRequestBodySize = 50_000_000; });
@@ -24,7 +25,7 @@ builder.WebHost.ConfigureKestrel((_, options) =>
 {
     options.ListenAnyIP(5229, listenOptions =>
     {
-        // listenOptions.UseHttps("wwwroot/cert/ssl_cert.pfx", "D!gi#b@nk1402");
+        // listenOptions.UseHttps("wwwroot/cert/*.pfx", "your_password");
     });
 });
 
@@ -42,13 +43,14 @@ builder.Services.AddArch(options =>
         capOptions.JsonSerializerOptions.IgnoreReadOnlyFields = true;
         capOptions.SucceedMessageExpiredAfter = 60 * 2;
         capOptions.FailedMessageExpiredAfter = 60 * 2;
-        capOptions.UseRabbitMQ(op =>
-        {
-            op.HostName = builder.Configuration.GetValue<string>("RabbitMQ:HostName") ?? throw new ArgumentNullException("RabbitMQ:HostName", "Enter RabbitMQ:HostName in app settings");
-            op.UserName = builder.Configuration.GetValue<string>("RabbitMQ:UserName") ?? throw new ArgumentNullException("RabbitMQ:UserName", "Enter RabbitMQ:UserName in app settings");
-            op.Password = builder.Configuration.GetValue<string>("RabbitMQ:Password") ?? throw new ArgumentNullException("RabbitMQ:Password", "Enter RabbitMQ:UserName in app settings");
-            op.ExchangeName = builder.Configuration.GetValue<string>("RabbitMQ:ExchangeName") ?? throw new ArgumentNullException("RabbitMQ:ExchangeName", "Enter RabbitMQ:ExchangeName in app settings");
-        });
+        capOptions.UseInMemoryMessageQueue();
+        // capOptions.UseRabbitMQ(op =>
+        // {
+        //     op.HostName = builder.Configuration.GetValue<string>("RabbitMQ:HostName") ?? throw new ArgumentNullException("RabbitMQ:HostName", "Enter RabbitMQ:HostName in app settings");
+        //     op.UserName = builder.Configuration.GetValue<string>("RabbitMQ:UserName") ?? throw new ArgumentNullException("RabbitMQ:UserName", "Enter RabbitMQ:UserName in app settings");
+        //     op.Password = builder.Configuration.GetValue<string>("RabbitMQ:Password") ?? throw new ArgumentNullException("RabbitMQ:Password", "Enter RabbitMQ:UserName in app settings");
+        //     op.ExchangeName = builder.Configuration.GetValue<string>("RabbitMQ:ExchangeName") ?? throw new ArgumentNullException("RabbitMQ:ExchangeName", "Enter RabbitMQ:ExchangeName in app settings");
+        // });
         capOptions.UsePostgreSql(sqlOptions =>
         {
             sqlOptions.ConnectionString = builder.Configuration.GetConnectionString("default") ?? throw new ArgumentNullException("connectionString", "Enter connection string in app settings");

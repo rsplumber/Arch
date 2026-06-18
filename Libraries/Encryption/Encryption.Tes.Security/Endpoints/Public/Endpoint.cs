@@ -27,12 +27,12 @@ namespace Encryption.Tes.Security.Endpoints.Public
             var key = TesEncryption.Decrypt(query.Key);
             if (key == "InvalidCipher")
             {
-                await SendAsync(new Response
+                await HttpContext.Response.SendAsync(new Response
                 {
                     RequestId = state.RequestInfo.RequestId,
                     RequestDateUtc = state.RequestInfo.RequestDateUtc,
                     Data = "InvalidCipher"
-                }, 400, ct);
+                }, 400, null, ct);
                 return;
             }
 
@@ -48,12 +48,12 @@ namespace Encryption.Tes.Security.Endpoints.Public
             var encKey = HashGenerator.GenerateMd5FromString(key);
             var aesEncryption = new AesEncryption(encKey);
             var encryptedBase64 = await aesEncryption.EncryptAsync(cacheKey);
-            await SendOkAsync(new Response
+            await HttpContext.Response.SendOkAsync(new Response
             {
                 RequestId = HttpContext.RequestState().RequestInfo.RequestId,
                 RequestDateUtc = HttpContext.RequestState().RequestInfo.RequestDateUtc,
                 Data = encryptedBase64
-            }, ct);
+            }, null, ct);
         }
     }
 

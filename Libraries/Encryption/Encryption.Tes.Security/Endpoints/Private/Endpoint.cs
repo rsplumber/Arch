@@ -28,7 +28,7 @@ namespace Encryption.Tes.Security.Endpoints.Key.Private
             var token = query.Authorization;
             if (token.Length == 0)
             {
-                await SendUnauthorizedAsync(ct);
+                await HttpContext.Response.SendUnauthorizedAsync(ct);
                 return;
             }
 
@@ -36,12 +36,12 @@ namespace Encryption.Tes.Security.Endpoints.Key.Private
             var key = TesEncryption.Decrypt(query.Key);
             if (key == "InvalidCipher")
             {
-                await SendAsync(new Response
+                await HttpContext.Response.SendAsync(new Response
                 {
                     RequestId = state.RequestInfo.RequestId,
                     RequestDateUtc = state.RequestInfo.RequestDateUtc,
                     Data = "InvalidCipher"
-                }, 400, ct);
+                }, 400, null, ct);
                 return;
             }
 
@@ -64,7 +64,7 @@ namespace Encryption.Tes.Security.Endpoints.Key.Private
                 RequestDateUtc = HttpContext.RequestState().RequestInfo.RequestDateUtc,
                 Data = encryptedBase64
             };
-            await SendOkAsync(res, ct);
+            await HttpContext.Response.SendOkAsync(res, null, ct);
         }
     }
 }

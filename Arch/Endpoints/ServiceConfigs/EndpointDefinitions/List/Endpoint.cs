@@ -23,7 +23,7 @@ internal sealed class Endpoint : Endpoint<Request>
     public override async Task HandleAsync(Request req, CancellationToken ct)
     {
         var response = await _query.QueryAsync(req.Id, req.Endpoint, ct);
-        await SendOkAsync(response, ct);
+        await HttpContext.Response.SendOkAsync(response, null, ct);
     }
 }
 
