@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 using Arch;
 using Arch.Authorization.Abstractions;
 using Arch.Authorization.Kundera;
+using Arch.Authorization.SimpleJwt;
 using Arch.Core.ServiceConfigs;
 using Arch.Data.Caching.Abstractions;
 using Arch.Data.Caching.InMemory;
@@ -91,7 +92,7 @@ app.UseArch(options =>
     });
     options.BeforeDispatching(dispatchingOptions =>
     {
-        dispatchingOptions.UseAuthorization(executionOptions => executionOptions.UseKundera(builder.Configuration));
+        dispatchingOptions.UseAuthorization(executionOptions => executionOptions.UseSimpleJwt(builder.Configuration));
         dispatchingOptions.UseRequestEncryption(executionOptions => executionOptions.UseTesSecurityEncryption());
         dispatchingOptions.UseRateLimit(executionOptions => executionOptions.UseCage(builder.Configuration));
         
