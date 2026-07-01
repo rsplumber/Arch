@@ -17,19 +17,22 @@ public static class HttpResponseMessageExtensions
         ReferenceHandler = ReferenceHandler.Preserve
     };
 
-    public static string? MediaType(this HttpResponseMessage httpResponse) => httpResponse.Content.Headers.ContentType?.MediaType;
-
-    public static string? ContentType(this HttpResponseMessage httpResponse) => httpResponse.Content.Headers.ContentType?.ToString();
-
-    public static async ValueTask<dynamic?> ReadBodyAsync(this HttpResponseMessage httpResponse, CancellationToken cancellationToken = default)
+    extension(HttpResponseMessage httpResponse)
     {
-        if (httpResponse.MediaType() is ApplicationJsonMediaType or ApplicationProblemJsonMediaType)
+        public string? MediaType() => httpResponse.Content.Headers.ContentType?.MediaType;
+
+        public string? ContentType() => httpResponse.Content.Headers.ContentType?.ToString();
+
+        public async ValueTask<dynamic?> ReadBodyAsync(CancellationToken cancellationToken = default)
         {
-            return await httpResponse.Content.ReadFromJsonAsync<dynamic>(JsonSerializerOptions, cancellationToken: cancellationToken).ConfigureAwait(false);
+            if (httpResponse.MediaType() is ApplicationJsonMediaType or ApplicationProblemJsonMediaType)
+            {
+                return await httpResponse.Content.ReadFromJsonAsync<dynamic>(JsonSerializerOptions, cancellationToken: cancellationToken).ConfigureAwait(false);
+            }
+
+            return await httpResponse.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
         }
 
-        return await httpResponse.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+        public Dictionary<string, string> Headers() => httpResponse.Headers.ToDictionary(a => a.Key, a => string.Join(';', a.Value!));
     }
-
-    public static Dictionary<string, string> Headers(this HttpResponseMessage response) => response.Headers.ToDictionary(a => a.Key, a => string.Join(";", a.Value!));
 }

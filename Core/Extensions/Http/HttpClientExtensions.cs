@@ -7,57 +7,57 @@ namespace Arch.Core.Extensions.Http;
 
 public static class HttpClientExtensions
 {
-    public static async ValueTask<HttpResponseMessage?> SendAsync(this HttpClient client, HttpMethod method, string url, HttpRequest request)
+    extension(HttpClient client)
     {
-        var httpRequest = new HttpRequestMessage(method, url);
-        try
+        public async ValueTask<HttpResponseMessage?> SendAsync(HttpMethod method, string url, HttpRequest request)
         {
-            if (!request.HasBody()) return await client.SendAsync(httpRequest).ConfigureAwait(false);
-            switch (request.ContentType())
+            using var httpRequest = new HttpRequestMessage(method, url);
+            try
             {
-                case RequestInfo.ApplicationJsonContentType:
-                    httpRequest.Content = JsonContent.Create(await request.ReadAsJsonAsync());
-                    break;
-                case RequestInfo.MultiPartFormData:
+                if (!request.HasBody()) return await client.SendAsync(httpRequest).ConfigureAwait(false);
+                switch (request.ContentType())
                 {
-                    var multiPartFormCollection = await request.ReadAsFormAsync();
-                    var multipartFormDataContent = new MultipartFormDataContent();
-                    foreach (var keyValuePair in multiPartFormCollection)
+                    case RequestInfo.ApplicationJsonContentType:
+                        httpRequest.Content = JsonContent.Create(await request.ReadAsJsonAsync());
+                        break;
+                    case RequestInfo.MultiPartFormData:
                     {
-                        multipartFormDataContent.Add(new StringContent(keyValuePair.Value!), keyValuePair.Key);
-                    }
+                        var multiPartFormCollection = await request.ReadAsFormAsync();
+                        var multipartFormDataContent = new MultipartFormDataContent();
+                        foreach (var keyValuePair in multiPartFormCollection)
+                        {
+                            multipartFormDataContent.Add(new StringContent(keyValuePair.Value!), keyValuePair.Key);
+                        }
 
-                    foreach (var formFile in multiPartFormCollection.Files)
+                        foreach (var formFile in multiPartFormCollection.Files)
+                        {
+                            var streamContent = new StreamContent(formFile.OpenReadStream());
+                            streamContent.Headers.ContentType = new MediaTypeHeaderValue(formFile.ContentType);
+                            multipartFormDataContent.Add(streamContent, formFile.Name, formFile.FileName);
+                        }
+
+                        httpRequest.Content = multipartFormDataContent;
+                        break;
+                    }
+                    case RequestInfo.UrlEncodedFormDataContentType:
                     {
-                        var memoryStream = new MemoryStream();
-                        await formFile.CopyToAsync(memoryStream).ConfigureAwait(false);
-                        memoryStream.Position = 0;
-                        var streamContent = new StreamContent(memoryStream);
-                        streamContent.Headers.ContentType = new MediaTypeHeaderValue(formFile.ContentType);
-                        multipartFormDataContent.Add(streamContent, formFile.Name, formFile.FileName);
+                        var formCollection = await request.ReadAsFormAsync();
+                        httpRequest.Content = new FormUrlEncodedContent(formCollection
+                            .SelectMany(keyValuePair => keyValuePair.Value
+                                .Where(s => !string.IsNullOrEmpty(s))
+                                .Select(value => new KeyValuePair<string, string>(keyValuePair.Key, value!)))
+                            .ToArray());
+                        break;
                     }
+                }
 
-                    httpRequest.Content = multipartFormDataContent;
-                    break;
-                }
-                case RequestInfo.UrlEncodedFormDataContentType:
-                {
-                    var formCollection = await request.ReadAsFormAsync();
-                    httpRequest.Content = new FormUrlEncodedContent(formCollection
-                        .SelectMany(keyValuePair => keyValuePair.Value
-                            .Where(s => !string.IsNullOrEmpty(s))
-                            .Select(value => new KeyValuePair<string, string>(keyValuePair.Key, value!)))
-                        .ToArray());
-                    break;
-                }
+
+                return await client.SendAsync(httpRequest).ConfigureAwait(false);
             }
-
-
-            return await client.SendAsync(httpRequest).ConfigureAwait(false);
-        }
-        catch
-        {
-            return null;
+            catch
+            {
+                return null;
+            }
         }
     }
 }

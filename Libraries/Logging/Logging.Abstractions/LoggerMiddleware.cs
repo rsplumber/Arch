@@ -12,7 +12,7 @@ public sealed class LoggerMiddleware : IMiddleware
     {
         context.Request.EnableBuffering();
         var requestState = context.RequestState();
-        if (requestState.EndpointDefinition.Logging.Disabled)
+        if (requestState.Endpoint.Logging.Disabled)
         {
             await next(context).ConfigureAwait(false);
             return;
@@ -32,17 +32,17 @@ public sealed class LoggerMiddleware : IMiddleware
             object logData;
             var endpointData = new
             {
-                requestState.EndpointDefinition.Id,
-                requestState.EndpointDefinition.Endpoint,
-                requestState.EndpointDefinition.Method,
+                requestState.Endpoint.Id,
+                requestState.Endpoint.Endpoint,
+                requestState.Endpoint.Method,
                 Service = new
                 {
-                    requestState.EndpointDefinition.ServiceConfig.Id,
-                    requestState.EndpointDefinition.ServiceConfig.Name,
-                    requestState.EndpointDefinition.ServiceConfig.BaseUrls,
+                    requestState.Endpoint.Service.Id,
+                    requestState.Endpoint.Service.Name,
+                    requestState.Endpoint.Service.BaseUrls,
                 }
             };
-            if (requestState.EndpointDefinition.Logging.Informal)
+            if (requestState.Endpoint.Logging.Informal)
             {
                 logData = new
                 {

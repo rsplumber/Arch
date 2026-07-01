@@ -35,7 +35,7 @@ internal sealed class Endpoint : Endpoint<Request>
         endpointDefinition.AddMeta("permissions", req.Permission);
         await _endpointDefinitionRepository.UpdateAsync(endpointDefinition, ct);
 
-        await SendOkAsync(ct);
+        await HttpContext.Response.SendOkAsync(ct);
     }
 }
 

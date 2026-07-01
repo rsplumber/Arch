@@ -24,7 +24,7 @@ internal sealed class Endpoint : Endpoint<Request, ServiceConfigQueryResponse>
     public override async Task HandleAsync(Request req, CancellationToken ct)
     {
         var response = await _query.QueryAsync(req.Id, ct);
-        await SendOkAsync(response, ct);
+        await HttpContext.Response.SendOkAsync(response, null, ct);
     }
 }
 

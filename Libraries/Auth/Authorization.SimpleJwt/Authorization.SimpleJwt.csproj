@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RootNamespace>Arch.Authorization.SimpleJwt</RootNamespace>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageId>Arch.Gateway.Authorization.SimpleJwt</PackageId>
+        <Version>0.9.2</Version>
+        <Title>Arch.Gateway.Authorization.SimpleJwt</Title>
+        <Authors>Plumber</Authors>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.9" />
+        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.19.1" />
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\Authorization.Abstractions\Authorization.Abstractions.csproj" />
+    </ItemGroup>
+</Project>

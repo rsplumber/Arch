@@ -1,8 +1,8 @@
-using Arch.Core.ServiceConfigs.EndpointDefinitions;
+using Arch.Core.Pipeline.Models;
 
 namespace Arch.Core;
 
 public interface IServiceEndpointResolver
 {
-    ValueTask<string> ResolveAsync(EndpointDefinition endpointDefinition, string apiUrl, CancellationToken cancellationToken = default);
+    ValueTask<string> ResolveAsync(ResolvedEndpoint endpoint, string apiUrl, CancellationToken cancellationToken = default);
 }

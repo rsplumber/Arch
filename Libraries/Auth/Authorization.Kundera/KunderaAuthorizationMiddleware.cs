@@ -3,15 +3,14 @@ using Arch.Core.Pipeline.Models;
 using FastEndpoints;
 using KunderaNet.Services.Authorization.Abstractions;
 using Microsoft.AspNetCore.Http;
-using EndpointDefinition = Arch.Core.ServiceConfigs.EndpointDefinitions.EndpointDefinition;
 
 namespace Arch.Authorization.Kundera;
 
 internal sealed class KunderaAuthorizationMiddleware : AuthorizationMiddleware
 {
-    protected override async Task InvokeAsync(HttpContext context, EndpointDefinition endpointDefinition, RequestInfo requestInfo, RequestDelegate next)
+    protected override async Task InvokeAsync(HttpContext context, ResolvedEndpoint endpoint, RequestInfo requestInfo, RequestDelegate next)
     {
-        if (endpointDefinition.AllowAnonymous())
+        if (endpoint.AllowAnonymous())
         {
             await next(context).ConfigureAwait(false);
             return;
@@ -23,15 +22,15 @@ internal sealed class KunderaAuthorizationMiddleware : AuthorizationMiddleware
             return;
         }
 
-        var allowedPermissions = endpointDefinition.ExtractPermissions();
-        var allowedRoles = endpointDefinition.ExtractRoles();
+        var allowedPermissions = endpoint.ExtractPermissions();
+        var allowedRoles = endpoint.ExtractRoles();
         if (RolesOrPermissionsNotConfigured())
         {
             await context.Response.SendUnauthorizedAsync().ConfigureAwait(false);
             return;
         }
 
-        var serviceSecret = endpointDefinition.ExtractServiceSecret();
+        var serviceSecret = endpoint.ExtractServiceSecret();
         if (string.IsNullOrEmpty(serviceSecret))
         {
             await context.Response.SendUnauthorizedAsync().ConfigureAwait(false);

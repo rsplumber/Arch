@@ -1,16 +1,14 @@
-using Arch.Core.ServiceConfigs.EndpointDefinitions;
-
 namespace Arch.Core.Pipeline.Models;
 
 public record RequestState
 {
-    public EndpointDefinition EndpointDefinition { get; private set; } = default!;
+    public ResolvedEndpoint Endpoint { get; private set; } = default!;
 
     public RequestInfo RequestInfo { get; private set; } = default!;
 
     public ResponseInfo? ResponseInfo { get; private set; }
 
-    public void Set(EndpointDefinition endpointDefinition) => EndpointDefinition = endpointDefinition;
+    public void Set(ResolvedEndpoint endpoint) => Endpoint = endpoint;
 
     public void Set(RequestInfo requestInfo) => RequestInfo = requestInfo;
 
@@ -21,7 +19,7 @@ public record RequestState
         Code = 503,
         Value = "Service Unavailable",
         ResponseTimeMilliseconds = responseTime,
-        Headers = new Dictionary<string, string>()
+        Headers = []
     };
 
     public void SetUnAuthorized(long responseTime) => ResponseInfo = new ResponseInfo
@@ -29,7 +27,7 @@ public record RequestState
         Code = 401,
         Value = "UnAuthorized",
         ResponseTimeMilliseconds = responseTime,
-        Headers = new Dictionary<string, string>()
+        Headers = []
     };
 
     public void SetForbidden(long responseTime) => ResponseInfo = new ResponseInfo
@@ -37,7 +35,7 @@ public record RequestState
         Code = 403,
         Value = "Forbidden",
         ResponseTimeMilliseconds = responseTime,
-        Headers = new Dictionary<string, string>()
+        Headers = []
     };
 
     public void SetServiceTimeOut(long responseTime) => ResponseInfo = new ResponseInfo
@@ -45,10 +43,10 @@ public record RequestState
         Code = 504,
         Value = "Gateway timeout",
         ResponseTimeMilliseconds = responseTime,
-        Headers = new Dictionary<string, string>()
+        Headers = []
     };
 
-    public bool IgnoreDispatch() => EndpointDefinition.ServiceConfig.IgnoreDispatch();
+    public bool IgnoreDispatch() => Endpoint.Service.IgnoreDispatch();
 
     public bool HasEmptyResponse() => ResponseInfo is null;
 }

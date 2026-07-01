@@ -1,0 +1,51 @@
+<div class="meta-rows">
+    @foreach (var row in _rows)
+    {
+        <div class="meta-row">
+            <input class="input mono" placeholder="key" @bind="row.Key" @bind:event="oninput" />
+            <input class="input mono" placeholder="value" @bind="row.Value" @bind:event="oninput" />
+            <button type="button" class="icon-btn danger" aria-label="Remove" @onclick="() => Remove(row)"><Icon Name="trash" /></button>
+        </div>
+    }
+    <div>
+        <button type="button" class="btn ghost sm" @onclick="Add"><Icon Name="plus" /> Add meta</button>
+    </div>
+</div>
+
+@code {
+    private sealed class Row { public string Key { get; set; } = ""; public string Value { get; set; } = ""; }
+
+    private List<Row> _rows = [];
+
+    [Parameter] public IReadOnlyDictionary<string, string>? Initial { get; set; }
+
+    /// <summary>Keys the editor should not expose for editing (managed elsewhere, e.g. "disabled").</summary>
+    [Parameter] public IReadOnlyCollection<string> ReservedKeys { get; set; } = [];
+
+    protected override void OnParametersSet()
+    {
+        if (_rows.Count == 0 && Initial is { Count: > 0 })
+        {
+            _rows = Initial
+                .Where(kv => !ReservedKeys.Contains(kv.Key))
+                .Select(kv => new Row { Key = kv.Key, Value = kv.Value })
+                .ToList();
+        }
+    }
+
+    private void Add() => _rows.Add(new Row());
+    private void Remove(Row row) => _rows.Remove(row);
+
+    /// <summary>Materialises the current rows into a dictionary, ignoring blank keys.</summary>
+    public Dictionary<string, string> ToDictionary()
+    {
+        var result = new Dictionary<string, string>();
+        foreach (var row in _rows)
+        {
+            var key = row.Key?.Trim();
+            if (string.IsNullOrWhiteSpace(key)) continue;
+            result[key] = row.Value?.Trim() ?? "";
+        }
+        return result;
+    }
+}

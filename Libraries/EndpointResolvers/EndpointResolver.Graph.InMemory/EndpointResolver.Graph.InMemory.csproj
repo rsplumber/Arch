@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RootNamespace>Arch.EndpointResolver.Graph.InMemory</RootNamespace>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageId>Arch.Gateway.EndpointResolver.Graph.InMemory</PackageId>
+        <Version>0.9.1</Version>
+        <Title>Arch.Gateway.EndpointResolver.Graph.InMemory</Title>
+        <Authors>Plumber</Authors>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\Core\Core.csproj" />
+    </ItemGroup>
+
+
+</Project>

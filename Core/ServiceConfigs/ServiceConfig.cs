@@ -81,13 +81,13 @@ public class ServiceConfig : BaseEntity
     {
         if (HasEndpoint(definition.Pattern, definition.Method)) return;
         EndpointDefinitions.Add(definition);
-        AddDomainEvent(new EndpointDefinitionCreatedEvent(definition.Id, Id));
+        AddDomainEvent(new EndpointDefinitionCreatedEvent(definition.Id, Id, definition.Pattern, definition.Endpoint, definition.Method.ToString()));
     }
 
     public void Remove(EndpointDefinition definition)
     {
         EndpointDefinitions.Remove(definition);
-        AddDomainEvent(new EndpointDefinitionRemovedEvent(definition.Id, Id));
+        AddDomainEvent(new EndpointDefinitionRemovedEvent(definition.Id, Id, definition.Pattern, definition.Endpoint, definition.Method.ToString()));
     }
 
 

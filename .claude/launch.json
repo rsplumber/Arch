@@ -1,0 +1,19 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "static",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "-l", "4321", "."],
+      "port": 4321
+    },
+    {
+      "name": "arch",
+      "runtimeExecutable": "/usr/local/share/dotnet/dotnet",
+      "runtimeArgs": ["run", "--no-launch-profile", "--project", "Application/Application.csproj"],
+      "port": 5229,
+      "autoPort": false,
+      "env": { "ASPNETCORE_ENVIRONMENT": "Development", "DOTNET_ENVIRONMENT": "Development" }
+    }
+  ]
+}

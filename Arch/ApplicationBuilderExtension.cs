@@ -1,11 +1,12 @@
 ﻿using System.Text.Json;
 using Arch.Configurations;
+using Arch.Core.EndpointResolver;
 using Arch.Core.Extensions;
 using Arch.Data.Abstractions;
-using Arch.EndpointGraph.Abstractions;
 using FastEndpoints;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Arch;
 
@@ -33,11 +34,15 @@ public static class ApplicationBuilderExtension
             ServiceProvider = app.ApplicationServices
         });
 
-        ArgumentNullException.ThrowIfNull(archExecutionOptions.EndpointGraphExecutionOptions);
-        archExecutionOptions.EndpointGraphExecutionOptions.Invoke(new EndpointGraphExecutionOptions
+        using (var scope = app.ApplicationServices.CreateScope())
         {
-            ServiceProvider = app.ApplicationServices
-        });
+            scope.ServiceProvider
+                .GetRequiredService<IEndpointGraphResynchronizer>()
+                .ResyncAsync()
+                .AsTask()
+                .GetAwaiter()
+                .GetResult();
+        }
 
         if (archExecutionOptions.CorsConfigurations is null)
         {

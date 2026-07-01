@@ -6,7 +6,6 @@ namespace Arch.Core.ServiceConfigs.EndpointDefinitions;
 public sealed class EndpointDefinition : BaseEntity
 {
     private const string DisableKey = "disabled";
-    private const string LoggingMetaKey = "logging";
 
     public Guid Id { get; set; }
 
@@ -53,38 +52,4 @@ public sealed class EndpointDefinition : BaseEntity
     public void Disable() => AddMeta(DisableKey, "true");
 
     public bool IsDisabled() => Meta.ContainsKey(DisableKey);
-
-    public LoggingOptions Logging
-    {
-        get
-        {
-            Meta.TryGetValue(LoggingMetaKey, out var value);
-            return new(value);
-        }
-    }
-
-    public sealed record LoggingOptions
-    {
-        private const string DisabledValue = "disable";
-        private const string LoggingJustErrorsMetaValue = "error";
-        private const string LoggingInformalMetaValue = "informal";
-
-        public LoggingOptions(string? loggingMeta)
-        {
-            Disabled = loggingMeta switch
-            {
-                DisabledValue => true,
-                _ => false
-            };
-
-            JustError = loggingMeta == LoggingJustErrorsMetaValue;
-            Informal = loggingMeta == LoggingInformalMetaValue;
-        }
-
-        public bool Disabled { get; private set; }
-
-        public bool JustError { get; private set; }
-
-        public bool Informal { get; private set; }
-    }
 }

@@ -1,5 +1,9 @@
 # Arch — Library-based API Gateway for .NET
 
+## Arch V2 is here
+
+A major release bringing .NET 10, an admin panel, 20–40% performance gains, and critical stability fixes. See the full [release](v2.jpeg).
+
 <div align="center">
   <img src="https://img.shields.io/badge/.NET-9.0-blue.svg" alt=".NET 9">
   <img src="https://img.shields.io/badge/Docker-Ready-blue.svg" alt="Docker Ready">

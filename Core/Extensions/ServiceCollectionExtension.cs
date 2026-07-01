@@ -1,4 +1,5 @@
-﻿using Arch.Core.Pipeline;
+﻿using Arch.Core.EndpointResolver;
+using Arch.Core.Pipeline;
 using Arch.Core.ServiceConfigs.EndpointDefinitions;
 using Arch.Core.ServiceConfigs.EndpointDefinitions.Resolvers;
 using Arch.Core.ServiceConfigs.EndpointDefinitions.Services;
@@ -17,6 +18,8 @@ public static class ServiceCollectionExtension
         services.AddSingleton<ResponseHandlerMiddleware>();
 
         services.AddScoped<IEndpointDefinitionResolver, EndpointDefinitionResolver>();
+        services.AddScoped<IEndpointGraphResynchronizer, EndpointGraphResynchronizer>();
+        services.AddScoped<RoutingGraphEventHandlers>();
         services.AddScoped<IEndpointDefinitionService, EndpointDefinitionService>();
         services.AddScoped<IServiceConfigService, ServiceConfigService>();
         services.AddHttpClient("arch", client =>

@@ -1,0 +1,41 @@
+@implements IDisposable
+@inject ToastService Toasts
+
+<div class="toast-host">
+    @foreach (var toast in Toasts.Toasts)
+    {
+        <div class="toast @(toast.Kind == ToastKind.Success ? "ok" : "err")" role="status" aria-live="polite">
+            <span class="t-icon"><Icon Name="@(toast.Kind == ToastKind.Success ? "check-circle" : "x-circle")" /></span>
+            <span class="t-msg">@toast.Message</span>
+            <button class="icon-btn" aria-label="Dismiss" @onclick="() => Toasts.Remove(toast.Id)"><Icon Name="x" /></button>
+        </div>
+    }
+</div>
+
+@code {
+    private readonly HashSet<Guid> _scheduled = [];
+
+    protected override void OnInitialized() => Toasts.OnChanged += OnChanged;
+
+    private async void OnChanged()
+    {
+        await InvokeAsync(StateHasChanged);
+        // Schedule auto-dismiss exactly once per toast.
+        foreach (var toast in Toasts.Toasts.ToArray())
+        {
+            if (_scheduled.Add(toast.Id))
+            {
+                _ = DismissLater(toast.Id);
+            }
+        }
+    }
+
+    private async Task DismissLater(Guid id)
+    {
+        await Task.Delay(4000);
+        Toasts.Remove(id);
+        _scheduled.Remove(id);
+    }
+
+    public void Dispose() => Toasts.OnChanged -= OnChanged;
+}

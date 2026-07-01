@@ -1,0 +1,139 @@
+@inherits LayoutComponentBase
+@inject AuthenticationStateProvider AuthState
+
+<div class="app">
+    <header class="topbar">
+        <div class="topbar-inner">
+            <a class="brand-inline" href="">
+                <span class="logo">A</span>
+                <span>
+                    <span class="name">Arch</span>
+                    <span class="sub">Admin</span>
+                </span>
+            </a>
+
+            <div class="header-right">
+                <span class="badge muted"><span class="dot" style="background:var(--success)"></span> live</span>
+
+                <div class="profile">
+                    <button class="profile-btn" @onclick="ToggleMenu" aria-haspopup="true" aria-expanded="@_menuOpen">
+                        <span class="avatar">@_initial</span>
+                        <span class="profile-name">@_userName</span>
+                        <span class="chev @(_menuOpen ? "up" : "")"><Icon Name="chevron-right" /></span>
+                    </button>
+
+                    @if (_menuOpen)
+                    {
+                        <div class="profile-overlay" @onclick="CloseMenu"></div>
+                        <div class="profile-menu" role="menu">
+                            <div class="pm-head">
+                                <div class="pm-name">@_userName</div>
+                                <div class="pm-sub">Signed in</div>
+                            </div>
+                            <div class="pm-divider"></div>
+                            <form method="post" action="auth/logout">
+                                <button type="submit" class="pm-logout" role="menuitem">
+                                    <Icon Name="logout" /> Sign out
+                                </button>
+                            </form>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        @Body
+    </main>
+</div>
+
+<ToastHost />
+
+<style>
+    .app { min-height: 100dvh; }
+
+    .topbar {
+        height: 64px;
+        background: rgba(248, 250, 252, .82);
+        backdrop-filter: blur(8px);
+        border-bottom: 1px solid var(--border);
+        position: sticky; top: 0; z-index: 30;
+        padding: 0 28px;
+    }
+    .topbar-inner {
+        max-width: 1280px; margin: 0 auto; height: 100%;
+        display: flex; align-items: center; justify-content: space-between;
+    }
+
+    .brand-inline { display: flex; align-items: center; gap: 11px; }
+    .brand-inline .logo {
+        width: 30px; height: 30px; border-radius: 8px;
+        background: var(--primary); color: #fff;
+        display: grid; place-items: center; font-weight: 700; font-size: 15px;
+        box-shadow: var(--shadow-sm);
+    }
+    .brand-inline .name { font-weight: 700; font-size: 15px; letter-spacing: -.02em; }
+    .brand-inline .sub { font-size: 11px; color: var(--text-3); letter-spacing: .05em; text-transform: uppercase; margin-left: 6px; }
+
+    .header-right { display: flex; align-items: center; gap: 14px; }
+
+    .profile { position: relative; }
+    .profile-btn {
+        display: flex; align-items: center; gap: 9px;
+        padding: 5px 10px 5px 5px; border-radius: 999px;
+        border: 1px solid var(--border); background: var(--surface); cursor: pointer;
+        font: inherit; transition: background .15s var(--ease), border-color .15s var(--ease);
+    }
+    .profile-btn:hover { background: var(--surface-2); border-color: var(--border-strong); }
+    .profile-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .profile-btn .avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--surface-2); display: grid; place-items: center; font-weight: 600; color: var(--text-2); font-size: 12.5px; }
+    .profile-btn .profile-name { font-weight: 600; font-size: 13px; }
+    .profile-btn .chev { color: var(--text-3); display: inline-flex; transition: transform .18s var(--ease); transform: rotate(90deg); }
+    .profile-btn .chev.up { transform: rotate(-90deg); }
+    .profile-btn .chev svg { width: 14px; height: 14px; }
+
+    .profile-overlay { position: fixed; inset: 0; z-index: 40; }
+    .profile-menu {
+        position: absolute; right: 0; top: calc(100% + 8px); width: 220px; z-index: 50;
+        background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+        box-shadow: var(--shadow-lg); padding: 7px; animation: pop .16s var(--ease);
+    }
+    .pm-head { padding: 9px 10px; }
+    .pm-name { font-weight: 600; font-size: 13.5px; }
+    .pm-sub { font-size: 12px; color: var(--text-3); margin-top: 1px; }
+    .pm-divider { height: 1px; background: var(--border); margin: 5px 0; }
+    .pm-logout {
+        width: 100%; display: flex; align-items: center; gap: 9px;
+        padding: 9px 10px; border-radius: var(--radius-sm); border: none; background: transparent;
+        font: inherit; font-size: 13px; font-weight: 500; color: var(--text-2); cursor: pointer; text-align: left;
+        transition: background .14s var(--ease), color .14s var(--ease);
+    }
+    .pm-logout:hover { background: var(--danger-soft); color: var(--danger); }
+    .pm-logout svg { width: 16px; height: 16px; }
+
+    @@media (max-width: 860px) {
+        .topbar { padding: 0 16px; }
+        .profile-btn .profile-name { display: none; }
+    }
+</style>
+
+@code {
+    private string _userName = "admin";
+    private string _initial = "A";
+    private bool _menuOpen;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthState.GetAuthenticationStateAsync();
+        var name = state.User.Identity?.Name;
+        if (!string.IsNullOrWhiteSpace(name))
+        {
+            _userName = name;
+            _initial = char.ToUpperInvariant(name[0]).ToString();
+        }
+    }
+
+    private void ToggleMenu() => _menuOpen = !_menuOpen;
+    private void CloseMenu() => _menuOpen = false;
+}

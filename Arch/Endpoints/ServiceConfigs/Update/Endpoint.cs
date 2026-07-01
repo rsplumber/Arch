@@ -29,7 +29,7 @@ internal sealed class Endpoint : Endpoint<Request>
             Meta = req.Meta,
             BaseUrl = req.BaseUrl
         }, ct);
-        await SendOkAsync(ct);
+        await HttpContext.Response.SendOkAsync(ct);
     }
 }
 

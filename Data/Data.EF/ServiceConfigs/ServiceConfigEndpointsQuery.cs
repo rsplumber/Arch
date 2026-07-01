@@ -16,6 +16,7 @@ internal sealed class ServiceConfigEndpointsQuery : IServiceConfigEndpointsQuery
     public async ValueTask<List<ServiceConfigEndpointsQueryResponse>> QueryAsync(Guid id, string? endpoint, CancellationToken cancellationToken = default)
     {
         var serviceConfig = await _dbContext.ServiceConfigs
+            .AsNoTracking()
             .Include(config => config.EndpointDefinitions)
             .FirstOrDefaultAsync(config => config.Id == id, cancellationToken: cancellationToken);
 

@@ -1,6 +1,6 @@
 using Arch.Core.ServiceConfigs.EndpointDefinitions.Exceptions;
 using Arch.Core.ServiceConfigs.Exceptions;
-using Arch.EndpointGraph.Abstractions;
+using Arch.Core.EndpointResolver;
 
 namespace Arch.Core.ServiceConfigs.EndpointDefinitions.Services;
 

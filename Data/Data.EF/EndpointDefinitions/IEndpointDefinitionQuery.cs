@@ -23,7 +23,7 @@ internal sealed class EndpointDefinitionQuery : IEndpointDefinitionQuery
                 Pattern = definition.Pattern,
                 Endpoint = definition.Endpoint,
                 MapTo = definition.MapTo,
-                Meta = definition.Meta.ToDictionary(a => a.Key, a => string.Join(";", a.Value!.ToArray()))
+                Meta = definition.Meta.ToDictionary(a => a.Key, a => a.Value)
             })
             .FirstOrDefaultAsync(definition => definition.Id == id, cancellationToken);
 
