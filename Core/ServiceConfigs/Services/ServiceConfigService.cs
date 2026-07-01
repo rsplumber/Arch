@@ -51,8 +51,14 @@ public sealed class ServiceConfigService : IServiceConfigService
             throw new PrimaryServiceModificationException();
         }
 
+        // Snapshot the endpoints' routing data before the cascade delete: subscribers need it to
+        // evict each endpoint from the in-memory tree and cache once the rows are gone.
+        var removedEndpoints = serviceConfig.EndpointDefinitions
+            .Select(definition => new RemovedEndpoint(definition.Pattern, definition.Endpoint, definition.Method.ToString()))
+            .ToList();
+
         await _serviceConfigRepository.DeleteAsync(serviceConfig, cancellationToken);
-        var serviceConfigRemovedEvent = new ServiceConfigRemovedEvent(serviceConfig.Id);
+        var serviceConfigRemovedEvent = new ServiceConfigRemovedEvent(serviceConfig.Id, removedEndpoints);
         await _capPublisher.PublishAsync(serviceConfigRemovedEvent.Name, serviceConfigRemovedEvent, cancellationToken: cancellationToken);
     }
 }

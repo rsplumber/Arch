@@ -9,7 +9,7 @@ using Arch.Core.ServiceConfigs;
 using Arch.Data.Caching.Abstractions;
 using Arch.Data.Caching.InMemory;
 using Arch.Data.EF;
-using Arch.EndpointGraph.InMemory;
+using Arch.EndpointResolver.Graph.InMemory;
 using Arch.EventBus.Cap;
 using Arch.LoadBalancer.Basic;
 using Arch.Logging.Abstractions;
@@ -39,6 +39,19 @@ builder.Services.AddArch(options =>
     options.ConfigureEventBus(busOptions => busOptions.UseCap(capOptions =>
     {
         capOptions.FailedRetryCount = 0;
+        // Per-instance consumer group: subscribers that omit an explicit Group (the endpoint/service
+        // cache+tree invalidation handlers) fall back to this, giving each instance its own queue so
+        // every instance receives every invalidation (broadcast fan-out) — required for zero-downtime
+        // config changes across a horizontally-scaled fleet. Subscribers that must stay
+        // competing-consumer (e.g. logging) pin their own fixed Group and are unaffected.
+        //
+        // The group is keyed by a STABLE instance id (configured "InstanceId", else the host/pod name)
+        // rather than a per-process GUID, so a restart reuses the same queue instead of orphaning the
+        // old one. Set InstanceId explicitly (e.g. to the pod name) when running multiple instances on
+        // one host. As defence against queues left by permanently-removed instances (scale-down), the
+        // RabbitMQ queues are also given an idle auto-expire below.
+        var instanceId = builder.Configuration.GetValue<string>("InstanceId") ?? Environment.MachineName;
+        capOptions.DefaultGroupName = $"arch.core.{instanceId}";
         capOptions.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
         capOptions.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
         capOptions.JsonSerializerOptions.WriteIndented = true;
@@ -52,6 +65,9 @@ builder.Services.AddArch(options =>
         //     op.UserName = builder.Configuration.GetValue<string>("RabbitMQ:UserName") ?? throw new ArgumentNullException("RabbitMQ:UserName", "Enter RabbitMQ:UserName in app settings");
         //     op.Password = builder.Configuration.GetValue<string>("RabbitMQ:Password") ?? throw new ArgumentNullException("RabbitMQ:Password", "Enter RabbitMQ:UserName in app settings");
         //     op.ExchangeName = builder.Configuration.GetValue<string>("RabbitMQ:ExchangeName") ?? throw new ArgumentNullException("RabbitMQ:ExchangeName", "Enter RabbitMQ:ExchangeName in app settings");
+        //     // Auto-delete a queue once it has had no consumer for this long (x-expires). Active
+        //     // instances always have a consumer, so only queues left by removed instances are reaped.
+        //     op.QueueArguments.QueueMessageExpires = (int)TimeSpan.FromHours(1).TotalMilliseconds;
         // });
         capOptions.UsePostgreSql(sqlOptions =>
         {
@@ -70,7 +86,7 @@ builder.Services.AddArch(options =>
 
     options.AddLogging(loggingOptions => loggingOptions.UseLogstash());
     options.AddEncryption(encryptionOptions => encryptionOptions.UseArchrypt());
-    options.AddAuthorization(authorizationOptions => authorizationOptions.UseKundera(builder.Configuration));
+    options.AddAuthorization(authorizationOptions => authorizationOptions.UseSimpleJwt());
 });
 
 // Embedded admin panel (Blazor Server). Mounted as an isolated /admin branch below.
@@ -89,21 +105,11 @@ if (serviceScope == null) return;
 app.UseArch(options =>
 {
     options.UseData(dataOptions => dataOptions.UseEntityFramework());
-    options.UseEndpointGraph(graphOptions =>
-    {
-        graphOptions.UseInMemory();
-        using var serviceScope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope();
-        var serviceConfigRepository = serviceScope.ServiceProvider.GetRequiredService<IServiceConfigRepository>();
-        var serviceConfigs = serviceConfigRepository.FindAsync().Result;
-        var endpoints = (from config in serviceConfigs from definition in config.EndpointDefinitions select definition.Endpoint).ToList();
-        graphOptions.InitializeWith(endpoints);
-    });
     options.BeforeDispatching(dispatchingOptions =>
     {
         dispatchingOptions.UseAuthorization(executionOptions => executionOptions.UseSimpleJwt(builder.Configuration));
         dispatchingOptions.UseRequestEncryption();
         dispatchingOptions.UseRateLimit(executionOptions => executionOptions.UseArchLimit(builder.Configuration));
-        
     });
     options.AfterDispatching(dispatchingOptions =>
     {

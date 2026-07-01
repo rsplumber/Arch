@@ -22,7 +22,7 @@ internal sealed class ServiceConfigQuery : IServiceConfigQuery
                 Name = config.Name,
                 Primary = config.Primary,
                 BaseUrl = config.BaseUrls.First(),
-                Meta = config.Meta.ToDictionary(a => a.Key, a => string.Join(";", a.Value.ToArray()))
+                Meta = config.Meta.ToDictionary(a => a.Key, a => a.Value)
             })
             .FirstOrDefaultAsync(config => config.Id == id, cancellationToken: cancellationToken);
 

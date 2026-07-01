@@ -1,4 +1,4 @@
-﻿namespace Arch.EndpointGraph.Abstractions;
+namespace Arch.Core.EndpointResolver;
 
 public interface IEndpointGraph
 {
@@ -6,14 +6,9 @@ public interface IEndpointGraph
 
     ValueTask RemoveAsync(string urlPattern, CancellationToken cancellationToken = default);
 
-
-    /// <summary>
-    /// Finds pattern of url in EndpointTree in a async way
-    /// </summary>
-    /// <param name="url">requested url</param>
-    /// <param name="cancellationToken">cancel search</param>
-    /// <returns>returns url pattern</returns>
     ValueTask<(string?, object[])> FindAsync(string url, CancellationToken cancellationToken = default);
 
     ValueTask ClearAsync(CancellationToken cancellationToken = default);
+
+    ValueTask RebuildAsync(IReadOnlyCollection<string> endpoints, CancellationToken cancellationToken = default);
 }

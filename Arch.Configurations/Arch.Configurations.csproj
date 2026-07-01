@@ -22,7 +22,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Data\Data.Abstractions\Data.Abstractions.csproj" />
-      <ProjectReference Include="..\Libraries\EndpointGraphs\EndpointGraph.Abstractions\EndpointGraph.Abstractions.csproj" />
+      <ProjectReference Include="..\Core\Core.csproj" />
       <ProjectReference Include="..\Libraries\EventBus\EventBus.Configurations\EventBus.Configurations.csproj" />
       <ProjectReference Include="..\Libraries\LoadBalancer\LoadBalancer.Configurations\LoadBalancer.Configurations.csproj" />
     </ItemGroup>

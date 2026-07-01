@@ -1,5 +1,4 @@
 using Arch.Data.Abstractions;
-using Arch.EndpointGraph.Abstractions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 
@@ -10,8 +9,6 @@ public sealed class ArchExecutionOptions
     public IApplicationBuilder ApplicationBuilder { get; init; } = default!;
 
     internal Action<DataExecutionOptions> DataExecutionOptions { get; private set; } = default!;
-
-    internal Action<EndpointGraphExecutionOptions> EndpointGraphExecutionOptions { get; private set; } = default!;
 
     internal Action<BeforeDispatchingOptions>? BeforeDispatchingOptions { get; private set; }
 
@@ -24,8 +21,6 @@ public sealed class ArchExecutionOptions
     internal string HealthCheckUrl { get; private set; } = default!;
 
     public void UseData(Action<DataExecutionOptions> dataExecutionOptions) => DataExecutionOptions = dataExecutionOptions;
-
-    public void UseEndpointGraph(Action<EndpointGraphExecutionOptions> endpointGraphExecutionOptions) => EndpointGraphExecutionOptions = endpointGraphExecutionOptions;
 
     public void BeforeDispatching(Action<BeforeDispatchingOptions> beforeDispatchingOptions) => BeforeDispatchingOptions = beforeDispatchingOptions;
 

@@ -1,7 +1,7 @@
 ﻿using Arch.Configurations;
 using Arch.Core.Extensions;
 using Arch.Data.Abstractions;
-using Arch.EndpointGraph.Abstractions;
+using Arch.Core.EndpointResolver;
 using Arch.EventBus.Configurations;
 using Arch.LoadBalancer.Configurations;
 using FastEndpoints;

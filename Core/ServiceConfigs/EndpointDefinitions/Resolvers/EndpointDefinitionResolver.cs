@@ -1,4 +1,4 @@
-using Arch.EndpointGraph.Abstractions;
+using Arch.Core.EndpointResolver;
 
 namespace Arch.Core.ServiceConfigs.EndpointDefinitions.Resolvers;
 

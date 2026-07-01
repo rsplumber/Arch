@@ -20,9 +20,4 @@
         <InternalsVisibleTo Include="Arch" />
     </ItemGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\Libraries\EndpointGraphs\EndpointGraph.Abstractions\EndpointGraph.Abstractions.csproj" />
-    </ItemGroup>
-
-
 </Project>

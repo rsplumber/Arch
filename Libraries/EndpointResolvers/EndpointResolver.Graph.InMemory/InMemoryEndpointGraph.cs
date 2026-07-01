@@ -1,6 +1,6 @@
-using Arch.EndpointGraph.Abstractions;
+using Arch.Core.EndpointResolver;
 
-namespace Arch.EndpointGraph.InMemory;
+namespace Arch.EndpointResolver.Graph.InMemory;
 
 internal sealed class InMemoryEndpointGraph : IEndpointGraph, IDisposable
 {
@@ -34,6 +34,20 @@ internal sealed class InMemoryEndpointGraph : IEndpointGraph, IDisposable
     {
         _rwLock.EnterWriteLock();
         try { _patternTree = EndpointNode.CreateRoot(); }
+        finally { _rwLock.ExitWriteLock(); }
+        return ValueTask.CompletedTask;
+    }
+
+    public ValueTask RebuildAsync(IReadOnlyCollection<string> endpoints, CancellationToken cancellationToken = default)
+    {
+        var newTree = EndpointNode.CreateRoot();
+        foreach (var endpoint in endpoints)
+        {
+            newTree.Append(endpoint);
+        }
+
+        _rwLock.EnterWriteLock();
+        try { _patternTree = newTree; }
         finally { _rwLock.ExitWriteLock(); }
         return ValueTask.CompletedTask;
     }

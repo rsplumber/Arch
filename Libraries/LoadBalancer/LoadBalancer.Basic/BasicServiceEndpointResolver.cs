@@ -1,12 +1,12 @@
 using Arch.Core;
-using Arch.Core.ServiceConfigs.EndpointDefinitions;
+using Arch.Core.Pipeline.Models;
 
 namespace Arch.LoadBalancer.Basic;
 
 internal sealed class BasicServiceEndpointResolver : IServiceEndpointResolver
 {
-    public ValueTask<string> ResolveAsync(EndpointDefinition endpointDefinition, string apiUrl, CancellationToken cancellationToken = default)
+    public ValueTask<string> ResolveAsync(ResolvedEndpoint endpoint, string apiUrl, CancellationToken cancellationToken = default)
     {
-        return ValueTask.FromResult($"{endpointDefinition.ServiceConfig.BaseUrls[0]}/{apiUrl}");
+        return ValueTask.FromResult($"{endpoint.Service.BaseUrls[0]}/{apiUrl}");
     }
 }

@@ -14,7 +14,7 @@ internal sealed class RequestEncryptionMiddleware : IMiddleware
     {
         var state = context.RequestState();
 
-        if (!state.EndpointDefinition.Meta.TryGetValue("encrypted", out var providerName) ||
+        if (!state.Endpoint.Meta.TryGetValue("encrypted", out var providerName) ||
             string.IsNullOrEmpty(providerName) ||
             state.IgnoreDispatch())
         {

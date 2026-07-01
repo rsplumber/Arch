@@ -14,7 +14,12 @@ public static class DataOptionsExtension
 {
     public static void UseEntityFramework(this DataOptions dataOptions, Action<DbContextOptionsBuilder> optionsAction)
     {
-        dataOptions.Services.AddDbContextPool<AppDbContext>(optionsAction);
+        dataOptions.Services.AddSingleton<DomainEventDispatchInterceptor>();
+        dataOptions.Services.AddDbContextPool<AppDbContext>((serviceProvider, optionsBuilder) =>
+        {
+            optionsAction(optionsBuilder);
+            optionsBuilder.AddInterceptors(serviceProvider.GetRequiredService<DomainEventDispatchInterceptor>());
+        });
         dataOptions.Services.AddScoped<IServiceConfigRepository, ServiceConfigRepository>();
         dataOptions.Services.AddScoped<IEndpointDefinitionRepository, EndpointDefinitionRepository>();
 

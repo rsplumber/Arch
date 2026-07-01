@@ -2,7 +2,6 @@ using Arch.Authorization.Abstractions;
 using Arch.Core.Pipeline.Models;
 using FastEndpoints;
 using Microsoft.AspNetCore.Http;
-using EndpointDefinition = Arch.Core.ServiceConfigs.EndpointDefinitions.EndpointDefinition;
 
 namespace Arch.Authorization.SimpleJwt;
 
@@ -10,11 +9,11 @@ internal sealed class SimpleJwtAuthorizationMiddleware : AuthorizationMiddleware
 {
     protected override async Task InvokeAsync(
         HttpContext context,
-        EndpointDefinition endpointDefinition,
+        ResolvedEndpoint endpoint,
         RequestInfo requestInfo,
         RequestDelegate next)
     {
-        if (endpointDefinition.AllowAnonymous())
+        if (endpoint.AllowAnonymous())
         {
             await next(context).ConfigureAwait(false);
             return;
@@ -26,7 +25,7 @@ internal sealed class SimpleJwtAuthorizationMiddleware : AuthorizationMiddleware
             return;
         }
 
-        var serviceSecret = endpointDefinition.ExtractServiceSecret();
+        var serviceSecret = endpoint.ExtractServiceSecret();
         if (string.IsNullOrEmpty(serviceSecret))
         {
             await context.Response.SendUnauthorizedAsync().ConfigureAwait(false);
@@ -40,7 +39,7 @@ internal sealed class SimpleJwtAuthorizationMiddleware : AuthorizationMiddleware
             return;
         }
 
-        var allowedRoles = endpointDefinition.ExtractRoles();
+        var allowedRoles = endpoint.ExtractRoles();
         if (allowedRoles.Length > 0 && (role is null || !allowedRoles.Contains(role, StringComparer.OrdinalIgnoreCase)))
         {
             await context.Response.SendAuthorizationFailedAsync(403).ConfigureAwait(false);

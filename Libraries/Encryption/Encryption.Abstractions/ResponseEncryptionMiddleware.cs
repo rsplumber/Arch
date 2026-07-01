@@ -13,7 +13,7 @@ internal sealed class ResponseEncryptionMiddleware : IMiddleware
     {
         var state = context.RequestState();
 
-        if (!state.EndpointDefinition.Meta.TryGetValue("encrypted", out var providerName) ||
+        if (!state.Endpoint.Meta.TryGetValue("encrypted", out var providerName) ||
             string.IsNullOrEmpty(providerName) ||
             state.IgnoreDispatch() ||
             state.ResponseInfo?.Value is null ||

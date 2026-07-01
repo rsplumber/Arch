@@ -4,11 +4,9 @@ using Arch.Core.Pipeline.Models;
 using FastEndpoints;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
 using RateLimit.ArchLimit.Models;
 using RateLimit.ArchLimit.Store;
-using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace RateLimit.ArchLimit.Middleware;
 
@@ -32,7 +30,7 @@ public class ArchLimitMiddleware
 
         var store = context.RequestServices.GetRequiredService<IArchLimitStore>();
         var ip = context.Connection.RemoteIpAddress!.ToString();
-        var endpointDef = context.RequestState().EndpointDefinition;
+        var endpointDef = context.RequestState().Endpoint;
         var requestState = context.RequestState();
 
         bool isSpecial = endpointDef.Meta.Any(x => x.Key == "rate_limit");
@@ -134,10 +132,12 @@ public class ArchLimitMiddleware
     private static async Task<string?> ReadIdentifier(HttpContext context, string field)
     {
         context.Request.EnableBuffering();
-        var body = await context.Request.ReadFromJsonAsync<dynamic>();
+        using var document = await JsonDocument.ParseAsync(context.Request.Body);
         context.Request.Body.Position = 0;
-        var json = (JObject?)JsonConvert.DeserializeObject(JsonSerializer.Serialize(body));
-        return json?.Value<JToken>()?[field]?.ToString();
+        return document.RootElement.ValueKind == JsonValueKind.Object
+               && document.RootElement.TryGetProperty(field, out var value)
+            ? value.ToString()
+            : null;
     }
 
     private static string RemainTime(DateTime lastAccess, TimeSpan window)

@@ -1,7 +1,7 @@
 using System.Buffers;
 using System.Runtime.CompilerServices;
 
-namespace Arch.EndpointGraph.InMemory;
+namespace Arch.EndpointResolver.Graph.InMemory;
 
 internal sealed class EndpointNode
 {

@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Arch.EndpointGraph.Abstractions;
+namespace Arch.Core.EndpointResolver;
 
 public sealed class EndpointGraphOptions
 {

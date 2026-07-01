@@ -7,68 +7,71 @@ namespace Arch.Core.Extensions.Http;
 
 public static class HttpRequestExtensions
 {
-    public static string? Path(this HttpRequest request) => request.Path.Value;
-
-    public static HttpMethod Method(this HttpRequest request) => request.Method switch
+    extension(HttpRequest request)
     {
-        "GET" or "get" or "Get" => Get,
-        "DELETE" or "delete" or "Delete" => Delete,
-        "PATCH" or "patch" or "Patch" => Patch,
-        "POST" or "post" or "Post" => Post,
-        "PUT" or "put" or "Put" => Put,
-        "HEAD" or "head" or "Head" => Head,
-        "OPTIONS" or "options" or "Options" => Options,
-        _ => Get
-    };
+        public string? Path() => request.Path.Value;
 
-    public static bool HasBody(this HttpRequest request) => request.ContentLength > 0;
-
-    public static async Task<dynamic?> ReadAsync(this HttpRequest request, CancellationToken cancellationToken = default)
-    {
-        if (!request.HasBody()) return null;
-        using var streamReader = new StreamReader(request.Body);
-        if (request.ContentType == RequestInfo.ApplicationJsonContentType)
+        public HttpMethod Method() => request.Method switch
         {
-            return request.ReadAsJsonAsync(cancellationToken);
+            "GET" or "get" or "Get" => Get,
+            "DELETE" or "delete" or "Delete" => Delete,
+            "PATCH" or "patch" or "Patch" => Patch,
+            "POST" or "post" or "Post" => Post,
+            "PUT" or "put" or "Put" => Put,
+            "HEAD" or "head" or "Head" => Head,
+            "OPTIONS" or "options" or "Options" => Options,
+            _ => Get
+        };
+
+        public bool HasBody() => request.ContentLength > 0;
+
+        public async Task<dynamic?> ReadAsync(CancellationToken cancellationToken = default)
+        {
+            if (!request.HasBody()) return null;
+            using var streamReader = new StreamReader(request.Body);
+            if (request.ContentType == RequestInfo.ApplicationJsonContentType)
+            {
+                return request.ReadAsJsonAsync(cancellationToken);
+            }
+
+            return await request.ReadAsFormAsync(cancellationToken: cancellationToken);
         }
 
-        return await request.ReadAsFormAsync(cancellationToken: cancellationToken);
-    }
-
-    public static async Task<JsonDocument?> ReadAsJsonAsync(this HttpRequest request, CancellationToken cancellationToken = default)
-    {
-        if (!request.HasBody()) return null;
-        using var streamReader = new StreamReader(request.Body);
-        return JsonDocument.Parse(await streamReader.ReadToEndAsync(cancellationToken).ConfigureAwait(false));
-    }
-
-    public static Task<IFormCollection> ReadAsFormAsync(this HttpRequest request, CancellationToken cancellationToken = default)
-    {
-        return Task.FromResult(request.Form);
-    }
-
-    public static string? ContentType(this HttpRequest request)
-    {
-        var contentType = request.ContentType;
-        if (contentType is not null && contentType.StartsWith(RequestInfo.ApplicationJsonContentType, StringComparison.Ordinal))
+        public async Task<JsonDocument?> ReadAsJsonAsync(CancellationToken cancellationToken = default)
         {
-            return RequestInfo.ApplicationJsonContentType;
+            if (!request.HasBody()) return null;
+            using var streamReader = new StreamReader(request.Body);
+            return JsonDocument.Parse(await streamReader.ReadToEndAsync(cancellationToken).ConfigureAwait(false));
         }
 
-        if (contentType is not null && contentType.StartsWith(RequestInfo.PlainTextContentType, StringComparison.Ordinal))
+        public Task<IFormCollection> ReadAsFormAsync(CancellationToken cancellationToken = default)
         {
-            return RequestInfo.PlainTextContentType;
+            return Task.FromResult(request.Form);
         }
 
-        if (request.HasFormContentType)
+        public string? ContentType()
         {
-            return contentType!.StartsWith(RequestInfo.MultiPartFormData, StringComparison.Ordinal) ? RequestInfo.MultiPartFormData : RequestInfo.UrlEncodedFormDataContentType;
+            var contentType = request.ContentType;
+            if (contentType is not null && contentType.StartsWith(RequestInfo.ApplicationJsonContentType, StringComparison.Ordinal))
+            {
+                return RequestInfo.ApplicationJsonContentType;
+            }
+
+            if (contentType is not null && contentType.StartsWith(RequestInfo.PlainTextContentType, StringComparison.Ordinal))
+            {
+                return RequestInfo.PlainTextContentType;
+            }
+
+            if (request.HasFormContentType)
+            {
+                return contentType!.StartsWith(RequestInfo.MultiPartFormData, StringComparison.Ordinal) ? RequestInfo.MultiPartFormData : RequestInfo.UrlEncodedFormDataContentType;
+            }
+
+            return null;
         }
 
-        return null;
+        public Dictionary<string, string> Headers() => request.Headers.ToDictionary(a => a.Key, a => string.Join(';', a.Value!));
+
+        public string? ReadQueryString() => request.QueryString.Value;
     }
-
-    public static Dictionary<string, string> Headers(this HttpRequest request) => request.Headers.ToDictionary(a => a.Key, a => string.Join(';', (string[])a.Value!));
-
-    public static string? ReadQueryString(this HttpRequest request) => request.QueryString.Value;
 }

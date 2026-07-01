@@ -1,7 +1,7 @@
-﻿using Arch.EndpointGraph.Abstractions;
+﻿using Arch.Core.EndpointResolver;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace Arch.EndpointGraph.InMemory;
+namespace Arch.EndpointResolver.Graph.InMemory;
 
 public static class EndpointGraphOptionsExtension
 {

@@ -1,16 +1,14 @@
-using Arch.Core.ServiceConfigs.EndpointDefinitions;
-
 namespace Arch.Core.Pipeline.Models;
 
 public record RequestState
 {
-    public EndpointDefinition EndpointDefinition { get; private set; } = default!;
+    public ResolvedEndpoint Endpoint { get; private set; } = default!;
 
     public RequestInfo RequestInfo { get; private set; } = default!;
 
     public ResponseInfo? ResponseInfo { get; private set; }
 
-    public void Set(EndpointDefinition endpointDefinition) => EndpointDefinition = endpointDefinition;
+    public void Set(ResolvedEndpoint endpoint) => Endpoint = endpoint;
 
     public void Set(RequestInfo requestInfo) => RequestInfo = requestInfo;
 
@@ -48,7 +46,7 @@ public record RequestState
         Headers = []
     };
 
-    public bool IgnoreDispatch() => EndpointDefinition.ServiceConfig.IgnoreDispatch();
+    public bool IgnoreDispatch() => Endpoint.Service.IgnoreDispatch();
 
     public bool HasEmptyResponse() => ResponseInfo is null;
 }
